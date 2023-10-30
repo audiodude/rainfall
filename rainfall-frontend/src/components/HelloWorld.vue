@@ -2,9 +2,9 @@
 export default {
   data() {
     return {
-      name: 'Beta'
+      name: 'Beta',
     };
-  }
+  },
 };
 </script>
 
