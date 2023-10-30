@@ -6,6 +6,11 @@ name = "pypi"
 [packages]
 flask = "*"
 google-auth = "*"
+sqlalchemy = "*"
+flask-sqlalchemy = "*"
+python-dotenv = "*"
+uuid7 = "*"
+pymysql = "*"
 
 [dev-packages]
 
