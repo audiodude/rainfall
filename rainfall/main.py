@@ -6,7 +6,6 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as goog_requests
 import flask
 import jwt
-from jwt import PyJWKClient
 import sqlalchemy
 from sqlalchemy import select
 
@@ -51,29 +50,36 @@ def login():
                          error='Failed to verify double submit cookie.'), 400
 
   token = flask.request.form.get('credential')
-  jwks_client = PyJWKClient('https://www.googleapis.com/oauth2/v3/certs')
-  signing_key = jwks_client.get_signing_key_from_jwt(token)
-
-  data = jwt.decode(token,
-                    signing_key.key,
-                    algorithms="RS256",
-                    audience=GOOGLE_CLIENT_ID)
-
-  idinfo = id_token.verify_oauth2_token(token, goog_requests.Request(),
-                                        GOOGLE_CLIENT_ID)
   try:
-    user = User(google_id=idinfo['sub'],
-                email=idinfo['email'],
-                name=idinfo['name'],
-                picture_url=idinfo['picture'])
-    db.session.add(user)
-    db.session.flush()
-    user_id = user.id
-    db.session.commit()
-  except sqlalchemy.exc.IntegrityError:
-    db.session.rollback()
-    stmt = select(User).filter_by(google_id=idinfo['sub'])
-    user_id = db.session.execute(stmt).scalar_one().id
+    jwks_client = jwt.PyJWKClient('https://www.googleapis.com/oauth2/v3/certs')
+    signing_key = jwks_client.get_signing_key_from_jwt(token)
+
+    data = jwt.decode(token,
+                      signing_key.key,
+                      algorithms="RS256",
+                      audience=GOOGLE_CLIENT_ID)
+  except jwt.exceptions.PyJWTError:
+    return flask.jsonify(status=400, error='Could not decrypt credential')
+
+  try:
+    idinfo = id_token.verify_oauth2_token(token, goog_requests.Request(),
+                                          GOOGLE_CLIENT_ID)
+  except ValueError:
+    return flask.jsonify(status=400, error='Could not verify token')
+
+  stmt = select(User).filter_by(google_id=idinfo['sub'])
+  user = db.session.execute(stmt).scalar_one()
+
+  if user is None:
+    user = User(google_id=idinfo['sub'])
+
+  user.email = idinfo['email'],
+  user.name = idinfo['name'],
+  user.picture_url = idinfo['picture']
+  db.session.add(user)
+  db.session.flush()
+  user_id = user.id
+  db.session.commit()
 
   flask.session['user_id'] = user_id
 
