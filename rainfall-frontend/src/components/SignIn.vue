@@ -7,6 +7,11 @@ export default {
       redirectUri: import.meta.env.VITE_GOOGLE_REDIRECT_URI,
     };
   },
+  mounted() {
+    let googleScript = document.createElement('script');
+    googleScript.setAttribute('src', 'https://accounts.google.com/gsi/client');
+    document.head.appendChild(googleScript);
+  },
 };
 </script>
 
@@ -21,4 +26,8 @@ export default {
   <div class="g_id_signin" data-type="standard"></div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.g_id_signin {
+  max-width: 12rem;
+}
+</style>
