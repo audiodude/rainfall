@@ -11,6 +11,8 @@ flask-sqlalchemy = "*"
 python-dotenv = "*"
 uuid7 = "*"
 pymysql = "*"
+pyjwt = {extras = ["crypto"], version = "*"}
+requests = "*"
 
 [dev-packages]
 
