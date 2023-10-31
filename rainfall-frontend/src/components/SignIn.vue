@@ -11,7 +11,7 @@ export default {
 </script>
 
 <template>
-  <h1>Rainfall {{ name }}</h1>
+  <h1>Sign in:</h1>
   <div
     id="g_id_onload"
     :data-client_id="clientId"
