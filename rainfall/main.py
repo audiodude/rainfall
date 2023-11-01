@@ -8,6 +8,7 @@ import flask
 
 from rainfall.db import db
 from rainfall.login import check_csrf, save_or_update_google_user
+from rainfall.models.user import User
 
 app = flask.Flask(__name__)
 
