@@ -15,7 +15,8 @@ def create_app():
   app = flask.Flask(__name__)
   app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
   app.config['SECRET_KEY'] = os.environ['FLASK_SECRET_KEY']
-  db.init_app(app)
+  if os.environ.get('RAINFALL_ENV') != 'test':
+    db.init_app(app)
 
   GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
   RAINFALL_FRONTEND_URL = os.environ['RAINFALL_FRONTEND_URL']

@@ -13,6 +13,7 @@ def app():
   app.config['SQLALCHEMY_TEST_DATABASE_URI'] = os.environ[
       'SQLALCHEMY_TEST_DATABASE_URI']
   app.config['TESTING'] = True
+  db.init_app(app)
   return app
 
 
