@@ -13,6 +13,7 @@ uuid7 = "*"
 pymysql = "*"
 pyjwt = {extras = ["crypto"], version = "*"}
 requests = "*"
+pytest = "*"
 
 [dev-packages]
 
