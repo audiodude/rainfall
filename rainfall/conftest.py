@@ -10,7 +10,7 @@ from rainfall.models.user import User
 @pytest.fixture
 def app():
   app = create_app()
-  app.config['SQLALCHEMY_TEST_DATABASE_URI'] = os.environ[
+  app.config['SQLALCHEMY_DATABASE_URI'] = os.environ[
       'SQLALCHEMY_TEST_DATABASE_URI']
   app.config['TESTING'] = True
   db.init_app(app)
