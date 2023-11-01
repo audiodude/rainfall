@@ -14,9 +14,9 @@ class User(db.Model):
 
   id: Mapped[bytes] = mapped_column(Uuid, primary_key=True, default=uuid7)
   google_id: Mapped[str] = mapped_column(String(255), unique=True)
-  name: Mapped[str] = mapped_column(String(255))
-  email: Mapped[str] = mapped_column(String(1024))
-  picture_url: Mapped[str] = mapped_column(String(1024))
+  name: Mapped[str] = mapped_column(String(255), nullable=True)
+  email: Mapped[str] = mapped_column(String(1024), nullable=True)
+  picture_url: Mapped[str] = mapped_column(String(1024), nullable=True)
 
   def __repr__(self) -> str:
     return f'User(id={self.id!r}, google_id={self.google_id!r})'
