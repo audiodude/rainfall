@@ -14,15 +14,11 @@ def app():
       'SQLALCHEMY_TEST_DATABASE_URI']
   app.config['TESTING'] = True
   db.init_app(app)
-  return app
 
-
-@pytest.fixture
-def db_test(app):
   with app.app_context():
     db.create_all()
 
-  yield db
+  yield app
 
   with app.app_context():
     db.drop_all()
