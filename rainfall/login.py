@@ -19,7 +19,7 @@ def check_csrf():
 
 def save_or_update_google_user(idinfo):
   stmt = select(User).filter_by(google_id=idinfo['sub'])
-  user = db.session.execute(stmt).scalar_one()
+  user = db.session.execute(stmt).scalar()
 
   if user is None:
     user = User(google_id=idinfo['sub'])
