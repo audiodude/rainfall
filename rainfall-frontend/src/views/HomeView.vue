@@ -1,7 +1,8 @@
 <script lang="ts">
-import SignIn from '../components/SignIn.vue';
+// import SignIn from '../components/SignIn.vue';
 import { mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
+import SignIn from '../components/SignIn.vue';
 
 export default {
   async mounted() {
@@ -10,6 +11,7 @@ export default {
   computed: {
     ...mapStores(useUserStore),
   },
+  components: { SignIn },
 };
 </script>
 

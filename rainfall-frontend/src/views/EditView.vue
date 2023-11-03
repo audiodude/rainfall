@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-3xl">Creating a new site</h1>
+    <h1 class="text-3xl">Editing a site</h1>
   </div>
 </template>
 
