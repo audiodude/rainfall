@@ -16,7 +16,6 @@ jobs:
         env:
           MYSQL_DATABASE: rainfall_test
           MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 1
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
       - uses: actions/checkout@v4
