@@ -41,7 +41,7 @@ export default {
           >
         </li>
         <li>
-          <UserState />
+          <UserState class="py-2 pl-3 pr-4 md:p-0 text-white" />
         </li>
       </ul>
     </div>
