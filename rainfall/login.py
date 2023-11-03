@@ -24,8 +24,8 @@ def save_or_update_google_user(idinfo):
   if user is None:
     user = User(google_id=idinfo['sub'])
 
-  user.email = idinfo['email'],
-  user.name = idinfo['name'],
+  user.email = idinfo['email']
+  user.name = idinfo['name']
   user.picture_url = idinfo['picture']
   db.session.add(user)
   db.session.flush()
