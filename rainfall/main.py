@@ -27,6 +27,7 @@ def create_app():
 
   @app.route('/api/v1/user')
   def get_user():
+    print(flask.session)
     user_id = flask.session.get('user_id')
     if user_id is None:
       return flask.jsonify(status=404, error='No signed in user'), 404
