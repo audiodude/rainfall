@@ -13,7 +13,7 @@ export default {
 </script>
 
 <template>
-  <div class="py-2 pl-3 pr-4 text-white">
+  <div>
     <span v-if="userStore.isLoggedIn">Signed in! {{ userStore.user!.email }}</span>
     <span v-else>Not signed in</span>
   </div>
