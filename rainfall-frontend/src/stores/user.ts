@@ -27,5 +27,11 @@ export const useUserStore = defineStore('user', {
         this.user = await resp.json();
       }
     },
+    async signOut() {
+      const resp = await fetch('/api/v1/logout');
+      if (resp.ok) {
+        this.user = null;
+      }
+    },
   },
 });

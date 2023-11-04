@@ -27,13 +27,18 @@ def create_app():
 
   @app.route('/api/v1/user')
   def get_user():
-    print(flask.session)
     user_id = flask.session.get('user_id')
     if user_id is None:
       return flask.jsonify(status=404, error='No signed in user'), 404
 
     user = db.session.get(User, user_id)
     return flask.jsonify(user)
+
+  @app.route('/api/v1/logout')
+  def logout():
+    if 'user_id' in flask.session:
+      del flask.session['user_id']
+    return '', 204
 
   @app.route('/api/v1/login', methods=['POST'])
   def login():
@@ -51,6 +56,6 @@ def create_app():
     user_id = save_or_update_google_user(idinfo)
     flask.session['user_id'] = user_id
 
-    return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/welcome'))
+    return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/new'))
 
   return app
