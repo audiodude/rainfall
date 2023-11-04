@@ -8,7 +8,7 @@ import NavBar from './components/NavBar.vue';
     <NavBar />
   </header>
 
-  <RouterView class="grow shrink-0" />
+  <RouterView class="container max-w-screen-xl mx-auto grow shrink-0" />
 
   <footer class="border-gray-200 shadow bg-gray-800 shrink">
     <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
