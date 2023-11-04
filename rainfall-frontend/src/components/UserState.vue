@@ -13,10 +13,10 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div class="mx-auto">
     <div>
-      <span v-if="userStore.isLoggedIn" class="flex"
-        ><img class="w-8 h-8 mr-4" :src="userStore.user!.picture_url" />
+      <span v-if="userStore.isLoggedIn" class="flex justify-center"
+        ><img class="w-8 h-7 w-7 mr-4" :src="userStore.user!.picture_url" />
         {{ userStore.user!.email }}</span
       >
       <span v-else>Not signed in</span>

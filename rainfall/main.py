@@ -32,6 +32,9 @@ def create_app():
       return flask.jsonify(status=404, error='No signed in user'), 404
 
     user = db.session.get(User, user_id)
+    if user is None:
+      return flask.jsonify(status=404, error='No signed in user'), 404
+
     return flask.jsonify(user)
 
   @app.route('/api/v1/logout')
@@ -51,11 +54,27 @@ def create_app():
       idinfo = id_token.verify_oauth2_token(token, goog_requests.Request(),
                                             GOOGLE_CLIENT_ID)
     except ValueError:
-      return flask.jsonify(status=400, error='Could not verify token')
+      return flask.jsonify(status=400, error='Could not verify token'), 400
 
     user_id = save_or_update_google_user(idinfo)
     flask.session['user_id'] = user_id
+    user = db.session.get(User, user_id)
 
-    return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/new'))
+    if user.is_welcomed:
+      return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/edit'))
+    else:
+      return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/new'))
+
+  @app.route('/api/v1/user/welcome')
+  def welcome():
+    user_id = flask.session.get('user_id')
+    if user_id is None:
+      return flask.jsonify(status=404, error='No signed in user'), 404
+
+    user = db.session.get(User, user_id)
+    user.is_welcomed = True
+    db.session.commit()
+
+    return '', 204
 
   return app
