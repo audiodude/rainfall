@@ -1,6 +1,97 @@
+<script lang="ts">
+import { mapStores } from 'pinia';
+import { useUserStore } from '../stores/user';
+
+export default {
+  data() {
+    return {
+      ready: false,
+    };
+  },
+  async mounted() {
+    await this.userStore.loadUser();
+  },
+  computed: {
+    ...mapStores(useUserStore),
+  },
+  methods: {
+    getStarted() {
+      this.$router.push('/edit');
+    },
+  },
+};
+</script>
+
 <template>
   <div>
-    <h1 class="text-3xl">Creating a new site</h1>
+    <div class="md:max-w-screen-md">
+      <h1 class="text-3xl mt-4">Welcome!</h1>
+      <p class="mt-4">
+        <em>Rainfall</em> is an app that let's you create a website for your music. If you're an
+        artist, whether professional or amateur, you can use Rainfall to generate the source code
+        for your music's home on the web. You can host the generated site on your own, using any
+        number of website hosts:
+      </p>
+      <ul class="list-disc ml-8 mt-4 space-y-4">
+        <li><a href="https://www.netlify.com/">Netlify</a></li>
+        <li>
+          <a
+            href="https://cloud.google.com/storage?hl=en"
+            class="text-blue-600 dark:text-blue-300 dark:visited:text-teal-300 hover:underline"
+            >Google Cloud</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://aws.amazon.com/s3/"
+            class="text-blue-600 dark:text-blue-300 hover:underline"
+            >Amazon Web Services</a
+          >
+        </li>
+        <li>
+          <a href="https://render.com" class="text-blue-600 dark:text-blue-300 hover:underline"
+            >Render</a
+          >
+        </li>
+        <li>
+          <a
+            href="https://pages.cloudflare.com/"
+            class="text-blue-600 dark:text-blue-300 hover:underline"
+            >Cloudflare Pages</a
+          >
+        </li>
+        <li>And many others!</li>
+      </ul>
+      <p class="mt-4">
+        Using the Rainfall tools, you will upload your songs, and add any necessary metdata. Next,
+        you will preview your site. Finally, when it's time to publish, you can choose to integrate
+        with Netlify and publish your site automatically, or even download a .ZIP file of your
+        website to take wherever you like.
+      </p>
+      <p class="mt-4">
+        Keep in mind: Rainfall will <em>not</em> be hosting your site! Rainfall only exists to help
+        you gather your materials and metadata and generate your music website.
+      </p>
+      <div class="flex mt-4">
+        <input v-model="ready" name="agree" type="checkbox" class="block max-w-sm" />
+        <div class="ml-4 max-w-2xl">
+          <label for="agree" class="text-lg">
+            I understand that Rainfall will not make my songs or site available to the outside
+            world, and I will have complete ownership for where and how they get published
+            (including any liability for copyright issues).</label
+          >
+        </div>
+      </div>
+      <div class="mt-4">
+        <button
+          @click="getStarted()"
+          :disabled="!ready"
+          class="cursor-pointer disabled:cursor-auto bg-transparent hover:bg-blue-500 disabled:hover:bg-transparent font-semibold hover:text-white disabled:hover:dark:text-gray-300 py-2 px-4 border border-blue-500 hover:border-transparent disabled:hover:border-blue-500 rounded"
+        >
+          Get started!
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
