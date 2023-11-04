@@ -10,12 +10,12 @@ import NavBar from './components/NavBar.vue';
 
   <RouterView class="grow shrink-0" />
 
-  <footer class="bg-white border-gray-200 shadow dark:bg-gray-800 shrink">
+  <footer class="border-gray-200 shadow bg-gray-800 shrink">
     <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
       <a
         href="https://www.flaticon.com/free-icons/rain"
         title="rain icons"
-        class="text-sm dark:text-white"
+        class="text-sm text-gray-900 dark:text-white"
         >Rain icons created by tulpahn - Flaticon</a
       >
     </div>

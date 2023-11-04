@@ -16,7 +16,7 @@ const router = createRouter({
     },
     {
       path: '/edit',
-      name: 'new',
+      name: 'edit',
       component: () => import('../views/EditView.vue'),
     },
   ],

@@ -14,8 +14,13 @@ export default {
 
 <template>
   <div>
-    <span v-if="userStore.isLoggedIn">Signed in! {{ userStore.user!.email }}</span>
-    <span v-else>Not signed in</span>
+    <div>
+      <span v-if="userStore.isLoggedIn" class="flex"
+        ><img class="w-8 h-8 mr-4" :src="userStore.user!.picture_url" />
+        {{ userStore.user!.email }}</span
+      >
+      <span v-else>Not signed in</span>
+    </div>
   </div>
 </template>
 
