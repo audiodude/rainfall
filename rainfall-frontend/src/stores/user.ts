@@ -4,6 +4,7 @@ export declare interface User {
   name: string;
   email: string;
   picture_url: string;
+  is_welcomed: boolean;
 }
 
 export const useUserStore = defineStore('user', {

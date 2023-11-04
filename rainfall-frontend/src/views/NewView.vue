@@ -10,13 +10,24 @@ export default {
   },
   async mounted() {
     await this.userStore.loadUser();
+    const user = this.userStore.user;
+    if (!user) {
+      this.$router.replace('/');
+      return;
+    }
+    if (user.is_welcomed) {
+      this.$router.replace('/edit');
+    }
   },
   computed: {
     ...mapStores(useUserStore),
   },
   methods: {
-    getStarted() {
-      this.$router.push('/edit');
+    async getStarted() {
+      const resp = await fetch('/api/v1/user/welcome');
+      if (resp.ok) {
+        this.$router.push('/edit');
+      }
     },
   },
 };
@@ -24,7 +35,7 @@ export default {
 
 <template>
   <div>
-    <div class="md:max-w-screen-md">
+    <div class="md:max-w-screen-md p-4">
       <h1 class="text-3xl mt-4">Welcome!</h1>
       <p class="mt-4">
         <em>Rainfall</em> is an app that let's you create a website for your music. If you're an
@@ -33,37 +44,45 @@ export default {
         number of website hosts:
       </p>
       <ul class="list-disc ml-8 mt-4 space-y-4">
-        <li><a href="https://www.netlify.com/">Netlify</a></li>
+        <li>
+          <a
+            href="https://www.netlify.com/"
+            class="text-blue-600 dark:text-blue-300 visited:text-teal-600 dark:visited:text-teal-300 hover:underline"
+            >Netlify</a
+          >
+        </li>
         <li>
           <a
             href="https://cloud.google.com/storage?hl=en"
-            class="text-blue-600 dark:text-blue-300 dark:visited:text-teal-300 hover:underline"
+            class="text-blue-600 dark:text-blue-300 visited:text-teal-600 dark:visited:text-teal-300 hover:underline"
             >Google Cloud</a
           >
         </li>
         <li>
           <a
             href="https://aws.amazon.com/s3/"
-            class="text-blue-600 dark:text-blue-300 hover:underline"
+            class="text-blue-600 dark:text-blue-300 visited:text-teal-600 dark:visited:text-teal-300 hover:underline"
             >Amazon Web Services</a
           >
         </li>
         <li>
-          <a href="https://render.com" class="text-blue-600 dark:text-blue-300 hover:underline"
+          <a
+            href="https://render.com"
+            class="text-blue-600 dark:text-blue-300 visited:text-teal-600 dark:visited:text-teal-300 hover:underline"
             >Render</a
           >
         </li>
         <li>
           <a
             href="https://pages.cloudflare.com/"
-            class="text-blue-600 dark:text-blue-300 hover:underline"
+            class="text-blue-600 dark:text-blue-300 visited:text-teal-600 dark:visited:text-teal-300 hover:underline"
             >Cloudflare Pages</a
           >
         </li>
         <li>And many others!</li>
       </ul>
       <p class="mt-4">
-        Using the Rainfall tools, you will upload your songs, and add any necessary metdata. Next,
+        Using the Rainfall tools, you will upload your songs, and add any necessary metadata. Next,
         you will preview your site. Finally, when it's time to publish, you can choose to integrate
         with Netlify and publish your site automatically, or even download a .ZIP file of your
         website to take wherever you like.
@@ -72,7 +91,7 @@ export default {
         Keep in mind: Rainfall will <em>not</em> be hosting your site! Rainfall only exists to help
         you gather your materials and metadata and generate your music website.
       </p>
-      <div class="flex mt-4">
+      <div class="flex mt-8">
         <input v-model="ready" name="agree" type="checkbox" class="block max-w-sm" />
         <div class="ml-4 max-w-2xl">
           <label for="agree" class="text-lg">
@@ -82,7 +101,7 @@ export default {
           >
         </div>
       </div>
-      <div class="mt-4">
+      <div class="mt-8 max-w-xs mx-auto md:mx-0 text-center md:text-left">
         <button
           @click="getStarted()"
           :disabled="!ready"

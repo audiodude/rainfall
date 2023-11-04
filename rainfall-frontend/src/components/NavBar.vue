@@ -25,7 +25,7 @@ export default {
         >
       </RouterLink>
       <ul
-        class="font-medium flex flex-col p-4 md:p-0 mt-4 border rounded-lg md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-gray-800 border-gray-700"
+        class="w-full md:w-auto font-medium flex flex-col text-center md:text-left p-4 md:p-0 mt-4 border rounded-lg md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-gray-800 border-gray-700"
       >
         <li>
           <RouterLink
