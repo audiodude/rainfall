@@ -29,9 +29,9 @@ export default {
       >
         <li>
           <RouterLink
-            to="/new"
+            to="/sites"
             class="block py-2 pl-3 pr-4 text-gray-900 rounded h-8 hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:pt-2 text-white md:hover:text-blue-500 hover:bg-gray-700 hover:text-white md:hover:bg-transparent"
-            >New</RouterLink
+            >Sites</RouterLink
           >
         </li>
         <li>
