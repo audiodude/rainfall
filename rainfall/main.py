@@ -78,7 +78,7 @@ def create_app():
     user = db.session.get(User, user_id)
 
     if user.is_welcomed:
-      return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/new'))
+      return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/sites'))
     else:
       return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/welcome'))
 
