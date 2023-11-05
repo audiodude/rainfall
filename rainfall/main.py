@@ -78,9 +78,9 @@ def create_app():
     user = db.session.get(User, user_id)
 
     if user.is_welcomed:
-      return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/edit'))
-    else:
       return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/new'))
+    else:
+      return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/welcome'))
 
   @app.route('/api/v1/user/welcome', methods=['POST'])
   @with_current_user
