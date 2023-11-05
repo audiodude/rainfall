@@ -22,7 +22,7 @@ export default {
   <div v-if="userStore.isLoggedIn">
     <button
       @click="signOut()"
-      class="bg-transparent hover:bg-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      class="sign-out bg-transparent hover:bg-blue-500 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
     >
       Sign out
     </button>

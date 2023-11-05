@@ -1,0 +1,8 @@
+{
+  "email": "foo@email.fake",
+  "google_id": "12345",
+  "id": "06546def-5555-5555-8000-6fd4d34024cc",
+  "is_welcomed": true,
+  "name": "Test User",
+  "picture_url": "https://lh3.googleusercontent.fake/photo-12345"
+}

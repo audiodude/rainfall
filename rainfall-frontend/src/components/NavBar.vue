@@ -2,10 +2,10 @@
 import { mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
 import UserState from './UserState.vue';
-import SignSignOutButton from './SignOutButton.vue';
+import SignOutButton from './SignOutButton.vue';
 
 export default {
-  components: { UserState, SignSignOutButton },
+  components: { UserState, SignOutButton },
   computed: {
     ...mapStores(useUserStore),
   },
@@ -29,16 +29,16 @@ export default {
       >
         <li>
           <RouterLink
-            to="/edit"
+            to="/new"
             class="block py-2 pl-3 pr-4 text-gray-900 rounded h-8 hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:pt-2 text-white md:hover:text-blue-500 hover:bg-gray-700 hover:text-white md:hover:bg-transparent"
-            >Edit</RouterLink
+            >New</RouterLink
           >
         </li>
         <li>
-          <UserState class="py-2 pl-3 pr-4 md:pt-2 text-white" />
+          <UserState class="user-state py-2 pl-3 pr-4 md:pt-2 text-white" />
         </li>
         <li>
-          <SignSignOutButton class="py-2 pl-3 pr-4 md:p-0 text-white" />
+          <SignOutButton class="py-2 pl-3 pr-4 md:p-0 text-white" />
         </li>
       </ul>
     </div>
