@@ -11,7 +11,7 @@ describe('New Test', () => {
     });
 
     it('navigates to home', () => {
-      cy.visit('/new');
+      cy.visit('/sites');
       cy.url().should('eq', 'http://localhost:4173/');
     });
   });
