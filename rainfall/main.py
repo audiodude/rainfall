@@ -1,3 +1,5 @@
+from dataclasses import fields
+from functools import wraps
 import os
 import time
 from urllib.parse import urljoin
@@ -8,7 +10,26 @@ import flask
 
 from rainfall.db import db
 from rainfall.login import check_csrf, save_or_update_google_user
+from rainfall.models.site import Site
 from rainfall.models.user import User
+
+
+def with_current_user(f):
+
+  @wraps(f)
+  def wrapped(*args, **kwargs):
+    user_id = flask.session.get('user_id')
+    if user_id is None:
+      return flask.jsonify(status=404, error='No signed in user'), 404
+
+    user = db.session.get(User, user_id)
+    if user is None:
+      return flask.jsonify(status=404, error='No signed in user'), 404
+
+    value = f(*args, user, **kwargs)
+    return value
+
+  return wrapped
 
 
 def create_app():
@@ -26,16 +47,12 @@ def create_app():
     return 'Hello flask'
 
   @app.route('/api/v1/user')
-  def get_user():
-    user_id = flask.session.get('user_id')
-    if user_id is None:
-      return flask.jsonify(status=404, error='No signed in user'), 404
-
-    user = db.session.get(User, user_id)
-    if user is None:
-      return flask.jsonify(status=404, error='No signed in user'), 404
-
-    return flask.jsonify(user)
+  @with_current_user
+  def get_user(user):
+    user_without_sites = dict((field.name, getattr(user, field.name))
+                              for field in fields(user)
+                              if field.name != 'sites')
+    return flask.jsonify(user_without_sites)
 
   @app.route('/api/v1/logout')
   def logout():
@@ -65,14 +82,23 @@ def create_app():
     else:
       return flask.redirect(urljoin(RAINFALL_FRONTEND_URL, '/new'))
 
-  @app.route('/api/v1/user/welcome')
-  def welcome():
-    user_id = flask.session.get('user_id')
-    if user_id is None:
-      return flask.jsonify(status=404, error='No signed in user'), 404
-
-    user = db.session.get(User, user_id)
+  @app.route('/api/v1/user/welcome', methods=['POST'])
+  @with_current_user
+  def welcome(user):
     user.is_welcomed = True
+    db.session.commit()
+
+    return '', 204
+
+  @app.route('/api/v1/site/create', methods=['POST'])
+  @with_current_user
+  def create_site(user):
+    if not user.is_welcomed:
+      return flask.jsonify(status=400,
+                           error='User has not yet been welcomed'), 400
+
+    user.sites.append(Site())
+    db.session.add(user)
     db.session.commit()
 
     return '', 204
