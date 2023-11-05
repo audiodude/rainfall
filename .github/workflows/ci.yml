@@ -1,0 +1,79 @@
+name: Python CI
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  python-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.x'
+          architecture: 'x64'
+
+      - name: Copy .env.ci
+        run: cp .env.ci .env
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip pipenv
+          pipenv install -d
+
+      - name: Run tests
+        run: pipenv run pytest
+
+  frontend-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v1
+        name: Cache pip dependencies
+        id: pip-cache
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Get yarn cache directory path
+        id: yarn-dep-cache-dir-path
+        run: cd wp1-frontend && echo "YARN_CACHE_DIR=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        name: Setup Yarn dep cache
+        id: yarn-dep-cache
+        with:
+          path: ${{ steps.yarn-dep-cache-dir-path.outputs.YARN_CACHE_DIR }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-dep-
+
+      - name: Install Javascript dependencies
+        run: cd rainfall-frontend && yarn install --frozen-lockfile
+
+      - name: Start frontend server
+        run: |
+          cd rainfall-frontend
+          yarn dev --port 4173
+
+      - name: Wait for API and frontend server to be up (10s)
+        run: sleep 10s
+        shell: bash
+
+      - name: Run frontend tests
+        run: |
+          cd rainfall-frontend
+          $(yarn bin)/cypress run --e2e
+
+      - uses: actions/upload-artifact@v3
+        continue-on-error: true
+        if: always()
+        with:
+          name: screenshots
+          path: rainfall-frontend/cypress/screenshots/*
