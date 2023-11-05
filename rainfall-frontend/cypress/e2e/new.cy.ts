@@ -1,4 +1,4 @@
-describe('Welcome Test', () => {
+describe('New Test', () => {
   describe('when there is no logged in user', () => {
     beforeEach(() => {
       cy.intercept('GET', 'api/v1/user', {
