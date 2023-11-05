@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/cache@v1
+      - uses: actions/cache@v3
         name: Cache pip dependencies
         id: pip-cache
         with:

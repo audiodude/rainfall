@@ -61,7 +61,7 @@ class MainTest:
     with app.test_client() as client:
       rv = client.post('/api/v1/login')
       assert rv.status == '302 FOUND'
-      assert rv.headers['location'] == 'http://localhost:5173/new'
+      assert rv.headers['location'] == 'http://localhost:5173/welcome'
 
       user_id = flask.session['user_id']
       user = db.session.get(User, user_id)
@@ -89,7 +89,7 @@ class MainTest:
     with app.test_client() as client:
       rv = client.post('/api/v1/login')
       assert rv.status == '302 FOUND'
-      assert rv.headers['location'] == 'http://localhost:5173/edit'
+      assert rv.headers['location'] == 'http://localhost:5173/new'
 
       user_id = flask.session['user_id']
       user = db.session.get(User, user_id)
