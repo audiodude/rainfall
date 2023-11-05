@@ -90,14 +90,23 @@ def create_app():
 
     return '', 204
 
-  @app.route('/api/v1/site/create', methods=['POST'])
+  @app.route('/api/v1/site', methods=['POST'])
   @with_current_user
   def create_site(user):
     if not user.is_welcomed:
       return flask.jsonify(status=400,
                            error='User has not yet been welcomed'), 400
 
-    user.sites.append(Site())
+    data = flask.request.get_json()
+    if data is None:
+      return flask.jsonify(status=400, error='No JSON provided'), 400
+    site_data = data.get('site')
+    if site_data is None:
+      return flask.jsonify(status=400, error='Missing site data'), 400
+    if site_data.get('name') is None:
+      return flask.jsonify(status=400, error='Site name is required'), 400
+
+    user.sites.append(Site(**site_data))
     db.session.add(user)
     db.session.commit()
 

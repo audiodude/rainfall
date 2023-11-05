@@ -27,7 +27,7 @@ export default {
       const resp = await fetch('/api/v1/user/welcome', { method: 'POST' });
       if (resp.ok) {
         await this.userStore.loadUser(/* force */ true);
-        this.$router.push('/new');
+        this.$router.push('//sites');
       }
     },
   },
@@ -36,7 +36,7 @@ export default {
 
 <template>
   <div>
-    <div class="md:max-w-screen-md p-4">
+    <div class="md:max-w-screen-md pl-4 mt-4">
       <h1 class="text-3xl mt-4">Welcome!</h1>
       <p class="mt-4">
         <em>Rainfall</em> is an app that let's you create a website for your music. If you're an

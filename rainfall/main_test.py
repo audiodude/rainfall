@@ -24,6 +24,16 @@ def basic_user(app):
   return basic_user
 
 
+@pytest.fixture
+def welcomed_user(app, basic_user):
+  with app.app_context():
+    basic_user.is_welcomed = True
+    db.session.add(basic_user)
+    db.session.commit()
+
+  return basic_user
+
+
 class MainTest:
 
   def test_get_user(self, app, basic_user):
@@ -138,3 +148,51 @@ class MainTest:
       rv = client.post('/api/v1/user/welcome')
       assert rv.status == '404 NOT FOUND'
       assert rv.json == {'status': 404, 'error': 'No signed in user'}
+
+  def test_create_site(self, app, welcomed_user):
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post('/api/v1/site', json={'site': {'name': 'Some site'}})
+      assert rv.status == '204 NO CONTENT'
+
+    with app.app_context():
+      user = db.session.get(User, BASIC_USER_ID)
+      sites = user.sites
+      assert len(sites) == 1
+      assert sites[0].name == 'Some site'
+
+  def test_create_site_no_user(self, app):
+    with app.test_client() as client:
+      rv = client.post('/api/v1/site', json={'site': {'name': 'Some site'}})
+      assert rv.status == '404 NOT FOUND'
+
+  def test_create_site_no_user_in_session(self, app, welcomed_user):
+    with app.test_client() as client:
+      rv = client.post('/api/v1/site', json={'site': {'name': 'Some site'}})
+      assert rv.status == '404 NOT FOUND'
+
+  def test_create_site_no_json(self, app, welcomed_user):
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post('/api/v1/site')
+      assert rv.status == '415 UNSUPPORTED MEDIA TYPE'
+
+  def test_create_site_missing_site(self, app, welcomed_user):
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post('/api/v1/site', json={'foo': 'bar'})
+      assert rv.status == '400 BAD REQUEST'
+
+  def test_create_site_missing_name(self, app, welcomed_user):
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post('/api/v1/site', json={'site': {}})
+      assert rv.status == '400 BAD REQUEST'
