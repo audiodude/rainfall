@@ -5,7 +5,8 @@ import { useUserStore } from '../stores/user';
 export default {
   data() {
     return {
-      ready: false,
+      createError: false,
+      site: null,
     };
   },
   async mounted() {
@@ -15,18 +16,21 @@ export default {
       this.$router.replace('/');
       return;
     }
-    if (user.is_welcomed) {
-      this.$router.replace('/edit');
+    if (!user.is_welcomed) {
+      this.$router.replace('/welcome');
     }
   },
   computed: {
     ...mapStores(useUserStore),
   },
   methods: {
-    async getStarted() {
-      const resp = await fetch('/api/v1/user/welcome', { method: 'POST' });
-      if (resp.ok) {
-        this.$router.push('/edit');
+    async createSite() {
+      this.createError = false;
+      const resp = await fetch('/api/v1/site/create');
+      if (!resp.ok) {
+        setTimeout(() => {
+          this.createError = true;
+        }, 250);
       }
     },
   },
@@ -36,79 +40,25 @@ export default {
 <template>
   <div>
     <div class="md:max-w-screen-md p-4">
-      <h1 class="text-3xl mt-4">Welcome!</h1>
       <p class="mt-4">
-        <em>Rainfall</em> is an app that let's you create a website for your music. If you're an
-        artist, whether professional or amateur, you can use Rainfall to generate the source code
-        for your music's home on the web. You can host the generated site on your own, using any
-        number of website hosts:
+        Rainfall uses <a href="https://simonrepp.com/faircamp/">Faircamp</a> to generate your music
+        website. The advantage of using Rainfall versus using Faircamp directly is that you can
+        easily upload your songs and manage your metadata. No need to install Faircamp or manage
+        directory hierarchies yourself.
       </p>
-      <ul class="list-disc ml-8 mt-4 space-y-4">
-        <li>
-          <a
-            href="https://www.netlify.com/"
-            class="text-blue-600 dark:text-blue-300 visited:text-teal-600 dark:visited:text-teal-300 hover:underline"
-            >Netlify</a
-          >
-        </li>
-        <li>
-          <a
-            href="https://cloud.google.com/storage?hl=en"
-            class="text-blue-600 dark:text-blue-300 visited:text-teal-600 dark:visited:text-teal-300 hover:underline"
-            >Google Cloud</a
-          >
-        </li>
-        <li>
-          <a
-            href="https://aws.amazon.com/s3/"
-            class="text-blue-600 dark:text-blue-300 visited:text-teal-600 dark:visited:text-teal-300 hover:underline"
-            >Amazon Web Services</a
-          >
-        </li>
-        <li>
-          <a
-            href="https://render.com"
-            class="text-blue-600 dark:text-blue-300 visited:text-teal-600 dark:visited:text-teal-300 hover:underline"
-            >Render</a
-          >
-        </li>
-        <li>
-          <a
-            href="https://pages.cloudflare.com/"
-            class="text-blue-600 dark:text-blue-300 visited:text-teal-600 dark:visited:text-teal-300 hover:underline"
-            >Cloudflare Pages</a
-          >
-        </li>
-        <li>And many others!</li>
-      </ul>
-      <p class="mt-4">
-        Using the Rainfall tools, you will upload your songs, and add any necessary metadata. Next,
-        you will preview your site. Finally, when it's time to publish, you can choose to integrate
-        with Netlify and publish your site automatically, or even download a .ZIP file of your
-        website to take wherever you like.
+      <p v-if="!site" class="mt-4">
+        When you're ready, click "Create site" to start working on your website.
       </p>
-      <p class="mt-4">
-        Keep in mind: Rainfall will <em>not</em> be hosting your site! Rainfall only exists to help
-        you gather your materials and metadata and generate your music website.
-      </p>
-      <div class="flex mt-8">
-        <input v-model="ready" name="agree" type="checkbox" class="block max-w-sm" />
-        <div class="ml-4 max-w-2xl">
-          <label for="agree" class="text-lg">
-            I understand that Rainfall will not make my songs or site available to the outside
-            world, and I will have complete ownership for where and how they get published
-            (including any liability for copyright issues).</label
-          >
-        </div>
-      </div>
-      <div class="mt-8 max-w-xs mx-auto md:mx-0 text-center md:text-left">
+      <div class="mt-4">
         <button
-          @click="getStarted()"
-          :disabled="!ready"
+          @click="createSite"
           class="cursor-pointer disabled:cursor-auto bg-transparent hover:bg-blue-500 disabled:hover:bg-transparent font-semibold hover:text-white disabled:hover:dark:text-gray-300 py-2 px-4 border border-blue-500 hover:border-transparent disabled:hover:border-blue-500 rounded"
         >
-          Get started!
+          Create site
         </button>
+        <p v-if="createError" class="text-sm text-red-500">
+          Something went wrong while creating your site.
+        </p>
       </div>
     </div>
   </div>
