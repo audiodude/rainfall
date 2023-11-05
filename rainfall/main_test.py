@@ -127,7 +127,7 @@ class MainTest:
       with client.session_transaction() as sess:
         sess['user_id'] = BASIC_USER_ID
 
-      rv = client.get('/api/v1/user/welcome')
+      rv = client.post('/api/v1/user/welcome')
       assert rv.status == '204 NO CONTENT'
 
       user = db.session.get(User, BASIC_USER_ID)
@@ -135,6 +135,6 @@ class MainTest:
 
   def test_welcome_no_user(self, app, basic_user):
     with app.test_client() as client:
-      rv = client.get('/api/v1/user/welcome')
+      rv = client.post('/api/v1/user/welcome')
       assert rv.status == '404 NOT FOUND'
       assert rv.json == {'status': 404, 'error': 'No signed in user'}

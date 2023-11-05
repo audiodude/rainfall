@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     async getStarted() {
-      const resp = await fetch('/api/v1/user/welcome');
+      const resp = await fetch('/api/v1/user/welcome', { method: 'POST' });
       if (resp.ok) {
         this.$router.push('/edit');
       }
