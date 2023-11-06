@@ -44,7 +44,7 @@ describe('Welcome Test', () => {
       cy.get('@welcome').should('have.been.calledOnce');
     });
 
-    it('navigates to /new when the button is clicked', () => {
+    it('navigates to /sites when the button is clicked', () => {
       cy.intercept('GET', 'api/v1/user', {
         fixture: 'user_welcomed.json',
       });
@@ -53,7 +53,7 @@ describe('Welcome Test', () => {
       });
       cy.get('input').should('have.attr', 'type', 'checkbox').click();
       cy.get('button.get-started').click();
-      cy.url().should('eq', 'http://localhost:4173/new');
+      cy.url().should('eq', 'http://localhost:4173/sites');
     });
   });
 });
