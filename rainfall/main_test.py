@@ -5,6 +5,7 @@ import pytest
 import uuid
 
 from rainfall.db import db
+from rainfall.models.site import Site
 from rainfall.models.user import User
 
 BASIC_USER_ID = uuid.UUID('06543f11-12b6-71ea-8000-e026c63c22e2')
@@ -32,6 +33,17 @@ def welcomed_user(app, basic_user):
     db.session.commit()
 
   return basic_user
+
+
+@pytest.fixture
+def sites_user(app, welcomed_user):
+  with app.app_context():
+    db.session.add(welcomed_user)
+    welcomed_user.sites.append(Site(name='Cool Site 1'))
+    welcomed_user.sites.append(Site(name='Another Cool Site'))
+
+    db.session.add(welcomed_user)
+    db.session.commit()
 
 
 class MainTest:
@@ -196,3 +208,41 @@ class MainTest:
 
       rv = client.post('/api/v1/site', json={'site': {}})
       assert rv.status == '400 BAD REQUEST'
+
+  def test_list_sites(self, app, sites_user):
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.get('/api/v1/site/list')
+      data = rv.json
+      assert rv.status == '200 OK'
+      assert data
+      sites = data.get('sites')
+      assert sites
+      assert len(sites) == 2
+      names = [site['name'] for site in sites]
+      assert 'Cool Site 1' in names
+      assert 'Another Cool Site' in names
+
+  def test_list_sites_no_user(self, app):
+    with app.test_client() as client:
+      rv = client.get('/api/v1/site/list')
+      assert rv.status == '404 NOT FOUND'
+
+  def test_list_sites_no_user_in_session(self, app, welcomed_user):
+    with app.test_client() as client:
+      rv = client.get('/api/v1/site/list')
+      assert rv.status == '404 NOT FOUND'
+
+  def test_list_sites_no_sites(self, app, welcomed_user):
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.get('/api/v1/site/list')
+      data = rv.json
+      assert rv.status == '200 OK'
+      assert data
+      sites = data.get('sites')
+      assert len(sites) == 0

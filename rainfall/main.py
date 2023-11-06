@@ -112,4 +112,16 @@ def create_app():
 
     return '', 204
 
+  @app.route('/api/v1/site/list')
+  @with_current_user
+  def list_sites(user):
+    sites_without_user = [
+        dict((field.name, getattr(site, field.name))
+             for field in fields(site)
+             if field.name != 'user')
+        for site in user.sites
+    ]
+
+    return flask.jsonify({'sites': sites_without_user})
+
   return app

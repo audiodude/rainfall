@@ -19,4 +19,4 @@ class Site(db.Model):
   name: Mapped[str] = mapped_column(String(255))
 
   def __repr__(self) -> str:
-    return f'Site(id={self.id!r}, user_id={self.google_id!r})'
+    return f'Site(id={self.id!r}, user_id={self.user_id!r})'
