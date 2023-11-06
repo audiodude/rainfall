@@ -27,7 +27,7 @@ export default {
       const resp = await fetch('/api/v1/user/welcome', { method: 'POST' });
       if (resp.ok) {
         await this.userStore.loadUser(/* force */ true);
-        this.$router.push('//sites');
+        this.$router.push('/sites');
       }
     },
   },
