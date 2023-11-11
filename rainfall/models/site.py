@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from functools import partial
 
 from sqlalchemy import ForeignKey
@@ -20,3 +20,8 @@ class Site(db.Model):
 
   def __repr__(self) -> str:
     return f'Site(id={self.id!r}, user_id={self.user_id!r})'
+
+  def without_user(self):
+    return dict((field.name, getattr(self, field.name))
+                for field in fields(self)
+                if field.name != 'user')

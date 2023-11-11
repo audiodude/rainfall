@@ -39,6 +39,7 @@ export default {
           >Site name</label
         >
         <input
+          id="new-site"
           v-model="name"
           type="text"
           class="max-w-xl bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -51,6 +52,7 @@ export default {
         The title of your site is for your reference only and doesn't affect the output
       </p>
       <button
+        id="new-button"
         @click="createSite"
         class="cursor-pointer mt-4 disabled:cursor-auto bg-transparent hover:bg-blue-500 disabled:hover:bg-transparent font-semibold hover:text-white disabled:hover:dark:text-gray-300 py-2 px-4 border border-blue-500 hover:border-transparent disabled:hover:border-blue-500 rounded"
       >

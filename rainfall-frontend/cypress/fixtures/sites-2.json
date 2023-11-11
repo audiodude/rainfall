@@ -1,0 +1,19 @@
+{
+  "sites": [
+    {
+      "id": "06547ed8-206f-7d3d-8000-20ab423e0bb9",
+      "name": "My Cool Site",
+      "user_id": "06546def-5555-5555-8000-6fd4d34024cc"
+    },
+    {
+      "id": "065485a8-88a2-7f3d-8000-471229f46511",
+      "name": "Another Cool Site",
+      "user_id": "06546def-5555-5555-8000-6fd4d34024cc"
+    },
+    {
+      "id": "0654faab-22a6-7466-8000-e86de7dc00c8",
+      "name": "A New Site",
+      "user_id": "06546def-5555-5555-8000-6fd4d34024cc"
+    }
+  ]
+}
