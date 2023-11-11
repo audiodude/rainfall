@@ -1,6 +1,11 @@
 <script lang="ts">
 export default {
   props: ['sites'],
+  methods: {
+    editSite(id: string) {
+      this.$router.push(`/site/${id}`);
+    },
+  },
 };
 </script>
 
@@ -11,10 +16,13 @@ export default {
         v-for="site in sites"
         class="flex flex-row justify-between p-2 mb-2 last:mb-0 bg-blue-500 text-white"
       >
-        <span class="w-40">
+        <span class="site-name w-40">
           {{ site.name }}
         </span>
-        <span class="w-8 hover:text-gray-600 cursor-pointer">
+        <span
+          class="edit-site-button w-8 hover:text-blue-800 cursor-pointer"
+          @click="editSite(site.id)"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"

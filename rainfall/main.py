@@ -3,6 +3,7 @@ from functools import wraps
 import os
 import time
 from urllib.parse import urljoin
+from uuid import UUID
 
 from google.oauth2 import id_token
 from google.auth.transport import requests as goog_requests
@@ -115,13 +116,20 @@ def create_app():
   @app.route('/api/v1/site/list')
   @with_current_user
   def list_sites(user):
-    sites_without_user = [
-        dict((field.name, getattr(site, field.name))
-             for field in fields(site)
-             if field.name != 'user')
-        for site in user.sites
-    ]
+    sites_without_user = [site.without_user() for site in user.sites]
 
     return flask.jsonify({'sites': sites_without_user})
+
+  @app.route('/api/v1/site/<id_>')
+  @with_current_user
+  def get_site(user, id_):
+    site = db.session.get(Site, UUID(id_))
+    if site is None:
+      return flask.jsonify(status=404, error='Site not found'), 404
+
+    if site.user_id != user.id:
+      return flask.jsonify(status=403, error='Cannot access that site'), 403
+
+    return flask.jsonify(site.without_user())
 
   return app
