@@ -58,7 +58,7 @@ export default {
       >
         Create site
       </button>
-      <p v-if="createError" class="text-sm text-red-500">
+      <p v-if="createError" class="text-sm text-red-600 dark:text-red-400">
         Something went wrong while creating your site.
       </p>
     </div>
