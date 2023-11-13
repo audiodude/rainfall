@@ -44,7 +44,6 @@ export default {
       const nums = this.site.releases.map((release) => {
         return parseInt(release.name.split(' ')[1]);
       });
-      console.log(nums.sort().slice(-1)[0]);
       return nums.sort().slice(-1)[0] + 1;
     },
     ...mapStores(useUserStore),
@@ -75,10 +74,14 @@ export default {
     </div>
     <div v-else-if="site" class="max-w-screen-md">
       <h2 class="text-2xl font-bold">Editing {{ site.name }}</h2>
-      <p>
+      <p class="mt-4">
         A site is composed of Releases. Each Release represents an album, EP, single, etc. A Release
         contains a number of songs/files that you upload here. The name of the release, as well as
         the artist(s) for the site, are taken from the ID3 metadata of the files you upload.
+      </p>
+      <p class="mt-4">
+        You can upload songs in any of the following formats: .aiff, .aif, .flac, .mp3, .ogg, .opus,
+        .wav
       </p>
       <NewRelease :cardinality="cardinality" :site-id="site.id" @release-created="loadSite()" />
       <ReleasesList :releases="site.releases" />

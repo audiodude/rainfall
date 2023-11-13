@@ -4,5 +4,6 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [],
+  darkMode: 'media',
+  plugins: [require('flowbite/plugin')],
 };

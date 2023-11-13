@@ -8,12 +8,21 @@ from uuid import UUID
 from google.oauth2 import id_token
 from google.auth.transport import requests as goog_requests
 import flask
+from werkzeug.utils import secure_filename
 
 from rainfall.db import db
 from rainfall.login import check_csrf, save_or_update_google_user
 from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
+
+ALLOWED_SONG_EXTS = ['.aiff', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']
+
+
+def allowed_file(filename):
+  if '.' not in filename:
+    return False
+  return '.' + filename.rsplit('.', 1)[1].lower() in ALLOWED_SONG_EXTS
 
 
 def with_current_user(f):
@@ -38,11 +47,15 @@ def create_app():
   app = flask.Flask(__name__)
   app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
   app.config['SECRET_KEY'] = os.environ['FLASK_SECRET_KEY']
+  app.config['DATA_DIR'] = os.environ['DATA_DIR']
+  app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB max upload
   if os.environ.get('RAINFALL_ENV') != 'test':
     db.init_app(app)
 
   GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
   RAINFALL_FRONTEND_URL = os.environ['RAINFALL_FRONTEND_URL']
+
+  os.makedirs(app.config['DATA_DIR'], exist_ok=True)
 
   @app.route('/')
   def index():
@@ -160,6 +173,41 @@ def create_app():
     site.releases.append(Release(**release_data))
     db.session.add(site)
     db.session.commit()
+
+    return '', 204
+
+  @app.route('/api/v1/upload', methods=['POST'])
+  @with_current_user
+  def upload(user):
+    release_id = flask.request.form.get('release_id')
+    if release_id is None:
+      return flask.jsonify(status=400, error='No release id given'), 400
+
+    release = db.session.get(Release, UUID(release_id))
+    site = release.site
+    upload_user = site.user
+
+    if upload_user.id != user.id:
+      return flask.jsonify(status=403,
+                           error='Cannot upload data to that release'), 403
+
+    song_files = flask.request.files.getlist("song[]")
+    if not song_files:
+      return flask.jsonify(status=400, error='No songs uploaded'), 400
+
+    for f in song_files:
+      if not allowed_file(f.filename):
+        return flask.jsonify(status=400,
+                             error='File %s is not an allowed file type (%s)' %
+                             (f.filename, ' '.join(ALLOWED_SONG_EXTS))), 400
+
+    release_path = os.path.join(app.config['DATA_DIR'], str(user.id),
+                                secure_filename(site.name),
+                                secure_filename(release.name))
+    os.makedirs(release_path, exist_ok=True)
+    for song in song_files:
+      name = secure_filename(song.filename)
+      song.save(os.path.join(release_path, name))
 
     return '', 204
 
