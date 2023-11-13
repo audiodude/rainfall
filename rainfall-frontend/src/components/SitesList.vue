@@ -11,7 +11,7 @@ export default {
 
 <template>
   <div>
-    <div class="md:max-w-screen-md mt-8 p-4 border border-blue-500">
+    <div v-if="sites.length > 0" class="md:max-w-screen-md mt-8 p-4 border border-blue-500">
       <div
         v-for="site in sites"
         class="flex flex-row justify-between p-2 mb-2 last:mb-0 bg-blue-500 text-white"
