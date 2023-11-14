@@ -12,6 +12,7 @@ from werkzeug.utils import secure_filename
 
 from rainfall.db import db
 from rainfall.login import check_csrf, save_or_update_google_user
+from rainfall.models.file import File
 from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
@@ -207,7 +208,11 @@ def create_app():
     os.makedirs(release_path, exist_ok=True)
     for song in song_files:
       name = secure_filename(song.filename)
+      release.files.append(File(filename=name))
       song.save(os.path.join(release_path, name))
+
+    db.session.add(release)
+    db.session.commit()
 
     return '', 204
 

@@ -1,3 +1,4 @@
+from typing import List
 from dataclasses import dataclass, fields
 from functools import partial
 
@@ -18,10 +19,20 @@ class Release(db.Model):
   site: Mapped["Site"] = relationship(back_populates="releases")
   name: Mapped[str] = mapped_column(String(255))
 
+  files: Mapped[List["File"]] = relationship(back_populates="release")
+
   def __repr__(self) -> str:
-    return f'Release(id={self.id!r}, site_id={self.site!r})'
+    return f'Release(id={self.id!r}, site_id={self.site_id!r})'
 
   def serialize(self):
-    return dict((field.name, getattr(self, field.name))
-                for field in fields(self)
-                if field.name != 'site')
+    props = []
+    for field in fields(self):
+      if field.name == 'site':
+        continue
+
+      if field.name == 'files':
+        props.append(('files', [file.serialize() for file in self.files]))
+        continue
+
+      props.append((field.name, getattr(self, field.name)))
+    return dict(props)

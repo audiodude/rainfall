@@ -33,8 +33,7 @@ class Site(db.Model):
 
       if field.name == 'releases':
         props.append(
-            ('releases',
-             [release.serialize() for release in getattr(self, 'releases')]))
+            ('releases', [release.serialize() for release in self.releases]))
         continue
 
       props.append((field.name, getattr(self, field.name)))
