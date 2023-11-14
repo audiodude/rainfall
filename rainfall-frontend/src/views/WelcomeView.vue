@@ -92,8 +92,10 @@ export default {
         Keep in mind: Rainfall will <em>not</em> be hosting your site! Rainfall only exists to help
         you gather your materials and metadata and generate your music website.
       </p>
-      <div class="flex mt-8">
-        <input v-model="ready" name="agree" type="checkbox" class="block max-w-sm" />
+      <div class="flex flex-row mt-8">
+        <div class="flex flex-col justify-center">
+          <input v-model="ready" name="agree" type="checkbox" class="block max-w-sm" />
+        </div>
         <div class="ml-4 max-w-2xl">
           <label for="agree" class="text-lg">
             I understand that Rainfall will not make my songs or site available to the outside

@@ -1,22 +1,42 @@
 <script lang="ts">
 export default {
   props: ['releaseId'],
-  data(): { files: FileList | null } {
+  data(): { files: FileList | null; fileError: string | null } {
     return {
       files: null,
+      fileError: null,
     };
   },
   methods: {
-    upload() {
+    async upload() {
       if (!this.files) {
         return;
       }
+
+      this.fileError = null;
+
       let formData = new FormData();
       for (const song of this.files) {
         formData.append('song[]', song);
       }
       formData.append('release_id', this.releaseId);
-      fetch('/api/v1/upload', { method: 'POST', credentials: 'include', body: formData });
+      const resp = await fetch('/api/v1/upload', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+      if (resp.ok) {
+        return;
+      }
+
+      let error = 'An unknown error occurred';
+      if (resp.headers.get('Content-Type') == 'application/json') {
+        const data = await resp.json();
+        error = data.error;
+      }
+      setTimeout(() => {
+        this.fileError = error;
+      }, 250);
     },
     fileChanged() {
       this.files = this.fileInput.files ? this.fileInput.files : null;
@@ -50,6 +70,7 @@ export default {
         Upload Songs
       </button></label
     >
+    <span v-if="fileError" class="text-red-600 dark:text-red-400">{{ fileError }}</span>
   </div>
 </template>
 
