@@ -25,12 +25,10 @@ describe('New Test', () => {
       cy.intercept('GET', 'api/v1/site/list', (req) => {
         if (count === 0) {
           count++;
-          console.log('sending back response 1');
           req.reply((res) => {
             res.send({ statusCode: 200, fixture: 'sites.json' });
           });
         } else {
-          console.log('sending back response 2');
           req.reply((res) => {
             res.send({ statusCode: 200, fixture: 'sites-2.json' });
           });

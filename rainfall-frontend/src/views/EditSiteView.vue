@@ -84,7 +84,7 @@ export default {
         .wav
       </p>
       <NewRelease :cardinality="cardinality" :site-id="site.id" @release-created="loadSite()" />
-      <ReleasesList :releases="site.releases" />
+      <ReleasesList :releases="site.releases" @song-uploaded="loadSite()" />
     </div>
     <div v-else class="max-w-screen-md">Loading...</div>
   </div>
