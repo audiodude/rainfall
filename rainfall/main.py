@@ -70,7 +70,7 @@ def with_current_site(f):
 
 
 def create_app():
-  app = flask.Flask(__name__, static_folder=os.environ['PREVIEW_DIR'])
+  app = flask.Flask(__name__)
   app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
   app.config['SECRET_KEY'] = os.environ['FLASK_SECRET_KEY']
   app.config['DATA_DIR'] = os.environ['DATA_DIR']
