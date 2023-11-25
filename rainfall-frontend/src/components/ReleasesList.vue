@@ -5,7 +5,9 @@ export default {
   components: { SongUpload },
   props: ['releases'],
   methods: {
-    uploadSong() {},
+    onSongUploaded() {
+      this.$emit('song-uploaded');
+    },
   },
 };
 </script>
@@ -19,7 +21,7 @@ export default {
             {{ release.name }}
           </span>
         </div>
-        <div v-for="file of release.files" class="text-right my-2">
+        <div v-for="file of release.files" class="file-name text-right my-2">
           {{ file.filename }}
         </div>
         <div v-if="release.files.length == 0" class="text-right mt-4">
@@ -27,7 +29,7 @@ export default {
         </div>
         <hr class="my-4" />
         <div class="text-right">
-          <SongUpload :releaseId="release.id" class="md:ml-40" />
+          <SongUpload :releaseId="release.id" @song-uploaded="onSongUploaded()" class="md:ml-40" />
         </div>
       </div>
     </div>
