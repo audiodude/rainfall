@@ -26,6 +26,8 @@ export default {
         body: formData,
       });
       if (resp.ok) {
+        this.files = null;
+        this.fileInput.value = '';
         this.$emit('song-uploaded');
         return;
       }
