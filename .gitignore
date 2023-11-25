@@ -4,3 +4,4 @@ Artist
 *.sqlite3
 create_db.py
 song-data/
+preview-data/
