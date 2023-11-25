@@ -23,7 +23,7 @@ class Site(db.Model):
   releases: Mapped[List["Release"]] = relationship(back_populates="site")
 
   def __repr__(self) -> str:
-    return f'Site(id={self.id!r}, user_id={self.user_id!r})'
+    return f'Site(id={self.id!r}, user_id={self.user_id!r}, name={self.name!r})'
 
   def serialize(self):
     props = []

@@ -2,15 +2,16 @@
 import { mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
 import { type Site } from '../types/site';
-import NewRelease from '../components/NewRelease.vue';
+import ReleaseActions from '../components/ReleaseActions.vue';
 import ReleasesList from '../components/ReleasesList.vue';
 
 export default {
-  components: { NewRelease, ReleasesList },
-  data(): { site: null | Site; sitesError: string } {
+  components: { ReleaseActions, ReleasesList },
+  data(): { site: null | Site; sitesError: string; invalidateHandler: () => void } {
     return {
       site: null,
       sitesError: '',
+      invalidateHandler: () => {},
     };
   },
   async created() {
@@ -46,10 +47,20 @@ export default {
       });
       return nums.sort().slice(-1)[0] + 1;
     },
+    readyForPreview() {
+      return (
+        this.site &&
+        this.site.releases.length > 0 &&
+        this.site.releases.some((release) => {
+          return release.files.length > 0;
+        })
+      );
+    },
     ...mapStores(useUserStore),
   },
   methods: {
     async loadSite() {
+      this.invalidateHandler();
       const resp = await fetch(`/api/v1/site/${this.$route.params.site_id}`);
       if (resp.ok) {
         this.site = await resp.json();
@@ -62,6 +73,9 @@ export default {
         error = data.error;
       }
       this.sitesError = error;
+    },
+    setInvalidateHandler(fn: () => void) {
+      this.invalidateHandler = fn;
     },
   },
 };
@@ -83,7 +97,14 @@ export default {
         You can upload songs in any of the following formats: .aiff, .aif, .flac, .mp3, .ogg, .opus,
         .wav
       </p>
-      <NewRelease :cardinality="cardinality" :site-id="site.id" @release-created="loadSite()" />
+      <p class="mt-4">Add a release and some files, and then you can preview your site.</p>
+      <ReleaseActions
+        :cardinality="cardinality"
+        :site-id="site.id"
+        :ready-for-preview="readyForPreview"
+        @release-created="loadSite"
+        @invalidatePreview="setInvalidateHandler"
+      />
       <ReleasesList :releases="site.releases" @song-uploaded="loadSite()" />
     </div>
     <div v-else class="max-w-screen-md">Loading...</div>
