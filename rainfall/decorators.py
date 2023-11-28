@@ -41,7 +41,7 @@ def with_current_site(f):
 
     if site.user.id != user.id:
       return flask.jsonify(status=401,
-                           error='Not authorized to preview that site'), 401
+                           error='Not authorized for that site'), 401
 
     value = f(*args, site, **kwargs)
     return value
