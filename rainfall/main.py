@@ -6,6 +6,7 @@ import flask
 from werkzeug.utils import secure_filename
 
 from rainfall.blueprint.user import user as user_blueprint
+from rainfall.blueprint.release import release as release_blueprint
 from rainfall.blueprint.site import site as site_blueprint
 from rainfall.db import db
 from rainfall.decorators import with_current_site, with_current_user
@@ -39,42 +40,11 @@ def create_app():
 
   app.register_blueprint(user_blueprint, url_prefix='/api/v1')
   app.register_blueprint(site_blueprint, url_prefix='/api/v1')
+  app.register_blueprint(release_blueprint, url_prefix='/api/v1')
 
   @app.route('/')
   def index():
     return 'Hello flask'
-
-  @app.route('/api/v1/release', methods=['POST'])
-  @with_current_user
-  def create_release(user):
-    if not user.is_welcomed:
-      return flask.jsonify(status=400,
-                           error='User has not yet been welcomed'), 400
-
-    data = flask.request.get_json()
-    if data is None:
-      return flask.jsonify(status=400, error='No JSON provided'), 400
-    release_data = data.get('release')
-    if release_data is None:
-      return flask.jsonify(status=400, error='Missing release data'), 400
-    if release_data.get('name') is None:
-      return flask.jsonify(status=400, error='Release name is required'), 400
-    if release_data.get('site_id') is None:
-      return flask.jsonify(status=400,
-                           error='Creating release requires a site_id'), 400
-
-    site = db.session.get(Site, UUID(release_data['site_id']))
-    if site is None:
-      return flask.jsonify(
-          status=404,
-          error='Could not find site with id=%s to create release for' %
-          release_data['site_id']), 404
-
-    site.releases.append(Release(**release_data))
-    db.session.add(site)
-    db.session.commit()
-
-    return '', 204
 
   @app.route('/api/v1/upload', methods=['POST'])
   @with_current_user
