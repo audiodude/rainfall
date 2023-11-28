@@ -1,15 +1,7 @@
-from unittest.mock import patch
-
-import flask
-import pytest
-import uuid
-
-from rainfall.conftest import BASIC_USER_ID
-from rainfall.db import db
-from rainfall.models.site import Site
-from rainfall.models.user import User
+from rainfall.main import create_app
 
 
 class MainTest:
 
-  pass
+  def test_create_app_no_errors(self):
+    create_app()
