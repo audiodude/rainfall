@@ -36,6 +36,11 @@ def create_release(user):
         error='Could not find site with id=%s to create release for' %
         release_data['site_id']), 404
 
+  if site.user.id != flask.session.get('user_id'):
+    return flask.jsonify(
+        status=401,
+        error='Cannot create release for that site, unauthorized'), 401
+
   site.releases.append(Release(**release_data))
   db.session.add(site)
   db.session.commit()
