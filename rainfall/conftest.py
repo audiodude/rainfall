@@ -61,3 +61,12 @@ def sites_user(app, welcomed_user):
 
     db.session.add(welcomed_user)
     db.session.commit()
+
+  return welcomed_user
+
+
+@pytest.fixture
+def site_id(app, sites_user):
+  with app.app_context():
+    db.session.add(sites_user)
+    return sites_user.sites[0].id
