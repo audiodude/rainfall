@@ -58,8 +58,8 @@ def create_app():
     upload_user = site.user
 
     if upload_user.id != user.id:
-      return flask.jsonify(status=403,
-                           error='Cannot upload data to that release'), 403
+      return flask.jsonify(status=401,
+                           error='Cannot upload data to that release'), 401
 
     song_files = flask.request.files.getlist("song[]")
     if not song_files:
@@ -105,6 +105,7 @@ def create_app():
   @with_current_user
   @with_current_site
   def preview_index(site, user):
+    # The decorators ensure that the site belongs to the user.
     return flask.send_from_directory(
         os.path.join('..', app.config['PREVIEW_DIR'], public_dir(site)),
         'index.html')
@@ -113,7 +114,7 @@ def create_app():
   @with_current_user
   @with_current_site
   def preview_asset(site, user, filename):
-    print(filename)
+    # The decorators ensure that the site belongs to the user.
     if filename.endswith('/'):
       filename += 'index.html'
     return flask.send_from_directory(
