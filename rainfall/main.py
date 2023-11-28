@@ -6,6 +6,7 @@ import flask
 from werkzeug.utils import secure_filename
 
 from rainfall.blueprint.user import user as user_blueprint
+from rainfall.blueprint.site import site as site_blueprint
 from rainfall.db import db
 from rainfall.decorators import with_current_site, with_current_user
 from rainfall.models.file import File
@@ -37,49 +38,11 @@ def create_app():
   os.makedirs(app.config['PREVIEW_DIR'], exist_ok=True)
 
   app.register_blueprint(user_blueprint, url_prefix='/api/v1')
+  app.register_blueprint(site_blueprint, url_prefix='/api/v1')
 
   @app.route('/')
   def index():
     return 'Hello flask'
-
-  @app.route('/api/v1/site', methods=['POST'])
-  @with_current_user
-  def create_site(user):
-    if not user.is_welcomed:
-      return flask.jsonify(status=400,
-                           error='User has not yet been welcomed'), 400
-
-    data = flask.request.get_json()
-    if data is None:
-      return flask.jsonify(status=400, error='No JSON provided'), 400
-    site_data = data.get('site')
-    if site_data is None:
-      return flask.jsonify(status=400, error='Missing site data'), 400
-    if site_data.get('name') is None:
-      return flask.jsonify(status=400, error='Site name is required'), 400
-
-    user.sites.append(Site(**site_data))
-    db.session.add(user)
-    db.session.commit()
-
-    return '', 204
-
-  @app.route('/api/v1/site/list')
-  @with_current_user
-  def list_sites(user):
-    return flask.jsonify({'sites': [site.serialize() for site in user.sites]})
-
-  @app.route('/api/v1/site/<id_>')
-  @with_current_user
-  def get_site(user, id_):
-    site = db.session.get(Site, UUID(id_))
-    if site is None:
-      return flask.jsonify(status=404, error='Site not found'), 404
-
-    if site.user_id != user.id:
-      return flask.jsonify(status=403, error='Cannot access that site'), 403
-
-    return flask.jsonify(site.serialize())
 
   @app.route('/api/v1/release', methods=['POST'])
   @with_current_user
