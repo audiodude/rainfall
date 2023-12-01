@@ -40,8 +40,6 @@ def generate_site(data_dir_path, preview_dir_path, id_):
     ],
                          capture_output=True,
                          check=True)
-    print(out.stderr)
-    print(out.stdout)
   except subprocess.CalledProcessError as e:
     return (False, e.stderr.decode('utf-8'))
   return (True, None)
