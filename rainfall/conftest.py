@@ -5,6 +5,8 @@ import pytest
 
 from rainfall.db import db
 from rainfall.main import create_app
+from rainfall.models.file import File
+from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
 
@@ -63,6 +65,25 @@ def sites_user(app, welcomed_user):
     db.session.commit()
 
   return welcomed_user
+
+
+@pytest.fixture
+def releases_user(app, sites_user):
+  with app.app_context():
+    db.session.add(sites_user)
+    sites_user.sites[0].releases.append(Release(name='Site 0 Release 1'))
+    sites_user.sites[0].releases.append(
+        Release(name='Site 0 Release 2',
+                files=[
+                    File(filename='s0_r1_file_0'),
+                    File(filename='s0_r1_file_1')
+                ]))
+    sites_user.sites[1].releases.append(Release(name='Site 1 Release 1'))
+
+    db.session.add(sites_user)
+    db.session.commit()
+
+  return sites_user
 
 
 @pytest.fixture
