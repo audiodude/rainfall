@@ -29,7 +29,7 @@ class DecoratorsTest:
       @app.route('/testing/only/path/user')
       @with_current_user
       def method_testing(user):
-        return 'test result'
+        pass
 
       rv = client.get('/testing/only/path/user')
       assert rv.status == '404 NOT FOUND', rv.text
@@ -42,7 +42,7 @@ class DecoratorsTest:
       @app.route('/testing/only/path/user')
       @with_current_user
       def method_testing(user):
-        return 'test result'
+        pass
 
       rv = client.get('/testing/only/path/user')
       assert rv.status == '404 NOT FOUND', rv.text
