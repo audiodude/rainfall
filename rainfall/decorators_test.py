@@ -98,9 +98,7 @@ class DecoratorsTest:
       @with_current_user
       @with_current_site
       def method_testing(site, user):
-        assert site.user_id == BASIC_USER_ID
-        assert user.id == BASIC_USER_ID
-        return 'test result'
+        pass
 
       rv = client.get(f'/testing/only/path/{uuid7()}')
       assert rv.status == '404 NOT FOUND'
