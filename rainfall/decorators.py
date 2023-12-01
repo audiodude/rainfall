@@ -1,4 +1,5 @@
 from functools import wraps
+from uuid import UUID
 
 import flask
 
@@ -8,6 +9,10 @@ from rainfall.models.user import User
 
 
 def with_current_user(f):
+  '''
+  Retrieves the current user from the session, performs some checks, and then
+  calls the underlying handler
+  '''
 
   @wraps(f)
   def wrapped(*args, **kwargs):
@@ -17,7 +22,7 @@ def with_current_user(f):
 
     user = db.session.get(User, user_id)
     if user is None:
-      return flask.jsonify(status=404, error='No signed in user'), 404
+      return flask.jsonify(status=404, error='User does not exist'), 404
 
     value = f(*args, user=user, **kwargs)
     return value
@@ -26,13 +31,15 @@ def with_current_user(f):
 
 
 def with_current_site(f):
+  '''Requires the with_current_user decorator above'''
 
   @wraps(f)
   def wrapped(*args, **kwargs):
-    site_id = kwargs.pop('site_id')
-    if site_id is None:
+    if 'site_id' not in kwargs:
       return flask.jsonify(status=500,
                            error='Wrapper requires site_id kwarg'), 500
+
+    site_id = kwargs.pop('site_id')
     user = kwargs['user']
     site = db.session.get(Site, UUID(site_id))
     if site is None:
@@ -43,7 +50,7 @@ def with_current_site(f):
       return flask.jsonify(status=401,
                            error='Not authorized for that site'), 401
 
-    value = f(*args, site, **kwargs)
+    value = f(*args, site=site, **kwargs)
     return value
 
   return wrapped
