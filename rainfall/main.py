@@ -19,12 +19,6 @@ from rainfall.site import generate_site, public_dir
 ALLOWED_SONG_EXTS = ['.aiff', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']
 
 
-def allowed_file(filename):
-  if '.' not in filename:
-    return False
-  return '.' + filename.rsplit('.', 1)[1].lower() in ALLOWED_SONG_EXTS
-
-
 def create_app():
   app = flask.Flask(__name__)
   app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
@@ -49,6 +43,20 @@ def create_app():
   @app.route('/api/v1/upload', methods=['POST'])
   @with_current_user
   def upload(user):
+
+    def allowed_file(filename):
+      if '.' not in filename:
+        return False
+      return '.' + filename.rsplit('.', 1)[1].lower() in ALLOWED_SONG_EXTS
+
+    def check_song_file_types(song_files):
+      for f in song_files:
+        if not allowed_file(f.filename):
+          return flask.jsonify(
+              status=400,
+              error='File %s is not an allowed file type (%s)' %
+              (f.filename, ' '.join(ALLOWED_SONG_EXTS))), 400
+
     release_id = flask.request.form.get('release_id')
     if release_id is None:
       return flask.jsonify(status=400, error='No release id given'), 400
@@ -65,11 +73,9 @@ def create_app():
     if not song_files:
       return flask.jsonify(status=400, error='No songs uploaded'), 400
 
-    for f in song_files:
-      if not allowed_file(f.filename):
-        return flask.jsonify(status=400,
-                             error='File %s is not an allowed file type (%s)' %
-                             (f.filename, ' '.join(ALLOWED_SONG_EXTS))), 400
+    resp = check_song_file_types(song_files)
+    if resp is not None:
+      return resp
 
     release_path = os.path.join(app.config['DATA_DIR'], str(user.id),
                                 secure_filename(site.name),
