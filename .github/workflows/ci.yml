@@ -24,7 +24,7 @@ jobs:
           pipenv install -d
 
       - name: Run tests
-        run: pipenv run pytest
+        run: pipenv run pytest --cov=rainfall
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
