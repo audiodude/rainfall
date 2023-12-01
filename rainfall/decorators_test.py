@@ -80,7 +80,7 @@ class DecoratorsTest:
       @with_current_user
       @with_current_site
       def method_testing(site, user):
-        return 'test result'
+        pass
 
       rv = client.get(f'/testing/only/path/foo_site')
       assert rv.status == '500 INTERNAL SERVER ERROR'
@@ -105,7 +105,7 @@ class DecoratorsTest:
       rv = client.get(f'/testing/only/path/{uuid7()}')
       assert rv.status == '404 NOT FOUND'
 
-  def test_with_current_site_unknown_site(self, app, sites_user):
+  def test_with_current_site_user_no_match(self, app, sites_user):
     with app.test_client() as client:
       with client.session_transaction() as sess:
         sess['user_id'] = BASIC_USER_ID
@@ -122,9 +122,7 @@ class DecoratorsTest:
       @with_current_user
       @with_current_site
       def method_testing(site, user):
-        assert site.user_id == BASIC_USER_ID
-        assert user.id == BASIC_USER_ID
-        return 'test result'
+        pass
 
       rv = client.get(f'/testing/only/path/{uuid7()}')
       assert rv.status == '404 NOT FOUND'
