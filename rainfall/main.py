@@ -81,10 +81,20 @@ def create_app():
                                 secure_filename(site.name),
                                 secure_filename(release.name))
     os.makedirs(release_path, exist_ok=True)
+
     for song in song_files:
       name = secure_filename(song.filename)
-      release.files.append(File(filename=name))
-      song.save(os.path.join(release_path, name))
+      if len(name) > 1024:
+        return flask.jsonify(status=400,
+                             error=f'File name {name} is too long'), 400
+      file = File(filename=name)
+      release.files.append(file)
+      # Give the file a new name if it's a dupe. This must be done after
+      # the file is added to the release.
+      file.maybe_rename()
+
+      # Write the file to the filesystem.
+      song.save(os.path.join(release_path, file.filename))
 
     db.session.add(release)
     db.session.commit()

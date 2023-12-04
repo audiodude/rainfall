@@ -75,8 +75,8 @@ def releases_user(app, sites_user):
     sites_user.sites[0].releases.append(
         Release(name='Site 0 Release 2',
                 files=[
-                    File(filename='s0_r1_file_0'),
-                    File(filename='s0_r1_file_1')
+                    File(filename='s0_r1_file_0.wav'),
+                    File(filename='s0_r1_file_1.aiff')
                 ]))
     sites_user.sites[1].releases.append(Release(name='Site 1 Release 1'))
 
