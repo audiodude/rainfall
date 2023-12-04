@@ -60,6 +60,14 @@ describe('Edit Site test', () => {
       cy.get('#new-release-button').should('be.visible');
     });
 
+    it('shows the preview button', () => {
+      cy.get('#preview-site-button').should('be.visible');
+    });
+
+    it('has the preview button disabled when there are no releases', () => {
+      cy.get('#preview-site-button').should('be.disabled');
+    });
+
     describe('when the add release button is clicked', () => {
       beforeEach(() => {
         cy.intercept('POST', 'api/v1/release', {
@@ -166,6 +174,49 @@ describe('Edit Site test', () => {
               cy.get('.file-name').contains('song-1.mp3');
             });
           });
+        });
+      });
+    });
+
+    describe('when there is a release with an upload', () => {
+      beforeEach(() => {
+        cy.intercept('GET', 'api/v1/user', {
+          fixture: 'user_welcomed.json',
+        });
+        cy.intercept('GET', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9', {
+          fixture: 'site-4.json',
+        }).as('load-site');
+        cy.visit('/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
+      });
+
+      it('has the preview button enabled', () => {
+        cy.get('#preview-site-button').should('not.be.disabled');
+      });
+
+      describe('when the preview button is clicked', () => {
+        let calledPreview = false;
+        beforeEach(() => {
+          cy.intercept('POST', 'api/v1/preview/06547ed8-206f-7d3d-8000-20ab423e0bb9', (req) => {
+            calledPreview = true;
+            req.reply(204, '', {});
+          }).as('preview-site');
+          cy.get('#preview-site-button').click();
+        });
+        it('shows a loading message', () => {
+          cy.get('.preview-load').contains('Loading preview...');
+        });
+
+        it('shows the preview link', () => {
+          cy.wait('@preview-site');
+          cy.get('.preview-load').contains('Open preview in new window');
+        });
+
+        it('has the right URL for the preview link', () => {
+          cy.wait('@preview-site');
+          cy.get('.preview-link')
+            .should('have.attr', 'href')
+            .should('not.be.empty')
+            .and('contain', '/preview');
         });
       });
     });

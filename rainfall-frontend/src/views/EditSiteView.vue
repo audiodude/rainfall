@@ -101,6 +101,7 @@ export default {
       <p class="mt-4">Add a release and some files, and then you can preview your site.</p>
       <AddReleaseButton :cardinality="cardinality" :site-id="site.id" @release-created="loadSite" />
       <PreviewSiteButton
+        :site-id="site.id"
         :ready-for-preview="readyForPreview"
         @invalidatePreview="setInvalidateHandler"
       />
