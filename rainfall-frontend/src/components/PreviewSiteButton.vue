@@ -52,12 +52,12 @@ export default {
 
 <template>
   <div>
-    <div class="md:max-w-screen-md">
+    <div class="md:max-w-screen-md flex flex-col md:flex-row items-center">
       <button
         id="preview-site-button"
         @click="createPreview"
         :disabled="!readyForPreview"
-        class="cursor-pointer mt-4 disabled:cursor-auto bg-blue-500 disabled:bg-blue-400 hover:bg-blue-700 disabled:hover:bg-blue-400 font-semibold text-white font-bold py-2 px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
+        class="max-w-l cursor-pointer mt-4 disabled:cursor-auto bg-blue-500 disabled:bg-blue-400 hover:bg-blue-700 disabled:hover:bg-blue-400 font-semibold text-white font-bold py-2 px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
       >
         Preview Site
       </button>
@@ -66,12 +66,12 @@ export default {
         class="mt-4 md:ml-4"
         aria-live="polite"
       >
-        <div v-if="previewLoading">Loading preview...</div>
-        <div v-if="!previewLoading && !previewError">
+        <div v-if="previewLoading" class="preview-load">Loading preview...</div>
+        <div v-if="!previewLoading && !previewError" class="preview-load">
           <a
             :href="previewUrl"
             target="_blank"
-            class="font-medium text-blue-600 dark:text-blue-400 hover:underline"
+            class="preview-link font-medium text-blue-600 dark:text-blue-400 hover:underline"
             >Open preview in new window</a
           >
         </div>
