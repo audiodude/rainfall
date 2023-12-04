@@ -2,11 +2,12 @@
 import { mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
 import { type Site } from '../types/site';
-import ReleaseActions from '../components/ReleaseActions.vue';
+import AddReleaseButton from '../components/AddReleaseButton.vue';
+import PreviewSiteButton from '../components/PreviewSiteButton.vue';
 import ReleasesList from '../components/ReleasesList.vue';
 
 export default {
-  components: { ReleaseActions, ReleasesList },
+  components: { AddReleaseButton, PreviewSiteButton, ReleasesList },
   data(): { site: null | Site; sitesError: string; invalidateHandler: () => void } {
     return {
       site: null,
@@ -98,11 +99,9 @@ export default {
         .wav
       </p>
       <p class="mt-4">Add a release and some files, and then you can preview your site.</p>
-      <ReleaseActions
-        :cardinality="cardinality"
-        :site-id="site.id"
+      <AddReleaseButton :cardinality="cardinality" :site-id="site.id" @release-created="loadSite" />
+      <PreviewSiteButton
         :ready-for-preview="readyForPreview"
-        @release-created="loadSite"
         @invalidatePreview="setInvalidateHandler"
       />
       <ReleasesList :releases="site.releases" @song-uploaded="loadSite()" />
