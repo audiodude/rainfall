@@ -3,7 +3,7 @@ from uuid import UUID
 import flask
 
 from rainfall.db import db
-from rainfall.decorators import with_current_user
+from rainfall.decorators import with_current_user, with_current_site
 from rainfall.models.site import Site
 
 site = flask.Blueprint('site', __name__)
@@ -38,14 +38,8 @@ def list_sites(user):
   return flask.jsonify({'sites': [site.serialize() for site in user.sites]})
 
 
-@site.route('/site/<id_>')
+@site.route('/site/<site_id>')
 @with_current_user
-def get_site(user, id_):
-  site = db.session.get(Site, UUID(id_))
-  if site is None:
-    return flask.jsonify(status=404, error='Site not found'), 404
-
-  if site.user_id != user.id:
-    return flask.jsonify(status=403, error='Cannot access that site'), 403
-
+@with_current_site
+def get_site(site, user):
   return flask.jsonify(site.serialize())
