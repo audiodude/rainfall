@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import flask
 
 from rainfall.db import db
