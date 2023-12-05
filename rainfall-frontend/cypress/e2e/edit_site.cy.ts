@@ -202,6 +202,12 @@ describe('Edit Site test', () => {
           }).as('preview-site');
           cy.get('#preview-site-button').click();
         });
+
+        it('calls the preview endpoint', () => {
+          cy.wait('@preview-site');
+          cy.wrap(calledPreview).should('eq', true);
+        });
+
         it('shows a loading message', () => {
           cy.get('.preview-load').contains('Loading preview...');
         });
@@ -217,6 +223,70 @@ describe('Edit Site test', () => {
             .should('have.attr', 'href')
             .should('not.be.empty')
             .and('contain', '/preview');
+        });
+      });
+
+      describe('and the delete button is successfully pressed for one of the files', () => {
+        let calledDelete = false;
+        beforeEach(() => {
+          cy.intercept('DELETE', 'api/v1/file/06552cb9-7fe0-7723-8000-82163fc21234', (req) => {
+            calledDelete = true;
+            req.reply(204, '', {});
+          }).as('delete-song');
+          cy.get('.file-name').contains('song-2.mp3').siblings('button').click();
+        });
+
+        it('calls the delete endpoint', () => {
+          cy.wait('@delete-song');
+          cy.wrap(calledDelete).should('eq', true);
+        });
+
+        it('removes the file from the list', () => {
+          cy.get('.file-name').contains('song-2.mp3').should('not.exist');
+        });
+      });
+
+      describe('and the delete button is successfully pressed for the last file in the list', () => {
+        let calledDelete = false;
+        beforeEach(() => {
+          cy.intercept('DELETE', 'api/v1/file/06552cb9-7fe0-7723-8000-82163fc25478', (req) => {
+            calledDelete = true;
+            req.reply(204, '', {});
+          }).as('delete-song');
+          cy.get('.file-name').contains('a-great-song.mp3').siblings('button').click();
+        });
+
+        it('calls the delete endpoint', () => {
+          cy.wait('@delete-song');
+          cy.wrap(calledDelete).should('eq', true);
+        });
+
+        it('removes the file from the list', () => {
+          cy.get('.file-name').contains('a-great-song.mp3').should('not.exist');
+        });
+
+        it('shows the "no files" message', () => {
+          cy.get('.no-files-msg').should('be.visible');
+        });
+      });
+
+      describe('and the delete call returns an error', () => {
+        let calledDelete = false;
+        beforeEach(() => {
+          cy.intercept('DELETE', 'api/v1/file/06552cb9-7fe0-7723-8000-82163fc21234', (req) => {
+            calledDelete = true;
+            req.reply(500, '', {});
+          }).as('delete-song');
+          cy.get('.file-name').contains('song-2.mp3').siblings('button').click();
+        });
+
+        it('calls the delete endpoint', () => {
+          cy.wait('@delete-song');
+          cy.wrap(calledDelete).should('eq', true);
+        });
+
+        it('leaves the file in the list', () => {
+          cy.get('.file-name').contains('song-2.mp3').should('be.visible');
         });
       });
     });

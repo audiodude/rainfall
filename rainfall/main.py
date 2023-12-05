@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from uuid import UUID
@@ -5,6 +6,7 @@ from uuid import UUID
 import flask
 from werkzeug.utils import secure_filename
 
+from rainfall.blueprint.file import file as file_blueprint
 from rainfall.blueprint.user import user as user_blueprint
 from rainfall.blueprint.release import release as release_blueprint
 from rainfall.blueprint.site import site as site_blueprint
@@ -14,9 +16,12 @@ from rainfall.models.file import File
 from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
-from rainfall.site import generate_site, public_dir
+from rainfall.site import generate_site, public_dir, release_path
 
 ALLOWED_SONG_EXTS = ['.aiff', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']
+
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.WARNING)
 
 
 def create_app():
@@ -35,6 +40,7 @@ def create_app():
   app.register_blueprint(user_blueprint, url_prefix='/api/v1')
   app.register_blueprint(site_blueprint, url_prefix='/api/v1')
   app.register_blueprint(release_blueprint, url_prefix='/api/v1')
+  app.register_blueprint(file_blueprint, url_prefix='/api/v1')
 
   @app.route('/')
   def index():
@@ -77,10 +83,8 @@ def create_app():
     if resp is not None:
       return resp
 
-    release_path = os.path.join(app.config['DATA_DIR'], str(user.id),
-                                secure_filename(site.name),
-                                secure_filename(release.name))
-    os.makedirs(release_path, exist_ok=True)
+    cur_release_path = release_path(app.config['DATA_DIR'], release)
+    os.makedirs(cur_release_path, exist_ok=True)
 
     for song in song_files:
       name = secure_filename(song.filename)
@@ -94,7 +98,7 @@ def create_app():
       file.maybe_rename()
 
       # Write the file to the filesystem.
-      song.save(os.path.join(release_path, file.filename))
+      song.save(os.path.join(cur_release_path, file.filename))
 
     db.session.add(release)
     db.session.commit()

@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
-from rainfall.site import build_dir, cache_dir, catalog_dir, generate_site, public_dir
+from rainfall.site import build_dir, cache_dir, catalog_dir, generate_site, public_dir, release_path
 
 
 @pytest.fixture
@@ -49,6 +49,17 @@ class SiteTest:
       actual = cache_dir('foo/data', site_id)
 
       assert actual == f'foo/data/{str(BASIC_USER_ID)}/{site_name}/cache'
+
+  def test_release_path(self, app, releases_user):
+    with app.app_context():
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[0]
+      actual = release_path('/foo/data', release)
+
+      assert actual == (
+          f'/foo/data/{str(BASIC_USER_ID)}/'
+          f'{secure_filename(release.site.name)}/{secure_filename(release.name)}'
+      )
 
   @patch('rainfall.site.subprocess.run')
   def test_generate_site(self, mock_subprocess, app, site_id):

@@ -12,6 +12,11 @@
           "filename": "song-1.mp3",
           "id": "06552cb9-7fe0-7723-8000-82163fc2aa3c",
           "release_id": "06552cb9-0c60-7066-8000-3c3da08a9e9d"
+        },
+        {
+          "filename": "song-2.mp3",
+          "id": "06552cb9-7fe0-7723-8000-82163fc21234",
+          "release_id": "06552cb9-0c60-7066-8000-3c3da08a9e9d"
         }
       ]
     },
@@ -19,7 +24,13 @@
       "id": "06552fff-0c60-7066-8000-3c3da08a9e9d",
       "name": "Release 2",
       "site_id": "06547ed8-206f-7d3d-8000-20ab423e0bb9",
-      "files": []
+      "files": [
+        {
+          "filename": "a-great-song.mp3",
+          "id": "06552cb9-7fe0-7723-8000-82163fc25478",
+          "release_id": "06552cb9-0c60-7066-8000-3c3da08a9e9d"
+        }
+      ]
     }
   ]
 }

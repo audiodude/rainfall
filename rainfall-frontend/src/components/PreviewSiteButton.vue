@@ -57,7 +57,7 @@ export default {
         id="preview-site-button"
         @click="createPreview"
         :disabled="!readyForPreview"
-        class="max-w-l cursor-pointer mt-4 disabled:cursor-auto bg-blue-500 disabled:bg-blue-400 hover:bg-blue-700 disabled:hover:bg-blue-400 font-semibold text-white font-bold py-2 px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
+        class="cursor-pointer mt-4 disabled:cursor-auto bg-blue-500 disabled:bg-blue-400 hover:bg-blue-700 disabled:hover:bg-blue-400 font-semibold text-white font-bold py-2 px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
       >
         Preview Site
       </button>
