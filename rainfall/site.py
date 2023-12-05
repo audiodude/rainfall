@@ -30,6 +30,12 @@ def cache_dir(preview_dir_path, site_id):
                       secure_filename(site.name), 'cache')
 
 
+def release_path(data_dir_path, release):
+  return os.path.join(data_dir_path, str(release.site.user.id),
+                      secure_filename(release.site.name),
+                      secure_filename(release.name))
+
+
 def generate_site(data_dir_path, preview_dir_path, id_):
   try:
     out = subprocess.run([
