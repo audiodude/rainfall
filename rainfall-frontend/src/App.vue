@@ -18,6 +18,12 @@ import NavBar from './components/NavBar.vue';
         class="text-sm text-gray-900 dark:text-white"
         >Rain icons created by tulpahn - Flaticon</a
       >
+      <span
+        >Questions? Bugs?
+        <a class="text-blue-500 hover:underline" href="https://github.com/audiodude/rainfall/issues"
+          >File a Github issue</a
+        ></span
+      >
     </div>
   </footer>
 </template>
