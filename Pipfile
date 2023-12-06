@@ -13,6 +13,7 @@ uuid7 = "*"
 # TODO: figure out if we still need this?
 pyjwt = {extras = ["crypto"], version = "*"}
 requests = "*"
+gunicorn = "*"
 
 [dev-packages]
 pytest = "*"
