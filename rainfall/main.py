@@ -16,7 +16,7 @@ from rainfall.models.file import File
 from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
-from rainfall.site import generate_site, public_dir, release_path, site_exists
+from rainfall.site import generate_site, generate_zip, public_dir, release_path, site_exists, zip_file_path
 
 ALLOWED_SONG_EXTS = ['.aiff', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']
 
@@ -147,10 +147,14 @@ def create_app():
         os.path.join('..', app.config['PREVIEW_DIR'], public_dir(site)),
         filename)
 
-  @app.route('/api/v1/zip')
+  @app.route('/api/v1/zip/<site_id>')
   @with_current_user
   @with_current_site
   def zip(site, user):
-    pass
+    generate_zip(app.config['PREVIEW_DIR'], str(site.id))
+    zip_path = zip_file_path(app.config['PREVIEW_DIR'], str(site.id))
+    print(zip_path)
+    return flask.send_from_directory(os.path.join('..', zip_path),
+                                     'rainfall_site.zip')
 
   return app
