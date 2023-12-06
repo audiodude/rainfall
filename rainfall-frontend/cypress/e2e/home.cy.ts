@@ -11,8 +11,11 @@ describe('Home Test', () => {
       cy.visit('/');
     });
 
-    it('shows the sign in text', () => {
-      cy.contains('h1', 'Sign in:');
+    it('shows the marketing copy', () => {
+      cy.contains('div', 'Your music. Your website. Your way.');
+    });
+
+    it('shows the sign in div', () => {
       cy.contains('div', 'Sign in with Google');
     });
 
