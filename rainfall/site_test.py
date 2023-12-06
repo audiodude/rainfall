@@ -75,7 +75,8 @@ class SiteTest:
           '--build-dir',
           'foo/preview/06543f11-12b6-71ea-8000-e026c63c22e2/Cool_Site_1/public',
           '--cache-dir',
-          'foo/preview/06543f11-12b6-71ea-8000-e026c63c22e2/Cool_Site_1/cache'
+          'foo/preview/06543f11-12b6-71ea-8000-e026c63c22e2/Cool_Site_1/cache',
+          '--no-clean-urls'
       ],
                                               capture_output=True,
                                               check=True)
