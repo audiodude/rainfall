@@ -48,7 +48,7 @@ def generate_site(data_dir_path, preview_dir_path, site_id):
         'faircamp', '--catalog-dir',
         catalog_dir(data_dir_path, site_id), '--build-dir',
         build_dir(preview_dir_path, site_id), '--cache-dir',
-        cache_dir(preview_dir_path, site_id)
+        cache_dir(preview_dir_path, site_id), '--no-clean-urls'
     ],
                          capture_output=True,
                          check=True)
