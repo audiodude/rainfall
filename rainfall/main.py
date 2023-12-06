@@ -16,7 +16,7 @@ from rainfall.models.file import File
 from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
-from rainfall.site import generate_site, public_dir, release_path
+from rainfall.site import generate_site, public_dir, release_path, site_exists
 
 ALLOWED_SONG_EXTS = ['.aiff', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']
 
@@ -105,7 +105,7 @@ def create_app():
 
     return '', 204
 
-  @app.route('/api/v1/preview/<site_id>', methods=['POST'])
+  @app.route('/api/v1/preview/<site_id>', methods=['GET', 'POST'])
   @with_current_user
   @with_current_site
   def create_preview(site, user):
@@ -113,6 +113,12 @@ def create_app():
                                           for f in release.files):
       return flask.jsonify(
           status=400, error='Cannot preview site without releases/files'), 400
+
+    if flask.request.method == 'GET':
+      if site_exists(app.config['PREVIEW_DIR'], str(site.id)):
+        return '', 204
+      else:
+        return '', 404
 
     result = generate_site(app.config['DATA_DIR'], app.config['PREVIEW_DIR'],
                            str(site.id))
@@ -140,5 +146,11 @@ def create_app():
     return flask.send_from_directory(
         os.path.join('..', app.config['PREVIEW_DIR'], public_dir(site)),
         filename)
+
+  @app.route('/api/v1/zip')
+  @with_current_user
+  @with_current_site
+  def zip(site, user):
+    pass
 
   return app
