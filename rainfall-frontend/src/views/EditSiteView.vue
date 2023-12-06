@@ -121,7 +121,7 @@ export default {
         @invalidatePreview="setInvalidateHandler"
         @preview-requested="calculateSiteExists"
       />
-      <DeployButton :ready-for-deploy="readyForPreview && siteExists" />
+      <DeployButton :site-id="site.id" :ready-for-deploy="readyForPreview && siteExists" />
       <ReleasesList :releases="site.releases" @song-uploaded="loadSite()" />
     </div>
     <div v-else class="max-w-screen-md">Loading...</div>

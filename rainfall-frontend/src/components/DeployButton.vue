@@ -6,9 +6,9 @@ export default {
   data(): {} {
     return {};
   },
-  methods: {
-    redirectToDownload() {
-      this.$router.replace('/api/v1/zip');
+  computed: {
+    downloadUrl() {
+      return `/api/v1/zip/${this.siteId}`;
     },
   },
   mounted() {
@@ -57,8 +57,7 @@ export default {
         >
           <li>
             <a
-              href="#"
-              @click="redirectToDownload()"
+              :href="downloadUrl"
               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
               >Download .ZIP</a
             >
