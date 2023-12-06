@@ -25,12 +25,12 @@ export default {
 
 <template>
   <div v-if="!userStore.isLoggedIn">
-    <h1>Sign in:</h1>
     <div
       id="g_id_onload"
       :data-client_id="clientId"
       data-ux_mode="redirect"
       :data-login_uri="redirectUri"
+      class="mx-auto text-center"
     ></div>
     <div class="g_id_signin" data-type="standard"></div>
   </div>
@@ -39,5 +39,6 @@ export default {
 <style scoped>
 .g_id_signin {
   max-width: 12rem;
+  margin: auto;
 }
 </style>
