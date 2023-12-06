@@ -3,16 +3,23 @@ import { mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
 import { type Site } from '../types/site';
 import AddReleaseButton from '../components/AddReleaseButton.vue';
+import DeployButton from '../components/DeployButton.vue';
 import PreviewSiteButton from '../components/PreviewSiteButton.vue';
 import ReleasesList from '../components/ReleasesList.vue';
 
 export default {
-  components: { AddReleaseButton, PreviewSiteButton, ReleasesList },
-  data(): { site: null | Site; sitesError: string; invalidateHandler: () => void } {
+  components: { AddReleaseButton, DeployButton, PreviewSiteButton, ReleasesList },
+  data(): {
+    site: null | Site;
+    sitesError: string;
+    invalidateHandler: () => void;
+    siteExists: boolean;
+  } {
     return {
       site: null,
       sitesError: '',
       invalidateHandler: () => {},
+      siteExists: false,
     };
   },
   async created() {
@@ -34,6 +41,7 @@ export default {
       },
     );
     await this.loadSite();
+    await this.calculateSiteExists();
   },
   computed: {
     cardinality() {
@@ -78,6 +86,13 @@ export default {
     setInvalidateHandler(fn: () => void) {
       this.invalidateHandler = fn;
     },
+    async calculateSiteExists() {
+      if (!this.site) {
+        return false;
+      }
+      const resp = await fetch(`/api/v1/preview/${this.site.id}`);
+      this.siteExists = resp.ok;
+    },
   },
 };
 </script>
@@ -87,8 +102,8 @@ export default {
     <div v-if="sitesError" class="max-w-screen-md">
       <p class="mt-4 text-red-600 dark:text-red-400">Could not load that site: {{ sitesError }}</p>
     </div>
-    <div v-else-if="site" class="max-w-screen-md">
-      <h2 class="text-2xl font-bold">Editing {{ site.name }}</h2>
+    <div v-else-if="site" class="max-w-screen-md flex flex-col text-center md:text-left">
+      <h2 class="text-2xl font-bold text-left">Editing {{ site.name }}</h2>
       <p class="mt-4">
         A site is composed of Releases. Each Release represents an album, EP, single, etc. A Release
         contains a number of songs/files that you upload here. The name of the release, as well as
@@ -104,7 +119,9 @@ export default {
         :site-id="site.id"
         :ready-for-preview="readyForPreview"
         @invalidatePreview="setInvalidateHandler"
+        @preview-requested="calculateSiteExists"
       />
+      <DeployButton :ready-for-deploy="readyForPreview && siteExists" />
       <ReleasesList :releases="site.releases" @song-uploaded="loadSite()" />
     </div>
     <div v-else class="max-w-screen-md">Loading...</div>

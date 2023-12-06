@@ -1,6 +1,6 @@
 <script lang="ts">
 export default {
-  props: ['cardinality', 'siteId', 'readyForPreview'],
+  props: ['cardinality', 'siteId'],
   data(): {
     createError: boolean;
   } {
@@ -41,7 +41,7 @@ export default {
         <button
           id="new-release-button"
           @click="createRelease"
-          class="cursor-pointer mt-4 disabled:cursor-auto bg-blue-500 hover:bg-blue-700 disabled:hover:bg-transparent font-semibold text-white font-bold py-2 px-4 border border-blue-500 rounded hover:text-white disabled:hover:dark:text-gray-300 hover:border-transparent disabled:hover:border-blue-500"
+          class="cursor-pointer mt-4 w-10/12 md:w-32 py-4 md:py-2 px-4 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-gray-200 disabled:text-gray-600 disabled:text-white disabled:bg-blue-400 hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white font-bold py-2 px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
         >
           Add Release
         </button>

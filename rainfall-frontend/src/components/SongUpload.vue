@@ -67,7 +67,7 @@ export default {
       <button
         @click="upload()"
         :disabled="!files || files.length == 0"
-        class="upload-songs-button cursor-pointer mt-4 disabled:cursor-auto bg-blue-500 disabled:bg-blue-400 hover:bg-blue-700 disabled:hover:bg-blue-400 font-semibold text-white font-bold py-2 px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
+        class="upload-songs-button cursor-pointer mt-4 py-4 md:py-2 px-4 disabled:cursor-auto bg-blue-500 focus:ring-4 focus:outline-none focus:ring-blue-300 disabled:bg-blue-400 hover:bg-blue-700 disabled:hover:bg-blue-400 font-semibold text-gray-200 disabled:text-gray-600 font-bold py-2 px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
       >
         Upload Songs
       </button></label
