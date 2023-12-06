@@ -36,13 +36,18 @@ def release_path(data_dir_path, release):
                       secure_filename(release.name))
 
 
-def generate_site(data_dir_path, preview_dir_path, id_):
+def site_exists(preview_dir_path, site_id):
+  dir = build_dir(preview_dir_path, site_id)
+  return os.path.exists(dir) and len(os.listdir(dir)) > 0
+
+
+def generate_site(data_dir_path, preview_dir_path, site_id):
   try:
     out = subprocess.run([
         'faircamp', '--catalog-dir',
-        catalog_dir(data_dir_path, id_), '--build-dir',
-        build_dir(preview_dir_path, id_), '--cache-dir',
-        cache_dir(preview_dir_path, id_)
+        catalog_dir(data_dir_path, site_id), '--build-dir',
+        build_dir(preview_dir_path, site_id), '--cache-dir',
+        cache_dir(preview_dir_path, site_id)
     ],
                          capture_output=True,
                          check=True)
