@@ -42,9 +42,15 @@ def create_app():
   app.register_blueprint(release_blueprint, url_prefix='/api/v1')
   app.register_blueprint(file_blueprint, url_prefix='/api/v1')
 
+  FRONTEND_DIR = '../rainfall-frontend/dist'
+
   @app.route('/')
   def index():
-    return 'Hello flask'
+    return flask.send_from_directory(FRONTEND_DIR, 'index.html')
+
+  @app.route('/<path:filename>')
+  def frontend(filename):
+    return flask.send_from_directory(FRONTEND_DIR, filename)
 
   @app.route('/api/v1/upload', methods=['POST'])
   @with_current_user
