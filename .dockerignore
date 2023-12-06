@@ -1,0 +1,48 @@
+# flyctl launch added from .gitignore
+**/__pycache__
+**/Artist
+**/*.sqlite3
+**/create_db.py
+**/song-data
+**/preview-data
+
+# flyctl launch added from .pytest_cache/.gitignore
+# Created by pytest automatically.
+.pytest_cache/**/*
+
+# flyctl launch added from rainfall-frontend/.gitignore
+# Logs
+rainfall-frontend/**/logs
+rainfall-frontend/**/*.log
+rainfall-frontend/**/npm-debug.log*
+rainfall-frontend/**/yarn-debug.log*
+rainfall-frontend/**/yarn-error.log*
+rainfall-frontend/**/pnpm-debug.log*
+rainfall-frontend/**/lerna-debug.log*
+
+rainfall-frontend/**/node_modules
+rainfall-frontend/**/.DS_Store
+rainfall-frontend/**/dist
+rainfall-frontend/**/dist-ssr
+rainfall-frontend/**/coverage
+rainfall-frontend/**/*.local
+
+rainfall-frontend/cypress/videos
+rainfall-frontend/cypress/screenshots
+
+# Editor directories and files
+rainfall-frontend/**/.vscode/*
+!rainfall-frontend/**/.vscode/extensions.json
+rainfall-frontend/**/.idea
+rainfall-frontend/**/*.suo
+rainfall-frontend/**/*.ntvs*
+rainfall-frontend/**/*.njsproj
+rainfall-frontend/**/*.sln
+rainfall-frontend/**/*.sw?
+
+# flyctl launch added from rainfall-frontend/node_modules/tailwindcss/stubs/.gitignore
+!rainfall-frontend/node_modules/tailwindcss/stubs/**/*
+fly.toml
+
+# Ignore development .env file, ENV is set in fly SECRETS
+.env

@@ -4,6 +4,7 @@ import time
 from uuid import UUID
 
 import flask
+import sqlalchemy
 from werkzeug.utils import secure_filename
 
 from rainfall.blueprint.file import file as file_blueprint
@@ -43,14 +44,6 @@ def create_app():
   app.register_blueprint(file_blueprint, url_prefix='/api/v1')
 
   FRONTEND_DIR = '../rainfall-frontend/dist'
-
-  @app.route('/')
-  def index():
-    return flask.send_from_directory(FRONTEND_DIR, 'index.html')
-
-  @app.route('/<path:filename>')
-  def frontend(filename):
-    return flask.send_from_directory(FRONTEND_DIR, filename)
 
   @app.route('/api/v1/upload', methods=['POST'])
   @with_current_user
@@ -162,5 +155,20 @@ def create_app():
     print(zip_path)
     return flask.send_from_directory(os.path.join('..', zip_path),
                                      'rainfall_site.zip')
+
+  @app.route('/')
+  @app.route('/<path:filename>')
+  def index(filename=None):
+    return flask.send_from_directory(FRONTEND_DIR, 'index.html')
+
+  @app.route('/src/<path:filename>')
+  def srcs(filename=None):
+    return flask.send_from_directory(os.path.join(FRONTEND_DIR, 'src'),
+                                     filename)
+
+  @app.route('/assets/<path:filename>')
+  def assets(filename=None):
+    return flask.send_from_directory(os.path.join(FRONTEND_DIR, 'assets'),
+                                     filename)
 
   return app

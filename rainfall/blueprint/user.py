@@ -1,4 +1,5 @@
 from dataclasses import fields
+import logging
 import os
 from urllib.parse import urljoin
 
@@ -15,6 +16,8 @@ user = flask.Blueprint('user', __name__)
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
 RAINFALL_FRONTEND_URL = os.environ['RAINFALL_FRONTEND_URL']
+
+log = logging.getLogger(__name__)
 
 
 @user.route('/user')
@@ -44,6 +47,7 @@ def login():
     idinfo = id_token.verify_oauth2_token(token, goog_requests.Request(),
                                           GOOGLE_CLIENT_ID)
   except ValueError:
+    log.exception('Could not verify token, using: %s', GOOGLE_CLIENT_ID)
     return flask.jsonify(status=400, error='Could not verify token'), 400
 
   user_id = save_or_update_google_user(idinfo)
