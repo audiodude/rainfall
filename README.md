@@ -11,7 +11,7 @@ Rainfall has reached version 1.0 of development!
 
 ![image](https://github.com/audiodude/rainfall/assets/57832/04e7088a-3d61-4dcd-b22a-445be161534e)
 
-Currently, you can upload tracks and preview your Faircamp powered site. When you're ready, you can download a .ZIP file of your site, which you can then upload it to any of the cloud providers mentioned on the welcome page, or anywhere else that hosts static websites:
+Currently, you can upload tracks and preview your Faircamp powered site. When you're ready, you can download a .ZIP file of your site, which you can then upload to any of the cloud providers mentioned on the welcome page, or anywhere else that hosts static websites:
 
 * [Netlify](https://www.netlify.com/)
 * [Google Cloud](https://cloud.google.com/storage?hl=en)
