@@ -1,6 +1,10 @@
 # Rainfall
 Free Bandcamp exodus tool, letting you publish music sites to Netlify using [Faircamp](https://codeberg.org/simonrepp/faircamp).
 
+[![GitHub build status](https://github.com/audiodude/rainfall/actions/workflows/ci.yml/badge.svg)
+![codecov](https://codecov.io/gh/audiodude/rainfall/graph/badge.svg?token=rTPXFzOytM)](https://codecov.io/gh/audiodude/rainfall)
+![GitHub License](https://img.shields.io/github/license/audiodude/rainfall)
+
 This project does not aim to replicate the full feature set of the Bandcamp site/app. Instead, the goal is to allow artists to create individual websites where users can listen to and potentially download and pay for their tracks. These websites are created using the Faircamp static site generator, and can be hosted anywhere on the web.
 
 Rainfall has reached version 1.0 of development!
