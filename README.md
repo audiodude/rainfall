@@ -9,7 +9,7 @@ This project does not aim to replicate the full feature set of the Bandcamp site
 
 Rainfall has reached version 1.0 of development!
 
-![image](https://github.com/audiodude/rainfall/assets/57832/04e7088a-3d61-4dcd-b22a-445be161534e)
+![Screenshot of the Rainfall tool, on the song upload page](https://github.com/audiodude/rainfall/assets/57832/04e7088a-3d61-4dcd-b22a-445be161534e)
 
 Currently, you can upload tracks and preview your Faircamp powered site. When you're ready, you can download a .ZIP file of your site, which you can then upload to any of the cloud providers mentioned on the welcome page, or anywhere else that hosts static websites:
 
