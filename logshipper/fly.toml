@@ -1,0 +1,30 @@
+# fly.toml app configuration file generated for rainfall-logshipper on 2023-12-12T13:47:54-08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "rainfall-logshipper"
+primary_region = "sjc"
+
+[build]
+  image = "ghcr.io/superfly/fly-log-shipper:latest"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 1024
+
+[[services]]
+  http_checks = []
+  internal_port = 8686
+
+[env]
+  SUBJECT = "logs.rainfall.*"
