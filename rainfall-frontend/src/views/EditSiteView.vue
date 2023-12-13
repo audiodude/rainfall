@@ -113,6 +113,18 @@ export default {
         You can upload songs in any of the following formats: .aiff, .aif, .flac, .mp3, .ogg, .opus,
         .wav
       </p>
+      <p class="mt-4">
+        <strong>Max upload size is 100 MB.</strong> If you are attempting to upload files larger
+        than this, try encoding to
+        <a class="text-blue-400 hover:underline" href="https://en.wikipedia.org/wiki/FLAC">FLAC</a>
+        or
+        <a
+          class="text-blue-400 hover:underline"
+          href="https://en.wikipedia.org/wiki/Opus_(audio_format)"
+          >Opus</a
+        >. Faircamp will transcode all tracks to Opus anyways, so there is no advantage to uploading
+        lossless, uncompressed tracks.
+      </p>
       <p class="mt-4">Add a release and some files, and then you can preview your site.</p>
       <AddReleaseButton :cardinality="cardinality" :site-id="site.id" @release-created="loadSite" />
       <PreviewSiteButton
