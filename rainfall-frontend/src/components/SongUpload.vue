@@ -33,6 +33,10 @@ export default {
       }
 
       let error = 'An unknown error occurred';
+      if (resp.status == 413) {
+        error = 'That file is too large (> 100 MB)';
+      }
+
       if (resp.headers.get('Content-Type') == 'application/json') {
         const data = await resp.json();
         error = data.error;
