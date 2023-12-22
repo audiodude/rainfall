@@ -5,9 +5,6 @@ FROM node:${NODE_VERSION}-slim as fe-build
 
 WORKDIR /usr/src/app
 
-# Throw-away build stage to reduce size of final image
-FROM fe-build as build
-
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
   apt-get install -y build-essential pkg-config python-is-python3
@@ -25,6 +22,8 @@ WORKDIR /usr/src/app/frontend
 RUN yarn install --production=false --frozen-lockfile
 RUN NODE_ENV=production yarn build
 
+# Throw-away build stage to reduce size of final image
+FROM fe-build as build
 
 FROM ubuntu:23.10
 
@@ -37,6 +36,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh && ch
 RUN ./rustup.sh -y
 RUN git clone https://codeberg.org/simonrepp/faircamp.git
 WORKDIR faircamp
+RUN git checkout tags/0.11.0
 RUN $HOME/.cargo/bin/cargo install --features libvips --locked --path .
 
 # Python app
