@@ -8,3 +8,5 @@ Artist
 create_db.py
 song-data/
 preview-data/
+rainfall-data/
+rainfall-preview/
