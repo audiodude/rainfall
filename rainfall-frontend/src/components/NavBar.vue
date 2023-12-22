@@ -1,17 +1,9 @@
 <script lang="ts">
-import { mapStores } from 'pinia';
-import { useUserStore } from '../stores/user';
 import UserState from './UserState.vue';
 import SignOutButton from './SignOutButton.vue';
 
 export default {
   components: { UserState, SignOutButton },
-  computed: {
-    ...mapStores(useUserStore),
-  },
-  async mounted() {
-    await this.userStore.loadUser();
-  },
 };
 </script>
 
