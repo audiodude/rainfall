@@ -25,7 +25,7 @@ export default {
         id="dropdownDefaultButton"
         :disabled="!readyForDeploy"
         data-dropdown-toggle="dropdown"
-        class="mt-4 w-10/12 md:w-32 text-xl md:text-base py-4 md:py-2 px-4 focus:ring-4 text-gray-200 disabled:text-gray-600 focus:outline-none focus:ring-blue-300 inline-flex items-center justify-center cursor-pointer disabled:cursor-auto bg-blue-600 disabled:bg-blue-400 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white font-bold border border-blue-500 rounded hover:text-white hover:border-transparent disabled:hover:border-blue-600"
+        class="inline-flex items-center justify-center cursor-pointer mt-4 w-10/12 md:w-32 p-4 md:py-2 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-grey-200 disabled:bg-blue-400 disabled:text-white hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
         type="button"
       >
         Deploy
