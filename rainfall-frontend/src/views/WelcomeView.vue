@@ -16,7 +16,7 @@ export default {
       return;
     }
     if (user.is_welcomed) {
-      this.$router.replace('/new');
+      this.$router.replace('/sites');
     }
   },
   computed: {
