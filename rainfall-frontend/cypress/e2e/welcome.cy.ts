@@ -51,8 +51,10 @@ describe('Welcome Test', () => {
       cy.intercept('POST', 'api/v1/user/welcome', {
         status: 200,
       });
+      cy.intercept('GET', 'api/v1/site/list', { fixture: 'sites.json' }).as('list-sites');
       cy.get('input').should('have.attr', 'type', 'checkbox').click();
       cy.get('button.get-started').click();
+      cy.wait('@list-sites');
       cy.url().should('eq', 'http://localhost:4173/sites');
     });
   });
