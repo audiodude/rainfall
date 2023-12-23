@@ -1,5 +1,5 @@
 <script lang="ts">
-import { mapStores } from 'pinia';
+import { mapState, mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
 
 export default {
@@ -11,14 +11,27 @@ export default {
   },
   computed: {
     ...mapStores(useUserStore),
+    ...mapState(useUserStore, ['isLoggedIn']),
   },
   async mounted() {
     await this.userStore.loadUser();
-    if (!this.userStore.isLoggedIn) {
+    if (!this.isLoggedIn) {
+      this.mountGoogleScript();
+    }
+  },
+  methods: {
+    mountGoogleScript() {
       let googleScript = document.createElement('script');
       googleScript.setAttribute('src', 'https://accounts.google.com/gsi/client');
       document.head.appendChild(googleScript);
-    }
+    },
+  },
+  watch: {
+    isLoggedIn(oldValue, newValue) {
+      if (!oldValue && newValue) {
+        this.mountGoogleScript();
+      }
+    },
   },
 };
 </script>
