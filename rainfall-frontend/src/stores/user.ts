@@ -19,7 +19,7 @@ export const useUserStore = defineStore('user', {
         return this.user;
       }
 
-      if (!this.userPromise) {
+      if (!this.userPromise || force) {
         this.userPromise = fetch('/api/v1/user')
           .then((resp) => {
             if (resp.ok) {
