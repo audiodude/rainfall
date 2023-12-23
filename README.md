@@ -1,7 +1,7 @@
 # Rainfall
 Free Bandcamp exodus tool, letting you publish music sites to Netlify using [Faircamp](https://codeberg.org/simonrepp/faircamp).
 
-[![GitHub build status](https://github.com/audiodude/rainfall/actions/workflows/ci.yml/badge.svg)
+![GitHub build status](https://github.com/audiodude/rainfall/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/audiodude/rainfall/branch/main/graph/badge.svg?token=rTPXFzOytM)](https://codecov.io/gh/audiodude/rainfall)
 ![GitHub License](https://img.shields.io/github/license/audiodude/rainfall)
 
