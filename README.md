@@ -29,6 +29,8 @@ Rainfall features a [Python](https://www.python.org/) backend, using the amazing
 
 The frontend is written in [Vue 3](https://vuejs.org/) using the Options API, with frontend styling implemented using [TailwindCSS](https://tailwindcss.com/) and some [Flowbite](https://flowbite.com/) components. It is tested using [Cypress](https://www.cypress.io/).
 
+For development, you will need a `.env` file in the project root directory, and a `.env.development` file in the `rainfall-frontend` directory.
+
 ### Running Tests
 
 #### Backend
@@ -54,5 +56,7 @@ Rainfall is deployed to [Fly.io](https://fly.io/) using a Docker container. Once
 ```bash
 fly deploy
 ```
+
+The frontend also requires a `.env.production` file with the fields `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_REDIRECT_URI`. This will be ignored by git, but needs to be present when `fly deploy` is run so that it is baked into the frontend production deployment.
 
 The docker container will automatically be built remotely and deployed. The backend data for the production site (SQLite db and song/project files) lives on a Fly volume that is attached to the web worker.
