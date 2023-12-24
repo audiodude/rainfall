@@ -161,6 +161,10 @@ def create_app():
   def index(filename=None):
     return flask.send_from_directory(FRONTEND_DIR, 'index.html')
 
+  @app.route('/favicon.ico')
+  def favicon():
+    return flask.send_from_directory(FRONTEND_DIR, 'favicon.ico')
+
   @app.route('/src/<path:filename>')
   def srcs(filename=None):
     return flask.send_from_directory(os.path.join(FRONTEND_DIR, 'src'),
