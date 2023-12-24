@@ -7,8 +7,9 @@ describe('Edit Site test', () => {
           status: 404,
           error: 'No signed in user',
         },
-      });
+      }).as('load-user');
       cy.visit('/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
+      cy.wait('@load-user');
     });
 
     it('navigates to home', () => {
@@ -30,69 +31,47 @@ describe('Edit Site test', () => {
   });
 
   describe('when there is a welcomed user', () => {
-    beforeEach(() => {
-      cy.intercept('GET', 'api/v1/user', {
-        fixture: 'user_welcomed.json',
-      });
-
-      let count = 0;
-      cy.intercept('GET', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9', (req) => {
-        if (count === 0) {
-          count++;
-          req.reply((res) => {
-            res.send({ statusCode: 200, fixture: 'site.json' });
-          });
-        } else if (count === 1) {
-          count++;
-          req.reply((res) => {
-            res.send({ statusCode: 200, fixture: 'site-2.json' });
-          });
-        } else {
-          req.reply((res) => {
-            res.send({ statusCode: 200, fixture: 'site-3.json' });
-          });
-        }
-      }).as('load-site');
-      cy.visit('/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
-    });
-
-    it('shows the add release button', () => {
-      cy.get('#new-release-button').should('be.visible');
-    });
-
-    it('shows the preview button', () => {
-      cy.get('#preview-site-button').should('be.visible');
-    });
-
-    it('has the preview button disabled when there are no releases', () => {
-      cy.get('#preview-site-button').should('be.disabled');
-    });
-
-    describe('when the add release button is clicked', () => {
+    describe('when there is one release', () => {
       beforeEach(() => {
-        cy.intercept('POST', 'api/v1/release', {
-          status: 204,
-        }).as('new-release');
-        cy.get('#new-release-button').click();
+        cy.intercept('GET', 'api/v1/user', {
+          fixture: 'user_welcomed.json',
+        });
+
+        let count = 0;
+        cy.intercept('GET', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9', (req) => {
+          if (count === 0) {
+            count++;
+            req.reply((res) => {
+              res.send({ statusCode: 200, fixture: 'site.json' });
+            });
+          } else if (count === 1) {
+            count++;
+            req.reply((res) => {
+              res.send({ statusCode: 200, fixture: 'site-2.json' });
+            });
+          } else {
+            req.reply((res) => {
+              res.send({ statusCode: 200, fixture: 'site-3.json' });
+            });
+          }
+        }).as('load-site');
+        cy.visit('/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
         cy.wait('@load-site');
       });
 
-      it('sends a POST request', () => {
-        cy.get('@new-release')
-          .its('request.body')
-          .should('deep.equal', {
-            release: {
-              name: `Release 1`,
-              site_id: '06547ed8-206f-7d3d-8000-20ab423e0bb9',
-            },
-          });
+      it('shows the add release button', () => {
+        cy.get('#new-release-button').should('be.visible');
       });
 
-      it('displays the newly created release', () => {
-        cy.get('.release-name').contains('Release 1');
+      it('shows the preview button', () => {
+        cy.get('#preview-site-button').should('be.visible');
       });
 
-      describe('when the button is clicked again', () => {
+      it('has the preview button disabled when there are no releases', () => {
+        cy.get('#preview-site-button').should('be.disabled');
+      });
+
+      describe('when the add release button is clicked', () => {
         beforeEach(() => {
           cy.intercept('POST', 'api/v1/release', {
             status: 204,
@@ -106,14 +85,39 @@ describe('Edit Site test', () => {
             .its('request.body')
             .should('deep.equal', {
               release: {
-                name: `Release 2`,
+                name: `Release 1`,
                 site_id: '06547ed8-206f-7d3d-8000-20ab423e0bb9',
               },
             });
         });
 
         it('displays the newly created release', () => {
-          cy.get('.release-name').contains('Release 2');
+          cy.get('.release-name').contains('Release 1');
+        });
+
+        describe('when the button is clicked again', () => {
+          beforeEach(() => {
+            cy.intercept('POST', 'api/v1/release', {
+              status: 204,
+            }).as('new-release');
+            cy.get('#new-release-button').click();
+            cy.wait('@load-site');
+          });
+
+          it('sends a POST request', () => {
+            cy.get('@new-release')
+              .its('request.body')
+              .should('deep.equal', {
+                release: {
+                  name: `Release 2`,
+                  site_id: '06547ed8-206f-7d3d-8000-20ab423e0bb9',
+                },
+              });
+          });
+
+          it('displays the newly created release', () => {
+            cy.get('.release-name').contains('Release 2');
+          });
         });
       });
     });
@@ -121,24 +125,30 @@ describe('Edit Site test', () => {
     describe('when there are two releases', () => {
       let calledUpload = false;
       beforeEach(() => {
-        let count = 0;
+        cy.intercept('GET', 'api/v1/user', {
+          fixture: 'user_welcomed.json',
+        });
+
+        let cnt = 0;
         cy.intercept('GET', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9', (req) => {
-          if (count === 0) {
-            count++;
+          if (cnt === 0) {
+            cnt++;
             req.reply((res) => {
               res.send({ statusCode: 200, fixture: 'site-3.json' });
             });
-          } else if (count === 1) {
+          } else if (cnt === 1) {
             req.reply((res) => {
               res.send({ statusCode: 200, fixture: 'site-4.json' });
             });
           }
-        });
+        }).as('load-site');
         cy.intercept('POST', 'api/v1/upload', (req) => {
           calledUpload = true;
           req.reply(204, '', {});
         }).as('upload-songs');
         cy.fixture('song.json').as('song');
+        cy.visit('/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
+        cy.wait('@load-site');
       });
 
       it(`doesn't allow you to click Upload Songs without selecting a file`, () => {
@@ -187,6 +197,7 @@ describe('Edit Site test', () => {
           fixture: 'site-4.json',
         }).as('load-site');
         cy.visit('/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
+        cy.wait('@load-site');
       });
 
       it('has the preview button enabled', () => {
