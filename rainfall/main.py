@@ -4,11 +4,12 @@ import time
 from uuid import UUID
 
 import flask
+from flask_seasurf import SeaSurf
 import sqlalchemy
 from werkzeug.utils import secure_filename
 
 from rainfall.blueprint.file import file as file_blueprint
-from rainfall.blueprint.user import user as user_blueprint
+from rainfall.blueprint.user import UserBlueprintFactory
 from rainfall.blueprint.release import release as release_blueprint
 from rainfall.blueprint.site import site as site_blueprint
 from rainfall.db import db
@@ -29,16 +30,22 @@ def create_app():
   app = flask.Flask(__name__)
   app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
   app.config['SECRET_KEY'] = os.environ['FLASK_SECRET_KEY']
+  app.config['GOOGLE_CLIENT_ID'] = os.environ['GOOGLE_CLIENT_ID']
+  app.config['RAINFALL_FRONTEND_URL'] = os.environ['RAINFALL_FRONTEND_URL']
   app.config['DATA_DIR'] = os.environ['DATA_DIR']
   app.config['PREVIEW_DIR'] = os.environ['PREVIEW_DIR']
   app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB max upload
   if os.environ.get('RAINFALL_ENV') != 'test':
     db.init_app(app)
+  else:
+    app.config['TESTING'] = True
+  csrf = SeaSurf(app)
 
   os.makedirs(app.config['DATA_DIR'], exist_ok=True)
   os.makedirs(app.config['PREVIEW_DIR'], exist_ok=True)
 
-  app.register_blueprint(user_blueprint, url_prefix='/api/v1')
+  app.register_blueprint(UserBlueprintFactory(csrf).get_blueprint(),
+                         url_prefix='/api/v1')
   app.register_blueprint(site_blueprint, url_prefix='/api/v1')
   app.register_blueprint(release_blueprint, url_prefix='/api/v1')
   app.register_blueprint(file_blueprint, url_prefix='/api/v1')
