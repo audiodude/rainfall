@@ -1,6 +1,7 @@
 <script lang="ts">
 import SongUpload from './SongUpload.vue';
 import { type Release } from '../types/release';
+import { getCsrf } from '../helpers/cookie';
 
 export default {
   components: { SongUpload },
@@ -10,7 +11,14 @@ export default {
       this.$emit('song-uploaded');
     },
     async deleteFile(release: Release, id: string) {
-      const resp = await fetch(`/api/v1/file/${id}`, { method: 'DELETE' });
+      const csrfToken = await getCsrf();
+      if (!csrfToken) {
+        return;
+      }
+      const resp = await fetch(`/api/v1/file/${id}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': csrfToken },
+      });
       if (!resp.ok) {
         if (resp.headers.get('Content-Type') == 'application/json') {
           const data = await resp.json();
@@ -61,7 +69,7 @@ export default {
           </button>
         </div>
         <div v-if="release.files.length == 0" class="text-right mt-4">
-          <span class="no-files-msg italic">No files uploaded yet</span>
+          <span class="no-files-msg italic">No files uploaded</span>
         </div>
         <hr class="my-4" />
         <div class="text-right">

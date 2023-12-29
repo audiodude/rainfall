@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { type User } from '../types/user';
+import { getCsrf } from '../helpers/cookie';
 
 export const useUserStore = defineStore('user', {
   state(): { user: User | null; userPromise: Promise<User | null> | null } {
@@ -38,7 +39,14 @@ export const useUserStore = defineStore('user', {
       return this.userPromise;
     },
     async signOut() {
-      const resp = await fetch('/api/v1/logout');
+      const csrfToken = await getCsrf();
+      if (!csrfToken) {
+        return;
+      }
+      const resp = await fetch('/api/v1/logout', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken },
+      });
       if (resp.ok) {
         this.user = null;
       }

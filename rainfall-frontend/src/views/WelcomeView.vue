@@ -1,6 +1,7 @@
 <script lang="ts">
 import { mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
+import { getCsrf } from '../helpers/cookie';
 
 export default {
   data() {
@@ -24,7 +25,14 @@ export default {
   },
   methods: {
     async getStarted() {
-      const resp = await fetch('/api/v1/user/welcome', { method: 'POST' });
+      const csrfToken = await getCsrf();
+      if (!csrfToken) {
+        return;
+      }
+      const resp = await fetch('/api/v1/user/welcome', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken },
+      });
       if (resp.ok) {
         await this.userStore.loadUser(/* force */ true);
         this.$router.push('/sites');

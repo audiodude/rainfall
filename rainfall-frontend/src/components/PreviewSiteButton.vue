@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getCsrf } from '../helpers/cookie';
+
 export default {
   props: ['cardinality', 'siteId', 'readyForPreview'],
   data(): {
@@ -20,8 +22,13 @@ export default {
       this.previewLoading = true;
       this.previewError = '';
 
+      const csrfToken = await getCsrf();
+      if (!csrfToken) {
+        return;
+      }
       const resp = await fetch(`/api/v1/preview/${this.siteId}`, {
         method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken },
       });
 
       setTimeout(() => {

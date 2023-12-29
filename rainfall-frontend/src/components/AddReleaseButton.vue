@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getCsrf } from '../helpers/cookie';
+
 export default {
   props: ['cardinality', 'siteId'],
   data(): {
@@ -11,10 +13,15 @@ export default {
   methods: {
     async createRelease() {
       this.createError = false;
+      const csrfToken = await getCsrf();
+      if (!csrfToken) {
+        return;
+      }
       const resp = await fetch('/api/v1/release', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
         },
         body: JSON.stringify({
           release: {
