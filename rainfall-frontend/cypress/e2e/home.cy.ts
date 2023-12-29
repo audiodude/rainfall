@@ -43,7 +43,7 @@ describe('Home Test', () => {
     });
 
     it('logs them out when they click sign out', () => {
-      cy.intercept('GET', 'api/v1/logout', cy.spy().as('logout'));
+      cy.intercept('POST', 'api/v1/logout', cy.spy().as('logout'));
       cy.get('button.sign-out').click();
       cy.get('@logout').should('have.been.calledOnce');
     });
