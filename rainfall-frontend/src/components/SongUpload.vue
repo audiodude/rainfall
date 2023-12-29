@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getCsrf } from '../helpers/cookie';
+
 export default {
   props: ['releaseId'],
   data(): { files: FileList | null; fileError: string | null } {
@@ -20,9 +22,14 @@ export default {
         formData.append('song[]', song);
       }
       formData.append('release_id', this.releaseId);
+
+      const csrfToken = await getCsrf();
+      if (!csrfToken) {
+        return;
+      }
       const resp = await fetch('/api/v1/upload', {
         method: 'POST',
-        credentials: 'include',
+        headers: { 'X-CSRFToken': csrfToken },
         body: formData,
       });
       if (resp.ok) {
