@@ -31,7 +31,7 @@ class UserBlueprintFactory:
                                 if field.name != 'sites')
       return flask.jsonify(user_without_sites)
 
-    @user.route('/logout')
+    @user.route('/logout', methods=['POST'])
     def logout():
       if 'user_id' in flask.session:
         del flask.session['user_id']
