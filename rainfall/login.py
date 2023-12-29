@@ -6,6 +6,8 @@ from rainfall.models.user import User
 
 
 def check_csrf():
+  # This is NOT the general CSRF protection provided by SeaSurf. This is a
+  # specific CSRF protection that Google login implements.
   csrf_token_cookie = flask.request.cookies.get('g_csrf_token')
   if not csrf_token_cookie:
     return flask.jsonify(status=400, error='No CSRF token in Cookie'), 400
