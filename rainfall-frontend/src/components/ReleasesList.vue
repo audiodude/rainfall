@@ -11,13 +11,9 @@ export default {
       this.$emit('song-uploaded');
     },
     async deleteFile(release: Release, id: string) {
-      const csrfToken = await getCsrf();
-      if (!csrfToken) {
-        return;
-      }
       const resp = await fetch(`/api/v1/file/${id}`, {
         method: 'DELETE',
-        headers: { 'X-CSRFToken': csrfToken },
+        headers: { 'X-CSRFToken': await getCsrf() },
       });
       if (!resp.ok) {
         if (resp.headers.get('Content-Type') == 'application/json') {
