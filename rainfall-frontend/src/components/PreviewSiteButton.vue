@@ -22,13 +22,9 @@ export default {
       this.previewLoading = true;
       this.previewError = '';
 
-      const csrfToken = await getCsrf();
-      if (!csrfToken) {
-        return;
-      }
       const resp = await fetch(`/api/v1/preview/${this.siteId}`, {
         method: 'POST',
-        headers: { 'X-CSRFToken': csrfToken },
+        headers: { 'X-CSRFToken': await getCsrf() },
       });
 
       setTimeout(() => {

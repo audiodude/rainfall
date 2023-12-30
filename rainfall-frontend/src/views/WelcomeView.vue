@@ -25,13 +25,9 @@ export default {
   },
   methods: {
     async getStarted() {
-      const csrfToken = await getCsrf();
-      if (!csrfToken) {
-        return;
-      }
       const resp = await fetch('/api/v1/user/welcome', {
         method: 'POST',
-        headers: { 'X-CSRFToken': csrfToken },
+        headers: { 'X-CSRFToken': await getCsrf() },
       });
       if (resp.ok) {
         await this.userStore.loadUser(/* force */ true);

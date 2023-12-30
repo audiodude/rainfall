@@ -11,15 +11,11 @@ export default {
   methods: {
     async createSite() {
       this.createError = false;
-      const csrfToken = await getCsrf();
-      if (!csrfToken) {
-        return;
-      }
       const resp = await fetch('/api/v1/site', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken,
+          'X-CSRFToken': await getCsrf(),
         },
         body: JSON.stringify({
           site: {

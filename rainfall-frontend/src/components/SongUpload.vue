@@ -23,13 +23,9 @@ export default {
       }
       formData.append('release_id', this.releaseId);
 
-      const csrfToken = await getCsrf();
-      if (!csrfToken) {
-        return;
-      }
       const resp = await fetch('/api/v1/upload', {
         method: 'POST',
-        headers: { 'X-CSRFToken': csrfToken },
+        headers: { 'X-CSRFToken': await getCsrf() },
         body: formData,
       });
       if (resp.ok) {
