@@ -39,13 +39,9 @@ export const useUserStore = defineStore('user', {
       return this.userPromise;
     },
     async signOut() {
-      const csrfToken = await getCsrf();
-      if (!csrfToken) {
-        return;
-      }
       const resp = await fetch('/api/v1/logout', {
         method: 'POST',
-        headers: { 'X-CSRFToken': csrfToken },
+        headers: { 'X-CSRFToken': await getCsrf() },
       });
       if (resp.ok) {
         this.user = null;
