@@ -163,11 +163,6 @@ def create_app():
     return flask.send_from_directory(os.path.join('..', zip_path),
                                      'rainfall_site.zip')
 
-  @app.route('/api/v1/csrf')
-  def csrf():
-    # Empty route that simply sets the CSRF token.
-    return '', 204
-
   @app.route('/')
   @app.route('/<path:filename>')
   def index(filename=None):

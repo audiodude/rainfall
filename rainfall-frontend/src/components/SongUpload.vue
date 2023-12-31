@@ -25,7 +25,7 @@ export default {
 
       const resp = await fetch('/api/v1/upload', {
         method: 'POST',
-        headers: { 'X-CSRFToken': await getCsrf() },
+        headers: { 'X-CSRFToken': getCsrf() },
         body: formData,
       });
       if (resp.ok) {

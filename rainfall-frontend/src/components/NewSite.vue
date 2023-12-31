@@ -15,7 +15,7 @@ export default {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': await getCsrf(),
+          'X-CSRFToken': getCsrf(),
         },
         body: JSON.stringify({
           site: {
