@@ -1,5 +1,4 @@
-export async function getCsrf(): Promise<string> {
-  await fetch('/api/v1/csrf');
+export function getCsrf(): string {
   return (
     document.cookie
       .split('; ')

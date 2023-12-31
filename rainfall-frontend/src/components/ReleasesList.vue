@@ -13,7 +13,7 @@ export default {
     async deleteFile(release: Release, id: string) {
       const resp = await fetch(`/api/v1/file/${id}`, {
         method: 'DELETE',
-        headers: { 'X-CSRFToken': await getCsrf() },
+        headers: { 'X-CSRFToken': getCsrf() },
       });
       if (!resp.ok) {
         if (resp.headers.get('Content-Type') == 'application/json') {

@@ -24,7 +24,7 @@ export default {
 
       const resp = await fetch(`/api/v1/preview/${this.siteId}`, {
         method: 'POST',
-        headers: { 'X-CSRFToken': await getCsrf() },
+        headers: { 'X-CSRFToken': getCsrf() },
       });
 
       setTimeout(() => {
