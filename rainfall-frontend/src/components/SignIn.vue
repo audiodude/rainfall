@@ -43,6 +43,7 @@ export default {
       :data-client_id="clientId"
       data-ux_mode="redirect"
       :data-login_uri="redirectUri"
+      data-auto_prompt="false"
       class="mx-auto text-center"
     ></div>
     <div class="g_id_signin" data-type="standard"></div>
