@@ -15,6 +15,7 @@ pyjwt = {extras = ["crypto"], version = "*"}
 requests = "*"
 gunicorn = "*"
 flask-seasurf = {ref = "f383b482c69e0b0e8064a8eb89305cea3826a7b6", git = "git+https://github.com/maxcountryman/flask-seasurf"}
+alembic = "*"
 
 [dev-packages]
 pytest = "*"
