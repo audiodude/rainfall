@@ -1,4 +1,5 @@
 # Rainfall
+
 Free Bandcamp exodus tool, letting you publish music sites to Netlify using [Faircamp](https://codeberg.org/simonrepp/faircamp).
 
 ![GitHub build status](https://github.com/audiodude/rainfall/actions/workflows/ci.yml/badge.svg)
@@ -13,23 +14,22 @@ Rainfall has reached version 1.0 of development!
 
 Currently, you can upload tracks and preview your Faircamp powered site. When you're ready, you can download a .ZIP file of your site, which you can then upload to any of the cloud providers mentioned on the welcome page, or anywhere else that hosts static websites:
 
-* [Netlify](https://www.netlify.com/)
-* [Google Cloud](https://cloud.google.com/storage?hl=en)
-* [Amazon Web Services](https://aws.amazon.com/s3/)
-* [Render](https://render.com)
-* [Cloudflare Pages](https://pages.cloudflare.com/)
-* And many others!
+- [Netlify](https://www.netlify.com/)
+- [Google Cloud](https://cloud.google.com/storage?hl=en)
+- [Amazon Web Services](https://aws.amazon.com/s3/)
+- [Render](https://render.com)
+- [Cloudflare Pages](https://pages.cloudflare.com/)
+- And many others!
 
-
-Future plans are to integrate with these providers, specifically [Netlify](https://www.netlify.com/), so that you can immediately upload your new website and host it for free under an account that you control. Even more future integrations might  allow you to purchase a domain name through Netlify and go from zero -> running music site with just a few uploads.
+Future plans are to integrate with these providers, specifically [Netlify](https://www.netlify.com/), so that you can immediately upload your new website and host it for free under an account that you control. Even more future integrations might allow you to purchase a domain name through Netlify and go from zero -> running music site with just a few uploads.
 
 ## Development
 
-Rainfall features a [Python](https://www.python.org/) backend, using the amazing [Flask](https://flask.readthedocs.io/) API framework and the [SQLAlchemy](https://www.sqlalchemy.org/) ORM (which is much less scary than it seems at first). The database system is [SQLite](https://www.sqlite.org/index.html).  It is tested using [Pytest](https://pytest.org/).
+Rainfall features a [Python](https://www.python.org/) backend, using the amazing [Flask](https://flask.readthedocs.io/) API framework and the [SQLAlchemy](https://www.sqlalchemy.org/) ORM (which is much less scary than it seems at first). The database system is [SQLite](https://www.sqlite.org/index.html). It is tested using [Pytest](https://pytest.org/).
 
 The frontend is written in [Vue 3](https://vuejs.org/) using the Options API, with frontend styling implemented using [TailwindCSS](https://tailwindcss.com/) and some [Flowbite](https://flowbite.com/) components. It is tested using [Cypress](https://www.cypress.io/).
 
-For development, you will need a `.env` file in the project root directory, and a `.env.development` file in the `rainfall-frontend` directory.
+For development, you will need a `.env` file in the project root directory, and a `.env.development` file in the `rainfall-frontend` directory. The project directory may also contain a `.env.prod` file, but this is never loaded, it is purely for reference. Production environment variables are set using [Fly.io secrets](https://fly.io/docs/reference/secrets/).
 
 ### Running Tests
 
