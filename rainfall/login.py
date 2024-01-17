@@ -1,8 +1,12 @@
+from urllib.parse import urlencode, urljoin, urlunparse
+
 import flask
+import requests
 from sqlalchemy import select
 
 from rainfall.db import db
 from rainfall.models.user import User
+from rainfall.models.mastodon_credential import MastodonCredential
 
 
 def check_csrf():
@@ -35,3 +39,39 @@ def save_or_update_google_user(idinfo):
   db.session.commit()
 
   return user_id
+
+
+def register_mastodon_app(netloc):
+  url = urlunparse(('https', netloc, 'api/v1/apps', '', '', ''))
+  resp = requests.post(
+      url,
+      data={
+          'client_name': flask.current_app.config['MASTODON_APP_NAME'],
+          'redirect_uris': flask.current_app.config['MASTODON_REDIRECT_URL'],
+          'scopes': 'read',
+          'website': flask.current_app.config['MASTODON_WEBSITE']
+      })
+
+  if not resp.ok:
+    logging.error(
+        'Could not connect to %s, server response follows:\n---\n%s\n---',
+        netloc, resp.text)
+    return
+
+  data = resp.json()
+  creds = MastodonCredential(host=netloc,
+                             client_key=data['client_id'],
+                             client_secret=data['client_secret'])
+  db.session.add(creds)
+  db.session.commit()
+  return creds
+
+
+def redirect_to_instance(netloc, creds):
+  qs = urlencode({
+      'response_type': 'code',
+      'client_id': creds.client_key,
+      'redirect_uri': flask.current_app.config['MASTODON_REDIRECT_URL'],
+  })
+  url = urlunparse(('https', netloc, '/oauth/authorize', '', qs, ''))
+  return flask.redirect(url)
