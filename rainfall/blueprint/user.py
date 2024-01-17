@@ -68,10 +68,14 @@ class UserBlueprintFactory:
     @user.route('/mastodon/init', methods=['POST'])
     def mastodon_init():
       host = flask.request.form.get('host')
+      frontend_url = flask.current_app.config['RAINFALL_FRONTEND_URL']
       if host is None:
         # TODO: Figure out a way to load the MastodonLoginView with an error message.
-        return flask.jsonify(status=400,
-                             error='The field `host` is required'), 400
+        flask.session['mastodon_login_errors'] = {
+            'netloc': netloc,
+            'errors': ['You must enter a host.']
+        }
+        return flask.redirect(urljoin(frontend_url, '/mastodon'))
 
       if not host.startswith('https://'):
         host = 'https://' + host
@@ -90,11 +94,23 @@ class UserBlueprintFactory:
         creds = creds[0]
 
       if creds is None:
-        # TODO: Figure out a way to load the MastodonLoginView with an error message.
-        return flask.jsonify(status=400,
-                             error='Could not find that Mastodon host'), 400
+        flask.session['mastodon_login_errors'] = {
+            'netloc':
+                netloc,
+            'errors': [
+                'Could not connect to that Mastodon host. Check the spelling '
+                'and make sure the host name is correct and the host allows OAuth.'
+            ]
+        }
+        return flask.redirect(urljoin(frontend_url, '/mastodon'))
 
       return redirect_to_instance(creds)
+
+    @user.route('/mastodon/errors')
+    def mastodon_errors():
+      errors = flask.session['mastodon_login_errors']
+      del flask.session['mastodon_login_errors']
+      return errors
 
     @self.csrf.exempt
     @user.route('/mastodon/login')
