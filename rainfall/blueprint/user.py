@@ -99,7 +99,7 @@ class UserBlueprintFactory:
                 netloc,
             'errors': [
                 'Could not connect to that Mastodon host. Check the spelling '
-                'and make sure the host name is correct and the host allows OAuth.'
+                'and make sure the host name is correct and the instance allows OAuth.'
             ]
         }
         return flask.redirect(urljoin(frontend_url, '/mastodon'))
@@ -108,7 +108,10 @@ class UserBlueprintFactory:
 
     @user.route('/mastodon/errors')
     def mastodon_errors():
-      errors = flask.session['mastodon_login_errors']
+      errors = flask.session.get('mastodon_login_errors', {
+          'netloc': '',
+          'errors': []
+      })
       del flask.session['mastodon_login_errors']
       return errors
 
