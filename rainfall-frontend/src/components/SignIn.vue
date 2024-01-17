@@ -40,20 +40,23 @@ export default {
 </script>
 
 <template>
-  <div v-if="!userStore.isLoggedIn">
+  <div v-if="!userStore.isLoggedIn" class="w-[17rem]">
     <button
       type="button"
       @click="signInMastodon()"
-      class="cursor-pointer flex justify-between gap-3 p-2 my-2 mx-auto relative left-2 bg-white w-52 rounded-md border-solid border-black"
+      class="cursor-pointer flex gap-3 p-2 my-2 mx-auto bg-white w-full rounded border-solid border-black"
     >
       <div>
-        <span class="semibold text-gray-900 text-sm">Sign in with Mastodon</span>
+        <span class="font-medium font-roboto text-gray-900 text-xs ml-[1.85rem] mr-3 text-[#3c4043]"
+          >Sign In with Mastodon</span
+        >
       </div>
-      <div class="flex items-center">
+      <div class="flex items-center justify-center">
         <svg
+          class="relative top-0.5 left-2"
           xmlns="http://www.w3.org/2000/svg"
-          width="24px"
-          height="24px"
+          width="18px"
+          height="18px"
           viewBox="0 0 216.4144 232.00976"
         >
           <path
@@ -81,7 +84,7 @@ export default {
 
 <style scoped>
 .g_id_signin {
-  max-width: 12rem;
+  max-width: 100%;
   margin: auto;
 }
 </style>
