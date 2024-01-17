@@ -46,18 +46,21 @@ def save_or_update_google_user(idinfo):
 
 def register_mastodon_app(netloc):
   url = urlunparse(('https', netloc, 'api/v1/apps', '', '', ''))
-  resp = requests.post(
-      url,
-      data={
-          'client_name': flask.current_app.config['MASTODON_APP_NAME'],
-          'redirect_uris': flask.current_app.config['MASTODON_REDIRECT_URL'],
-          'scopes': 'read',
-          'website': flask.current_app.config['MASTODON_WEBSITE']
-      })
+  try:
+    resp = requests.post(
+        url,
+        data={
+            'client_name': flask.current_app.config['MASTODON_APP_NAME'],
+            'redirect_uris': flask.current_app.config['MASTODON_REDIRECT_URL'],
+            'scopes': 'read',
+            'website': flask.current_app.config['MASTODON_WEBSITE']
+        })
+  except (requests.exceptions.ConnectionError, requests.exceptions.InvalidURL):
+    log.warning('Could not connect to %s for Mastodon login', netloc)
+    return
 
   if not resp.ok:
-    log.error('Could not connect to %s, server response follows:\n---\n%s\n---',
-              netloc, resp.text)
+    log.error('Error response from %s:\n---\n%s\n---', netloc, resp.text)
     return
 
   data = resp.json()
