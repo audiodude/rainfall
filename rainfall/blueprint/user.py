@@ -69,6 +69,7 @@ class UserBlueprintFactory:
     def mastodon_init():
       host = flask.request.form.get('host')
       if host is None:
+        # TODO: Figure out a way to load the MastodonLoginView with an error message.
         return flask.jsonify(status=400,
                              error='The field `host` is required'), 400
 
@@ -77,7 +78,8 @@ class UserBlueprintFactory:
       parsed = urlparse(host)
       netloc = parsed.netloc
 
-      stmt = select(MastodonCredential).where(MastodonCredential.host == netloc)
+      stmt = select(MastodonCredential).where(
+          MastodonCredential.netloc == netloc)
       result = db.session.execute(stmt)
       creds = result.fetchone()
 
@@ -92,7 +94,7 @@ class UserBlueprintFactory:
         return flask.jsonify(status=400,
                              error='Could not find that Mastodon host'), 400
 
-      return redirect_to_instance(netloc, creds)
+      return redirect_to_instance(creds)
 
     @self.csrf.exempt
     @user.route('/mastodon/login')

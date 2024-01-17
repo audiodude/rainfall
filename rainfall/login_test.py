@@ -1,9 +1,11 @@
-from werkzeug.http import dump_cookie
+from unittest.mock import MagicMock, patch
 
-from sqlalchemy import text
+from werkzeug.http import dump_cookie
+from sqlalchemy import select, text
 
 from rainfall.db import db
-from rainfall.login import check_csrf, save_or_update_google_user
+from rainfall.login import check_csrf, save_or_update_google_user, redirect_to_instance, register_mastodon_app
+from rainfall.models.mastodon_credential import MastodonCredential
 from rainfall.models.user import User
 
 
@@ -89,3 +91,65 @@ class LoginTest:
       assert user.name == 'Jane Deer'
       assert user.email == 'janedeer@email.fake'
       assert user.picture_url == 'https://pictures.fake/photo-1234-jpg'
+
+  @patch('rainfall.login.requests.post')
+  def test_register_mastodon_app(self, mock_post, app):
+    mock_response = MagicMock()
+    mock_response.json.return_value = {
+        'client_id': 'abc_client_id',
+        'client_secret': 'abc_client_secret'
+    }
+    mock_post.return_value = mock_response
+
+    with app.app_context():
+      actual = register_mastodon_app('mastodon.pizza.fake')
+
+      assert actual.netloc == 'mastodon.pizza.fake'
+      assert actual.client_id == 'abc_client_id'
+      assert actual.client_secret == 'abc_client_secret'
+
+    mock_post.assert_called_once_with(
+        'https://mastodon.pizza.fake/api/v1/apps',
+        data={
+            'client_name': 'Rainfall Dev',
+            'redirect_uris': 'http://localhost:5000/api/v1/mastodon/login',
+            'scopes': 'read',
+            'website': 'http://localhost:5000'
+        })
+
+    with app.app_context():
+      stmt = select(MastodonCredential)
+      result = db.session.execute(stmt)
+      row = result.fetchone()
+      assert row is not None
+      assert len(row) == 1
+      assert row[0] is not None
+      creds = row[0]
+      assert creds.netloc == 'mastodon.pizza.fake'
+      assert creds.client_id == 'abc_client_id'
+      assert creds.client_secret == 'abc_client_secret'
+
+  @patch('rainfall.login.requests.post')
+  def test_register_mastodon_app_non_200(self, mock_post, app):
+    mock_response = MagicMock()
+    mock_response.ok = False
+    mock_post.return_value = mock_response
+
+    with app.app_context():
+      actual = register_mastodon_app('mastodon.pizza.fake')
+
+    assert actual is None
+
+  @patch('rainfall.login.flask.redirect')
+  def test_redirect_to_instance(self, mock_redirect, app):
+    creds = MastodonCredential(netloc='mastodon.pizza.fake',
+                               client_id='xyz_client_key',
+                               client_secret='xyz_client_secret')
+
+    with app.app_context():
+      redirect_to_instance(creds)
+
+    mock_redirect.assert_called_once_with(
+        'https://mastodon.pizza.fake/oauth/authorize?response_type=code&'
+        'client_id=xyz_client_key&redirect_uri=http%3A%2F%2Flocalhost%3A5000'
+        '%2Fapi%2Fv1%2Fmastodon%2Flogin')
