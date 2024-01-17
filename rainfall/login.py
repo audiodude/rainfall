@@ -1,3 +1,4 @@
+import logging
 from urllib.parse import urlencode, urljoin, urlunparse
 
 import flask
@@ -7,6 +8,8 @@ from sqlalchemy import select
 from rainfall.db import db
 from rainfall.models.user import User
 from rainfall.models.mastodon_credential import MastodonCredential
+
+log = logging.getLogger(__name__)
 
 
 def check_csrf():
@@ -53,25 +56,24 @@ def register_mastodon_app(netloc):
       })
 
   if not resp.ok:
-    logging.error(
-        'Could not connect to %s, server response follows:\n---\n%s\n---',
-        netloc, resp.text)
+    log.error('Could not connect to %s, server response follows:\n---\n%s\n---',
+              netloc, resp.text)
     return
 
   data = resp.json()
-  creds = MastodonCredential(host=netloc,
-                             client_key=data['client_id'],
+  creds = MastodonCredential(netloc=netloc,
+                             client_id=data['client_id'],
                              client_secret=data['client_secret'])
   db.session.add(creds)
   db.session.commit()
   return creds
 
 
-def redirect_to_instance(netloc, creds):
+def redirect_to_instance(creds):
   qs = urlencode({
       'response_type': 'code',
-      'client_id': creds.client_key,
+      'client_id': creds.client_id,
       'redirect_uri': flask.current_app.config['MASTODON_REDIRECT_URL'],
   })
-  url = urlunparse(('https', netloc, '/oauth/authorize', '', qs, ''))
+  url = urlunparse(('https', creds.netloc, '/oauth/authorize', '', qs, ''))
   return flask.redirect(url)

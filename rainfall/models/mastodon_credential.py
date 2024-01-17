@@ -16,8 +16,8 @@ class MastodonCredential(db.Model):
   __tablename__ = 'mastodon_credentials'
 
   id: Mapped[bytes] = mapped_column(Uuid, primary_key=True, default=uuid7)
-  host: Mapped[str] = mapped_column(String(255))
-  client_key: Mapped[str] = mapped_column(String(255))
+  netloc: Mapped[str] = mapped_column(String(255))
+  client_id: Mapped[str] = mapped_column(String(255))
   client_secret: Mapped[str] = mapped_column(String(255))
 
   def __repr__(self) -> str:
