@@ -1,11 +1,13 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import flask
 import pytest
+from sqlalchemy import select
 import uuid
 
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
+from rainfall.models.mastodon_credential import MastodonCredential
 from rainfall.models.site import Site
 from rainfall.models.user import User
 
@@ -124,3 +126,71 @@ class UserTest:
       rv = client.post('/api/v1/user/welcome')
       assert rv.status == '404 NOT FOUND'
       assert rv.json == {'status': 404, 'error': 'No signed in user'}
+
+  @patch('rainfall.login.requests.post')
+  def test_mastodon_init(self, mock_post, app):
+    mock_response = MagicMock()
+    mock_response.json.return_value = {
+        'client_id': 'abc_client_id',
+        'client_secret': 'abc_client_secret'
+    }
+    mock_post.return_value = mock_response
+
+    with app.test_client() as client:
+      rv = client.post('/api/v1/mastodon/init',
+                       data={'host': 'mastodon.pizza.fake'})
+      assert rv.status == '302 FOUND'
+
+    with app.app_context():
+      stmt = select(MastodonCredential)
+      result = db.session.execute(stmt)
+      row = result.fetchone()
+      assert row is not None
+      assert len(row) == 1
+      assert row[0] is not None
+      creds = row[0]
+      assert creds.netloc == 'mastodon.pizza.fake'
+      assert creds.client_id == 'abc_client_id'
+      assert creds.client_secret == 'abc_client_secret'
+
+  def test_mastodon_init_existing_creds(self, app):
+    with app.app_context():
+      db.session.add(
+          MastodonCredential(netloc='foo.mastodon.fake',
+                             client_id='abc_client_id',
+                             client_secret='abc_client_secret'))
+      db.session.commit()
+
+    with app.test_client() as client:
+      rv = client.post('/api/v1/mastodon/init',
+                       data={'host': 'foo.mastodon.fake'})
+      assert rv.status == '302 FOUND'
+
+    with app.app_context():
+      count = db.session.query(MastodonCredential.netloc).count()
+      assert count == 1
+
+  @patch('rainfall.login.requests.post')
+  def test_mastodon_init_new_site_with_existing(self, mock_post, app):
+    mock_response = MagicMock()
+    mock_response.json.return_value = {
+        'client_id': 'abc_client_id',
+        'client_secret': 'abc_client_secret'
+    }
+    mock_post.return_value = mock_response
+
+    with app.app_context():
+      db.session.add(
+          MastodonCredential(netloc='foo.mastodon.fake',
+                             client_id='abc_client_id',
+                             client_secret='abc_client_secret'))
+      db.session.commit()
+
+    with app.test_client() as client:
+      rv = client.post('/api/v1/mastodon/init',
+                       data={'host': 'mastodon.pizza.fake'})
+      assert rv.status == '302 FOUND'
+
+    with app.app_context():
+      count = db.session.query(MastodonCredential.netloc).count()
+      assert count == 2
