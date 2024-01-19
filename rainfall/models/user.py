@@ -16,6 +16,10 @@ class User(db.Model):
 
   id: Mapped[bytes] = mapped_column(Uuid, primary_key=True, default=uuid7)
   google_id: Mapped[str] = mapped_column(String(255), unique=True)
+
+  mastodon_netloc: Mapped[str] = mapped_column(String(255), nullable=True)
+  mastodon_auth_token: Mapped[str] = mapped_column(String(255), nullable=True)
+
   name: Mapped[str] = mapped_column(String(255), nullable=True)
   email: Mapped[str] = mapped_column(String(1024), nullable=True)
   picture_url: Mapped[str] = mapped_column(String(1024), nullable=True)
