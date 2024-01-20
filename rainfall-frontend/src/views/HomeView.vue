@@ -74,8 +74,8 @@ export default {
               Upload your music on the web
             </h2>
             <p class="text-lg font-normal text-gray-500 dark:text-gray-400 mb-4">
-              Sign into <em>Rainfall</em> with your Google account and start uploading music. You
-              can upload in .aiff, .aif, .flac, .mp3, .ogg, .opus, or .wav.
+              Sign into <em>Rainfall</em> with your Mastodon or Google account and start uploading
+              music. You can upload in .aiff, .aif, .flac, .mp3, .ogg, .opus, or .wav.
             </p>
           </div>
           <div
