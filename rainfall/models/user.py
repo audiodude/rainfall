@@ -15,10 +15,13 @@ class User(db.Model):
   __tablename__ = 'users'
 
   id: Mapped[bytes] = mapped_column(Uuid, primary_key=True, default=uuid7)
-  google_id: Mapped[str] = mapped_column(String(255), unique=True)
+  google_id: Mapped[str] = mapped_column(String(255),
+                                         unique=True,
+                                         nullable=True)
 
   mastodon_netloc: Mapped[str] = mapped_column(String(255), nullable=True)
-  mastodon_auth_token: Mapped[str] = mapped_column(String(255), nullable=True)
+  mastodon_id: Mapped[str] = mapped_column(String(255), nullable=True)
+  mastodon_access_token: Mapped[str] = mapped_column(String(255), nullable=True)
 
   name: Mapped[str] = mapped_column(String(255), nullable=True)
   email: Mapped[str] = mapped_column(String(1024), nullable=True)
