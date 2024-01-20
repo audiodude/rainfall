@@ -21,4 +21,4 @@ class MastodonCredential(db.Model):
   client_secret: Mapped[str] = mapped_column(String(255))
 
   def __repr__(self) -> str:
-    return f'MastodonCredential(id={self.id!r}, host={self.host!r})'
+    return f'MastodonCredential(id={self.id!r}, netloc={self.netloc!r})'

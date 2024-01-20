@@ -23,6 +23,9 @@ class UserTest:
       assert rv.json == {
           'id': str(BASIC_USER_ID),
           'google_id': '1234',
+          'mastodon_access_token': None,
+          'mastodon_id': None,
+          'mastodon_netloc': None,
           'name': 'Jane Doe',
           'email': 'janedoe@email.fake',
           'picture_url': 'https://pictures.fake/1234',
@@ -165,6 +168,10 @@ class UserTest:
       rv = client.post('/api/v1/mastodon/init',
                        data={'host': 'foo.mastodon.fake'})
       assert rv.status == '302 FOUND'
+      assert rv.location == (
+          'https://foo.mastodon.fake/oauth/authorize?response_type=code&client_id=abc_client_id'
+          '&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fapi%2Fv1%2Fmastodon%2Flogin'
+      )
 
     with app.app_context():
       count = db.session.query(MastodonCredential.netloc).count()
@@ -190,7 +197,196 @@ class UserTest:
       rv = client.post('/api/v1/mastodon/init',
                        data={'host': 'mastodon.pizza.fake'})
       assert rv.status == '302 FOUND'
+      assert rv.location == (
+          'https://mastodon.pizza.fake/oauth/authorize?response_type=code&client_id=abc_client_id'
+          '&redirect_uri=http%3A%2F%2Flocalhost%3A5000%2Fapi%2Fv1%2Fmastodon%2Flogin'
+      )
 
     with app.app_context():
       count = db.session.query(MastodonCredential.netloc).count()
       assert count == 2
+
+  def test_mastodon_errors(self, app):
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['mastodon_login_errors'] = {
+            'netloc': 'foo.mastodon.fake',
+            'errors': ['There was an error.']
+        }
+
+      rv = client.get('/api/v1/mastodon/errors')
+      assert rv.json == {
+          'netloc': 'foo.mastodon.fake',
+          'errors': ['There was an error.']
+      }
+
+      rv = client.get('/api/v1/mastodon/errors')
+      assert rv.json == {'netloc': '', 'errors': []}
+
+  @patch('rainfall.login.requests.post')
+  @patch('rainfall.blueprint.user.get_mastodon_access_token',
+         return_value='foo_access')
+  @patch('rainfall.blueprint.user.get_mastodon_idinfo',
+         return_value={
+             'id': 1234,
+             'email': '@foo@foo.mastodon.pizza',
+             'picture': 'http://fake.fake/photo',
+             'name': 'Foo Bar',
+         })
+  def test_mastodon_login(self, mock_idinfo, mock_access_token, mock_post, app):
+    with app.app_context():
+      db.session.add(
+          MastodonCredential(netloc='foo.mastodon.pizza',
+                             client_id='foo_client_id',
+                             client_secret='foo_client_secret'))
+      db.session.commit()
+
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['mastodon_netloc'] = 'foo.mastodon.pizza'
+
+      rv = client.get('/api/v1/mastodon/login',
+                      query_string={'code': 'abcd1234'})
+
+      assert rv.status == '302 FOUND'
+      assert rv.location == 'http://localhost:5173/welcome'
+
+  @patch('rainfall.login.requests.post')
+  @patch('rainfall.blueprint.user.get_mastodon_access_token',
+         return_value='foo_access')
+  @patch('rainfall.blueprint.user.get_mastodon_idinfo',
+         return_value={
+             'id': 1234,
+             'email': '@foo@foo.mastodon.pizza',
+             'picture': 'http://fake.fake/photo',
+             'name': 'Foo Bar',
+         })
+  def test_mastodon_login_missing_netloc(self, mock_idinfo, mock_access_token,
+                                         mock_post, app):
+    with app.app_context():
+      db.session.add(
+          MastodonCredential(netloc='foo.mastodon.pizza',
+                             client_id='foo_client_id',
+                             client_secret='foo_client_secret'))
+      db.session.commit()
+
+    with app.test_client() as client:
+      rv = client.get('/api/v1/mastodon/login',
+                      query_string={'code': 'abcd1234'})
+      assert rv.status == '302 FOUND'
+      assert rv.location == 'http://localhost:5173/mastodon'
+
+      with client.session_transaction() as sess:
+        assert sess['mastodon_login_errors'] == {
+            'errors': [
+                'Something went wrong, could not find host name in session.'
+            ],
+            'netloc': ''
+        }
+
+  @patch('rainfall.login.requests.post')
+  @patch('rainfall.blueprint.user.get_mastodon_access_token', return_value=None)
+  @patch('rainfall.blueprint.user.get_mastodon_idinfo',
+         return_value={
+             'id': 1234,
+             'email': '@foo@foo.mastodon.pizza',
+             'picture': 'http://fake.fake/photo',
+             'name': 'Foo Bar',
+         })
+  def test_mastodon_login_missing_access_token(self, mock_idinfo,
+                                               mock_access_token, mock_post,
+                                               app):
+    with app.app_context():
+      db.session.add(
+          MastodonCredential(netloc='foo.mastodon.pizza',
+                             client_id='foo_client_id',
+                             client_secret='foo_client_secret'))
+      db.session.commit()
+
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['mastodon_netloc'] = 'foo.mastodon.pizza'
+
+      rv = client.get('/api/v1/mastodon/login',
+                      query_string={'code': 'abcd1234'})
+      assert rv.status == '302 FOUND'
+      assert rv.location == 'http://localhost:5173/mastodon'
+
+      with client.session_transaction() as sess:
+        assert sess['mastodon_login_errors'] == {
+            'errors': [
+                'Something went wrong, could not get access token. Please try again.'
+            ],
+            'netloc': 'foo.mastodon.pizza'
+        }
+
+  @patch('rainfall.login.requests.post')
+  @patch('rainfall.blueprint.user.get_mastodon_access_token',
+         return_value='foo_access')
+  @patch('rainfall.blueprint.user.get_mastodon_idinfo',
+         return_value={
+             'id': 1234,
+             'email': '@foo@foo.mastodon.pizza',
+             'picture': 'http://fake.fake/photo',
+             'name': 'Foo Bar',
+         })
+  def test_mastodon_login_missing_code(self, mock_idinfo, mock_access_token,
+                                       mock_post, app):
+    with app.app_context():
+      db.session.add(
+          MastodonCredential(netloc='foo.mastodon.pizza',
+                             client_id='foo_client_id',
+                             client_secret='foo_client_secret'))
+      db.session.commit()
+
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['mastodon_netloc'] = 'foo.mastodon.pizza'
+
+      rv = client.get(
+          '/api/v1/mastodon/login',
+          query_string={
+              'error': 'authorize',
+              'error_message': 'The user did not authorize or something'
+          })
+      assert rv.status == '302 FOUND'
+      assert rv.location == 'http://localhost:5173/mastodon'
+
+      with client.session_transaction() as sess:
+        assert sess['mastodon_login_errors'] == {
+            'errors': [
+                'It looks like you denied the OAuth request. Cannot proceed with login.'
+            ],
+            'netloc': 'foo.mastodon.pizza'
+        }
+
+  @patch('rainfall.login.requests.post')
+  @patch('rainfall.blueprint.user.get_mastodon_access_token',
+         return_value='foo_access')
+  @patch('rainfall.blueprint.user.get_mastodon_idinfo',
+         return_value={
+             'id': 1234,
+             'email': '@foo@foo.mastodon.pizza',
+             'picture': 'http://fake.fake/photo',
+             'name': 'Foo Bar',
+         })
+  def test_mastodon_login_missing_creds(self, mock_idinfo, mock_access_token,
+                                        mock_post, app):
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['mastodon_netloc'] = 'foo.mastodon.pizza'
+
+      rv = client.get('/api/v1/mastodon/login',
+                      query_string={
+                          'code': 'abcd1234',
+                      })
+      assert rv.status == '302 FOUND'
+      assert rv.location == 'http://localhost:5173/mastodon'
+
+      with client.session_transaction() as sess:
+        assert sess['mastodon_login_errors'] == {
+            'errors': [
+                'Something went wrong, could not find credentials for remote app. Please try again.'
+            ],
+            'netloc': 'foo.mastodon.pizza'
+        }
