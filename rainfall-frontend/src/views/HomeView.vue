@@ -43,7 +43,7 @@ export default {
             Your music. Your website. Your way.
           </h1>
           <p class="text-lg font-normal text-gray-500 dark:text-gray-400 mb-6">
-            <em>Rainfall</em> let's you create a website for your music, using
+            <em>Rainfall</em> lets you create a website for your music, using
             <a href="https://simonrepp.com/faircamp/" class="text-blue-500 hover:underline"
               >Faircamp</a
             >. We don't host your site or charge you anything. Upload your songs and preview your
