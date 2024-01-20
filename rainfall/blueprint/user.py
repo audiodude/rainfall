@@ -10,9 +10,26 @@ from sqlalchemy import select
 
 from rainfall.db import db
 from rainfall.decorators import with_current_site, with_current_user
-from rainfall.login import check_csrf, save_or_update_google_user, register_mastodon_app, redirect_to_instance
+from rainfall.login import check_csrf, get_mastodon_access_token, get_mastodon_idinfo, save_or_update_mastodon_user, save_or_update_google_user, register_mastodon_app, redirect_to_instance
 from rainfall.models.mastodon_credential import MastodonCredential
 from rainfall.models.user import User
+
+
+def session_login_error(netloc, msg):
+  frontend_url = flask.current_app.config['RAINFALL_FRONTEND_URL']
+  flask.session['mastodon_login_errors'] = {'netloc': netloc, 'errors': [msg]}
+  return flask.redirect(urljoin(frontend_url, '/mastodon'))
+
+
+def redirect_user_log_in(user_id):
+  flask.session['user_id'] = user_id
+  user = db.session.get(User, user_id)
+
+  frontend_url = flask.current_app.config['RAINFALL_FRONTEND_URL']
+  if user.is_welcomed:
+    return flask.redirect(urljoin(frontend_url, '/sites'))
+  else:
+    return flask.redirect(urljoin(frontend_url, '/welcome'))
 
 
 class UserBlueprintFactory:
@@ -56,26 +73,15 @@ class UserBlueprintFactory:
         return flask.jsonify(status=400, error='Could not verify token'), 400
 
       user_id = save_or_update_google_user(idinfo)
-      flask.session['user_id'] = user_id
-      user = db.session.get(User, user_id)
 
-      frontend_url = flask.current_app.config['RAINFALL_FRONTEND_URL']
-      if user.is_welcomed:
-        return flask.redirect(urljoin(frontend_url, '/sites'))
-      else:
-        return flask.redirect(urljoin(frontend_url, '/welcome'))
+      return redirect_user_log_in(user_id)
 
     @user.route('/mastodon/init', methods=['POST'])
     def mastodon_init():
       host = flask.request.form.get('host')
       frontend_url = flask.current_app.config['RAINFALL_FRONTEND_URL']
       if host is None:
-        # TODO: Figure out a way to load the MastodonLoginView with an error message.
-        flask.session['mastodon_login_errors'] = {
-            'netloc': netloc,
-            'errors': ['You must enter a host.']
-        }
-        return flask.redirect(urljoin(frontend_url, '/mastodon'))
+        return flask.jsonify(status=400, error='Host is required'), 400
 
       if not host.startswith('https://'):
         host = 'https://' + host
@@ -94,38 +100,66 @@ class UserBlueprintFactory:
         creds = creds[0]
 
       if creds is None:
-        flask.session['mastodon_login_errors'] = {
-            'netloc':
-                netloc,
-            'errors': [
-                'Could not connect to that Mastodon host. Check the spelling '
-                'and make sure the host name is correct and the instance allows OAuth.'
-            ]
-        }
-        return flask.redirect(urljoin(frontend_url, '/mastodon'))
+        return session_login_error(
+            netloc,
+            'Could not connect to that Mastodon host. Check the spelling '
+            'and make sure the host name is correct and the instance allows OAuth.'
+        )
 
+      flask.session['mastodon_netloc'] = netloc
       return redirect_to_instance(creds)
 
     @user.route('/mastodon/errors')
     def mastodon_errors():
-      errors = flask.session.get('mastodon_login_errors', {
-          'netloc': '',
-          'errors': []
-      })
-      del flask.session['mastodon_login_errors']
+      errors = flask.session.get('mastodon_login_errors')
+      if errors is not None:
+        del flask.session['mastodon_login_errors']
+      else:
+        errors = {'netloc': '', 'errors': []}
       return errors
 
     @self.csrf.exempt
     @user.route('/mastodon/login')
     def mastodon_login():
+      netloc = flask.session.get('mastodon_netloc')
+      if netloc is None:
+        return session_login_error(
+            '', 'Something went wrong, could not find host name in session.')
+      del flask.session['mastodon_netloc']
+
       code = flask.request.args.get('code')
       if not code:
-        # TODO: Do something
-        pass
+        return session_login_error(
+            netloc,
+            'It looks like you denied the OAuth request. Cannot proceed with login.'
+        )
 
-      # TODO: Make a request to the home server and verify the login, then create a User object
-      # and redirect to the welcome or sites page.
-      return flask.redirect(flask.current_app.config['RAINFALL_FRONTEND_URL'])
+      stmt = select(MastodonCredential).where(
+          MastodonCredential.netloc == netloc)
+      result = db.session.execute(stmt)
+      creds = result.fetchone()
+
+      if creds is None:
+        return session_login_error(
+            netloc,
+            'Something went wrong, could not find credentials for remote app. Please try again.'
+        )
+      creds = creds[0]
+
+      access_token = get_mastodon_access_token(creds, code)
+      if access_token is None:
+        return session_login_error(netloc, (
+            'Something went wrong, could not get access token. Please try again.'
+        ))
+
+      idinfo = get_mastodon_idinfo(creds, access_token)
+      if idinfo is None:
+        return session_login_error(netloc, (
+            'Something went wrong, could not get user info. Please try again.'))
+
+      user_id = save_or_update_mastodon_user(netloc, access_token, idinfo)
+
+      return redirect_user_log_in(user_id)
 
     @user.route('/user/welcome', methods=['POST'])
     @with_current_user
