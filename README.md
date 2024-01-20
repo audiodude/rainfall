@@ -60,3 +60,19 @@ fly deploy
 The frontend also requires a `.env.production` file with the fields `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_REDIRECT_URI`. This will be ignored by git, but needs to be present when `fly deploy` is run so that it is baked into the frontend production deployment.
 
 The docker container will automatically be built remotely and deployed. The backend data for the production site (SQLite db and song/project files) lives on a Fly volume that is attached to the web worker.
+
+### Running Database migrations
+
+First, make sure the web app is running (not sleeping) by visiting the Rainfall homepage ([https://rainfall.dev](https://rainfall.dev)).
+
+Then, log into the machine using fly ssh (first setting it up with a key if you need to):
+
+```bash
+fly ssh console
+```
+
+Finally run the alembic command:
+
+```bash
+pipenv run alembic upgrade head
+```
