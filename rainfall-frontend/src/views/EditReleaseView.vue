@@ -50,7 +50,6 @@ export default {
       }
       this.releaseError = error;
     },
-    onSongUploaded() {},
   },
 };
 </script>
@@ -61,7 +60,7 @@ export default {
     <div class="md:max-w-screen-md mt-8 p-4 border border-emerald-500">
       <ReleaseComponent
         :release="release"
-        @song-uploaded="onSongUploaded()"
+        @song-uploaded="loadRelease()"
         :isEditing="true"
       ></ReleaseComponent>
     </div>
