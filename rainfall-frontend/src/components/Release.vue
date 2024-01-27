@@ -6,7 +6,7 @@ import { getCsrf } from '../helpers/cookie';
 
 export default defineComponent({
   props: {
-    release: { type: Object as PropType<Release>, required: true },
+    release: { type: Object as PropType<Release | null>, required: true },
     isEditing: Boolean,
   },
   components: { SongUpload },
@@ -15,7 +15,7 @@ export default defineComponent({
       this.$emit('song-uploaded');
     },
     editRelease(id: string) {
-      this.$router.push(`releases/${id}`);
+      this.$router.push(`/release/${id}`);
     },
     async deleteFile(release: Release, id: string) {
       const resp = await fetch(`/api/v1/file/${id}`, {
@@ -37,8 +37,9 @@ export default defineComponent({
 </script>
 
 <template>
-  <div>
-    <div v-if="isEditing"></div>
+  <div v-if="release">
+    <div v-if="isEditing">Art</div>
+    <div v-if="isEditing">Description</div>
     <div class="p-2 bg-emerald-500 text-white">
       <div class="release-name text-xl">
         {{ release.name }}
