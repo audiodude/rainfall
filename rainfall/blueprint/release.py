@@ -46,3 +46,19 @@ def create_release(user):
   db.session.commit()
 
   return '', 204
+
+
+@release.route('release/<id_>')
+@with_current_user
+def get_release(user, id_):
+  release = db.session.get(Release, UUID(id_))
+  if release is None:
+    return flask.jsonify(status=404,
+                         error='Could not find release with id=%s' % id_), 404
+
+  if release.site.user.id != user.id:
+    return flask.jsonify(status=403,
+                         error='Not authorized to load release with id=%s' %
+                         id_), 403
+
+  return flask.jsonify(release.serialize())
