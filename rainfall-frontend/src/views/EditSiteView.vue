@@ -5,10 +5,10 @@ import { type Site } from '../types/site';
 import AddReleaseButton from '../components/AddReleaseButton.vue';
 import DeployButton from '../components/DeployButton.vue';
 import PreviewSiteButton from '../components/PreviewSiteButton.vue';
-import ReleasesList from '../components/ReleasesList.vue';
+import Release from '../components/Release.vue';
 
 export default {
-  components: { AddReleaseButton, DeployButton, PreviewSiteButton, ReleasesList },
+  components: { AddReleaseButton, DeployButton, PreviewSiteButton, Release },
   data(): {
     site: null | Site;
     sitesError: string;
@@ -126,6 +126,7 @@ export default {
         lossless, uncompressed tracks.
       </p>
       <p class="mt-4">Add a release and some files, and then you can preview your site.</p>
+
       <AddReleaseButton :cardinality="cardinality" :site-id="site.id" @release-created="loadSite" />
       <PreviewSiteButton
         :site-id="site.id"
@@ -134,7 +135,14 @@ export default {
         @preview-requested="calculateSiteExists"
       />
       <DeployButton :site-id="site.id" :ready-for-deploy="readyForPreview && siteExists" />
-      <ReleasesList :releases="site.releases" @song-uploaded="loadSite()" />
+      <div
+        v-if="site.releases.length > 0"
+        class="md:max-w-screen-md mt-8 p-4 border border-emerald-500"
+      >
+        <div v-for="release in site.releases" class="mb-6 last:mb-0">
+          <Release :release="release" @song-uploaded="loadSite()"></Release>
+        </div>
+      </div>
     </div>
     <div v-else class="max-w-screen-md">Loading...</div>
   </div>
