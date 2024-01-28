@@ -88,7 +88,8 @@ export default defineComponent({
     <hr class="my-4" />
     <div class="text-right">
       <UploadButton
-        :uploadUrl="`/api/v1/upload/release/${release.id}/song`"
+        :upload-url="`/api/v1/upload/release/${release.id}/song`"
+        param-name="songs[]"
         @song-uploaded="onSongUploaded()"
         class="md:ml-40"
       >
