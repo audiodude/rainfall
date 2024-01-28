@@ -25,8 +25,8 @@ export const useUserStore = defineStore('user', {
           .then((resp) => {
             if (resp.ok) {
               return resp.json();
-            } else if (resp.status === 404) {
-              // 404 properly indicates no logged in user.
+            } else if (resp.status === 401) {
+              // 401 properly indicates no logged in user.
               return null;
             }
             throw new Error(`Could not load user, response status=${resp.status}`);

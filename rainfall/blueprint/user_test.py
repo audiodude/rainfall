@@ -32,12 +32,12 @@ class UserTest:
           'is_welcomed': False
       }
 
-  def test_get_user_404(self, app):
+  def test_get_user_401(self, app):
     with app.test_client() as client:
 
       rv = client.get('/api/v1/user')
-      assert rv.status == '404 NOT FOUND'
-      assert rv.json == {'error': 'No signed in user', 'status': 404}
+      assert rv.status == '401 UNAUTHORIZED'
+      assert rv.json == {'error': 'No signed in user', 'status': 401}
 
   @patch('rainfall.blueprint.user.check_csrf', return_value=None)
   @patch('rainfall.blueprint.user.id_token.verify_oauth2_token')
@@ -127,8 +127,8 @@ class UserTest:
   def test_welcome_no_user(self, app, basic_user):
     with app.test_client() as client:
       rv = client.post('/api/v1/user/welcome')
-      assert rv.status == '404 NOT FOUND'
-      assert rv.json == {'status': 404, 'error': 'No signed in user'}
+      assert rv.status == '401 UNAUTHORIZED'
+      assert rv.json == {'status': 401, 'error': 'No signed in user'}
 
   @patch('rainfall.login.requests.post')
   def test_mastodon_init(self, mock_post, app):

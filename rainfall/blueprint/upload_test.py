@@ -107,7 +107,7 @@ class UploadTest:
 
     with app.test_client() as client:
       rv = client.post(f'/api/v1/upload/release/{release_id}/song')
-      assert rv.status == '404 NOT FOUND'
+      assert rv.status == '401 UNAUTHORIZED'
 
   def test_upload_wrong_file_type(self, app, releases_user):
     with app.app_context(), app.test_client() as client:
