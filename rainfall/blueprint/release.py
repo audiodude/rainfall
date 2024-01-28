@@ -1,11 +1,13 @@
+import os
 from uuid import UUID
 
 import flask
 
 from rainfall.db import db
-from rainfall.decorators import with_current_user
+from rainfall.decorators import with_current_user, with_validated_release
 from rainfall.models.release import Release
 from rainfall.models.site import Site
+from rainfall.site import release_path
 
 release = flask.Blueprint('release', __name__)
 
@@ -48,17 +50,18 @@ def create_release(user):
   return '', 204
 
 
-@release.route('release/<id_>')
+@release.route('release/<release_id>')
 @with_current_user
-def get_release(user, id_):
-  release = db.session.get(Release, UUID(id_))
-  if release is None:
-    return flask.jsonify(status=404,
-                         error='Could not find release with id=%s' % id_), 404
-
-  if release.site.user.id != user.id:
-    return flask.jsonify(status=403,
-                         error='Not authorized to load release with id=%s' %
-                         id_), 403
-
+@with_validated_release
+def get_release(release, user):
   return flask.jsonify(release.serialize())
+
+
+@release.route('release/<release_id>/artwork')
+@with_current_user
+@with_validated_release
+def get_release_artwork(release, user):
+  path = os.path.join(
+      '..', release_path(flask.current_app.config['DATA_DIR'], release))
+  print(path)
+  return flask.send_from_directory(path, release.artwork.filename)
