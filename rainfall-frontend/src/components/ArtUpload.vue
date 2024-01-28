@@ -14,8 +14,9 @@ export default defineComponent({
   <div>
     <div class="bg-gray-500 w-[50%] p-[50%] md:w-[25%] md:p-[25%]"></div>
     <UploadButton
-      :upload-url="`/api/v1/upload/release/${releaseId}`"
+      :upload-url="`/api/v1/upload/release/${releaseId}/art`"
       param-name="artwork"
+      :accept-files="['.gif', '.jpg', '.jpeg', '.png', '.webp']"
       class="md:mr-[50%]"
       >Upload art</UploadButton
     >

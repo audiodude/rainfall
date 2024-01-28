@@ -14,9 +14,9 @@ from rainfall.blueprint.site import site as site_blueprint
 from rainfall.blueprint.upload import upload as upload_blueprint
 from rainfall.db import db
 from rainfall.decorators import with_current_site, with_current_user
-from rainfall.models.release import Release
-from rainfall.models.site import Site
-from rainfall.models.user import User
+from rainfall.models import Release
+from rainfall.models import Site
+from rainfall.models import User
 from rainfall.site import generate_site, generate_zip, public_dir, release_path, site_exists, zip_file_path
 
 log = logging.getLogger(__name__)

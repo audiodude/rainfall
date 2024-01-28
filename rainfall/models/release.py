@@ -36,5 +36,9 @@ class Release(db.Model):
         props.append(('files', [file.serialize() for file in self.files]))
         continue
 
+      if field.name == 'artwork' and self.artwork is not None:
+        props.append(('artwork', self.artwork.serialize()))
+        continue
+
       props.append((field.name, getattr(self, field.name)))
     return dict(props)

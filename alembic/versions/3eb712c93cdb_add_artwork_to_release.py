@@ -1,8 +1,8 @@
 """Add artwork to Release
 
-Revision ID: 4447c46a82fc
+Revision ID: 3eb712c93cdb
 Revises: 15e450676fca
-Create Date: 2024-01-28 10:33:54.318979
+Create Date: 2024-01-28 11:19:20.503725
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4447c46a82fc'
+revision: str = '3eb712c93cdb'
 down_revision: Union[str, None] = '15e450676fca'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
