@@ -11,12 +11,42 @@ export default defineComponent({
     isEditing: Boolean,
   },
   components: { ArtUpload, UploadButton },
+  data() {
+    return {
+      currentDescription: '',
+      descriptionError: null,
+    };
+  },
+  created() {
+    if (!this.release) {
+      return;
+    }
+    this.currentDescription = this.release.description;
+  },
   methods: {
     onSongUploaded() {
       this.$emit('song-uploaded');
     },
     editRelease(id: string) {
       this.$router.push(`/release/${id}`);
+    },
+    async updateDescription() {
+      if (!this.release) {
+        return;
+      }
+      const resp = await fetch(`/api/v1/release/${this.release.id}/description`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+        body: JSON.stringify({ description: this.release.description }),
+      });
+      if (!resp.ok) {
+        if (resp.headers.get('Content-Type') == 'application/json') {
+          const data = await resp.json();
+          this.descriptionError = data.error;
+        }
+        return;
+      }
+      this.currentDescription = this.release.description;
     },
     async deleteFile(release: Release, id: string) {
       const resp = await fetch(`/api/v1/file/${id}`, {
@@ -39,8 +69,26 @@ export default defineComponent({
 
 <template>
   <div v-if="release">
-    <div v-if="isEditing"><ArtUpload :releaseId="release.id"></ArtUpload></div>
-    <div v-if="isEditing">Description</div>
+    <div v-if="isEditing" class="flex flex-row flex-wrap justify-between">
+      <div class="w-full md:w-[48%]"><ArtUpload :releaseId="release.id"></ArtUpload></div>
+      <div class="w-full md:w-[48%]">
+        <textarea
+          v-model="release.description"
+          placeholder="Enter a description about your release"
+          class="w-full h-[24.75rem] text-black"
+        ></textarea>
+        <button
+          :disabled="release.description === '' || release.description === currentDescription"
+          @click="updateDescription()"
+          class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer mt-4 w-10/12 p-4 md:py-2 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-grey-200 disabled:bg-blue-400 disabled:text-white hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
+        >
+          Update
+        </button>
+        <span v-if="descriptionError" class="text-red-600 dark:text-red-400">{{
+          descriptionError
+        }}</span>
+      </div>
+    </div>
     <div v-if="!isEditing" class="p-2 bg-emerald-500 text-white">
       <div class="release-name text-xl">
         {{ release.name }}
@@ -85,7 +133,7 @@ export default defineComponent({
     <div v-if="release.files.length == 0" class="text-right mt-4">
       <span class="no-files-msg italic">No files uploaded</span>
     </div>
-    <hr class="my-4" />
+    <hr v-if="!isEditing" class="my-4" />
     <div class="text-right">
       <UploadButton
         upload-url="`/api/v1/upload/release/${release.id}/song`"
