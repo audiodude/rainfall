@@ -21,6 +21,7 @@ class Release(db.Model):
   description: Mapped[str] = mapped_column(Text, nullable=True)
 
   files: Mapped[List["File"]] = relationship(back_populates="release")
+  artwork: Mapped["Artwork"] = relationship(back_populates="release")
 
   def __repr__(self) -> str:
     return f'Release(id={self.id!r}, site_id={self.site_id!r})'
