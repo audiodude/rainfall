@@ -6,6 +6,7 @@ export default defineComponent({
   props: {
     uploadUrl: { type: String, required: true },
     paramName: { type: String, required: true },
+    acceptFiles: { type: Array<String>, required: true },
   },
   data(): { files: FileList | null; fileError: string | null } {
     return {
@@ -23,7 +24,7 @@ export default defineComponent({
 
       let formData = new FormData();
       for (const song of this.files) {
-        formData.append('song[]', song);
+        formData.append(this.paramName, song);
       }
 
       const resp = await fetch(this.uploadUrl, {
@@ -69,7 +70,7 @@ export default defineComponent({
       ref="upload"
       class="upload-input block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
       type="file"
-      accept=".aiff,.aif,.flac,.mp3,.ogg,.opus,.wav"
+      :accept="acceptFiles.join(',')"
       @change="fileChanged"
       multiple
     />
