@@ -44,6 +44,8 @@ def site_exists(preview_dir_path, site_id):
 
 
 def generate_site(data_dir_path, preview_dir_path, site_id):
+  # TODO: Generate .eno files.
+
   try:
     out = subprocess.run([
         'faircamp', '--catalog-dir',
@@ -73,7 +75,7 @@ def generate_zip(preview_dir_path, site_id):
 def delete_file(clz, file_id, user):
   file = db.session.get(clz, UUID(file_id))
   if file is None:
-    return False
+    return flask.jsonify(status=404, error='File does not exist'), 404
 
   site = file.release.site
 

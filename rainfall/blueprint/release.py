@@ -65,3 +65,21 @@ def get_release_artwork(release, user):
       '..', release_path(flask.current_app.config['DATA_DIR'], release))
   print(path)
   return flask.send_from_directory(path, release.artwork.filename)
+
+
+@release.route('release/<release_id>/description', methods=['POST'])
+@with_current_user
+@with_validated_release
+def update_release_description(release, user):
+  data = flask.request.get_json()
+  if data is None:
+    return flask.jsonify(status=400, error='No JSON provided'), 400
+  description = data.get('description')
+  if description is None:
+    return flask.jsonify(status=400, error='Missing description'), 400
+
+  release.description = description
+  db.session.add(release)
+  db.session.commit()
+
+  return '', 204
