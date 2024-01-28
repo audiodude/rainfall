@@ -4,6 +4,7 @@ from uuid import UUID
 import flask
 
 from rainfall.db import db
+from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
 
@@ -18,11 +19,11 @@ def with_current_user(f):
   def wrapped(*args, **kwargs):
     user_id = flask.session.get('user_id')
     if user_id is None:
-      return flask.jsonify(status=404, error='No signed in user'), 404
+      return flask.jsonify(status=401, error='No signed in user'), 401
 
     user = db.session.get(User, user_id)
     if user is None:
-      return flask.jsonify(status=404, error='User does not exist'), 404
+      return flask.jsonify(status=401, error='User does not exist'), 401
 
     value = f(*args, user=user, **kwargs)
     return value
@@ -47,10 +48,35 @@ def with_current_site(f):
           status=404, error=f'Could not find a site with id={site_id}'), 404
 
     if site.user.id != user.id:
-      return flask.jsonify(status=401,
-                           error='Not authorized for that site'), 401
+      return flask.jsonify(status=403,
+                           error='Not authorized for that site'), 403
 
     value = f(*args, site=site, **kwargs)
+    return value
+
+  return wrapped
+
+
+def with_validated_release(f):
+
+  @wraps(f)
+  def wrapped(*args, **kwargs):
+    if 'release_id' not in kwargs:
+      return flask.jsonify(status=500,
+                           error='Wrapper requires release_id kwarg'), 500
+
+    release_id = kwargs.pop('release_id')
+    user = kwargs['user']
+
+    release = db.session.get(Release, UUID(release_id))
+    site = release.site
+    upload_user = site.user
+
+    if upload_user.id != user.id:
+      return flask.jsonify(status=403,
+                           error='Cannot upload data to that release'), 403
+
+    value = f(*args, release=release, **kwargs)
     return value
 
   return wrapped

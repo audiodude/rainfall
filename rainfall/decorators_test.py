@@ -32,7 +32,7 @@ class DecoratorsTest:
         pass
 
       rv = client.get('/testing/only/path/user')
-      assert rv.status == '404 NOT FOUND', rv.text
+      assert rv.status == '401 UNAUTHORIZED', rv.text
 
   def test_with_current_user_not_exist(self, app):
     with app.test_client() as client:
@@ -45,7 +45,7 @@ class DecoratorsTest:
         pass
 
       rv = client.get('/testing/only/path/user')
-      assert rv.status == '404 NOT FOUND', rv.text
+      assert rv.status == '401 UNAUTHORIZED', rv.text
 
   def test_with_current_site(self, app, sites_user):
     with app.test_client() as client:
