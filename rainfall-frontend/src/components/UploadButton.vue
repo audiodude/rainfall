@@ -5,6 +5,7 @@ import { getCsrf } from '../helpers/cookie';
 export default defineComponent({
   props: {
     uploadUrl: { type: String, required: true },
+    paramName: { type: String, required: true },
   },
   data(): { files: FileList | null; fileError: string | null } {
     return {
@@ -24,7 +25,6 @@ export default defineComponent({
       for (const song of this.files) {
         formData.append('song[]', song);
       }
-      formData.append('release_id', this.releaseId);
 
       const resp = await fetch(this.uploadUrl, {
         method: 'POST',
