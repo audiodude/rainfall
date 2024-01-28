@@ -36,16 +36,12 @@ export default defineComponent({
 </script>
 
 <template>
-  <div>
-    <div
-      class="bg-gray-500 w-[50%] p-[50%] md:w-[25%] md:p-[25%] bg-contain"
-      :style="imageBackgroundStyle"
-    ></div>
+  <div class="border-red-500 border-1">
+    <div class="bg-gray-500 w-[50%] p-[50%] bg-contain" :style="imageBackgroundStyle"></div>
     <UploadButton
       :upload-url="`/api/v1/upload/release/${releaseId}/art`"
       param-name="artwork"
       :accept-files="['.gif', '.jpg', '.jpeg', '.png', '.webp']"
-      class="md:mr-[50%]"
       @song-uploaded="reloadImage()"
       >Upload art</UploadButton
     >
