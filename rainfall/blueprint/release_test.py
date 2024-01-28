@@ -40,7 +40,7 @@ class ReleaseTest:
               'name': 'Release 1',
               'site_id': 'abc123'
           }})
-      assert rv.status == '404 NOT FOUND'
+      assert rv.status == '401 UNAUTHORIZED'
 
   def test_create_no_user_in_session(self, app, sites_user):
     with app.test_client() as client:
@@ -50,7 +50,7 @@ class ReleaseTest:
               'name': 'Release 1',
               'site_id': 'abc123'
           }})
-      assert rv.status == '404 NOT FOUND'
+      assert rv.status == '401 UNAUTHORIZED'
 
   def test_create_no_json(self, app, sites_user):
     with app.test_client() as client:

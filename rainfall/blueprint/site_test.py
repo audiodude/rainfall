@@ -25,12 +25,12 @@ class SiteTest:
   def test_create_site_no_user(self, app):
     with app.test_client() as client:
       rv = client.post('/api/v1/site', json={'site': {'name': 'Some site'}})
-      assert rv.status == '404 NOT FOUND'
+      assert rv.status == '401 UNAUTHORIZED'
 
   def test_create_site_no_user_in_session(self, app, welcomed_user):
     with app.test_client() as client:
       rv = client.post('/api/v1/site', json={'site': {'name': 'Some site'}})
-      assert rv.status == '404 NOT FOUND'
+      assert rv.status == '401 UNAUTHORIZED'
 
   def test_create_site_no_json(self, app, welcomed_user):
     with app.test_client() as client:
@@ -75,12 +75,12 @@ class SiteTest:
   def test_list_sites_no_user(self, app):
     with app.test_client() as client:
       rv = client.get('/api/v1/site/list')
-      assert rv.status == '404 NOT FOUND'
+      assert rv.status == '401 UNAUTHORIZED'
 
   def test_list_sites_no_user_in_session(self, app, welcomed_user):
     with app.test_client() as client:
       rv = client.get('/api/v1/site/list')
-      assert rv.status == '404 NOT FOUND'
+      assert rv.status == '401 UNAUTHORIZED'
 
   def test_list_sites_no_sites(self, app, welcomed_user):
     with app.test_client() as client:
