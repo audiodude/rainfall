@@ -56,13 +56,40 @@ export default {
 
 <template>
   <div>
-    <div v-if="!releaseError && release" class="text-3xl">Editing {{ release.name }}</div>
-    <div class="md:max-w-screen-md mt-8 p-4 border border-emerald-500">
-      <ReleaseComponent
-        :release="release"
-        @song-uploaded="loadRelease()"
-        :isEditing="true"
-      ></ReleaseComponent>
+    <div v-if="releaseError">
+      <p class="mt-4 text-red-600 dark:text-red-400">
+        Could not load that release: {{ releaseError }}
+      </p>
+    </div>
+    <div v-if="release">
+      <div class="text-3xl">Editing {{ release.name }}</div>
+      <div class="mt-4">
+        <a :href="`/site/${release.site_id}`">
+          <svg
+            id="left-arrow"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6 inline"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+            />
+          </svg>
+          Back to site
+        </a>
+      </div>
+      <div class="md:max-w-screen-md mt-8 p-4 border border-emerald-500">
+        <ReleaseComponent
+          :release="release"
+          @song-uploaded="loadRelease()"
+          :isEditing="true"
+        ></ReleaseComponent>
+      </div>
     </div>
   </div>
 </template>

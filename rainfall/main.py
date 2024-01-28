@@ -6,21 +6,18 @@ from uuid import UUID
 import flask
 from flask_seasurf import SeaSurf
 import sqlalchemy
-from werkzeug.utils import secure_filename
 
 from rainfall.blueprint.file import file as file_blueprint
 from rainfall.blueprint.user import UserBlueprintFactory
 from rainfall.blueprint.release import release as release_blueprint
 from rainfall.blueprint.site import site as site_blueprint
+from rainfall.blueprint.upload import upload as upload_blueprint
 from rainfall.db import db
 from rainfall.decorators import with_current_site, with_current_user
-from rainfall.models.file import File
 from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
 from rainfall.site import generate_site, generate_zip, public_dir, release_path, site_exists, zip_file_path
-
-ALLOWED_SONG_EXTS = ['.aiff', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.WARNING)
@@ -52,67 +49,9 @@ def create_app():
   app.register_blueprint(site_blueprint, url_prefix='/api/v1')
   app.register_blueprint(release_blueprint, url_prefix='/api/v1')
   app.register_blueprint(file_blueprint, url_prefix='/api/v1')
+  app.register_blueprint(upload_blueprint, url_prefix='/api/v1')
 
   FRONTEND_DIR = '../rainfall-frontend/dist'
-
-  @app.route('/api/v1/upload', methods=['POST'])
-  @with_current_user
-  def upload(user):
-
-    def allowed_file(filename):
-      if '.' not in filename:
-        return False
-      return '.' + filename.rsplit('.', 1)[1].lower() in ALLOWED_SONG_EXTS
-
-    def check_song_file_types(song_files):
-      for f in song_files:
-        if not allowed_file(f.filename):
-          return flask.jsonify(
-              status=400,
-              error='File %s is not an allowed file type (%s)' %
-              (f.filename, ' '.join(ALLOWED_SONG_EXTS))), 400
-
-    release_id = flask.request.form.get('release_id')
-    if release_id is None:
-      return flask.jsonify(status=400, error='No release id given'), 400
-
-    release = db.session.get(Release, UUID(release_id))
-    site = release.site
-    upload_user = site.user
-
-    if upload_user.id != user.id:
-      return flask.jsonify(status=401,
-                           error='Cannot upload data to that release'), 401
-
-    song_files = flask.request.files.getlist("song[]")
-    if not song_files:
-      return flask.jsonify(status=400, error='No songs uploaded'), 400
-
-    resp = check_song_file_types(song_files)
-    if resp is not None:
-      return resp
-
-    cur_release_path = release_path(app.config['DATA_DIR'], release)
-    os.makedirs(cur_release_path, exist_ok=True)
-
-    for song in song_files:
-      name = secure_filename(song.filename)
-      if len(name) > 1024:
-        return flask.jsonify(status=400,
-                             error=f'File name {name} is too long'), 400
-      file = File(filename=name)
-      release.files.append(file)
-      # Give the file a new name if it's a dupe. This must be done after
-      # the file is added to the release.
-      file.maybe_rename()
-
-      # Write the file to the filesystem.
-      song.save(os.path.join(cur_release_path, file.filename))
-
-    db.session.add(release)
-    db.session.commit()
-
-    return '', 204
 
   @app.route('/api/v1/preview/<site_id>', methods=['GET', 'POST'])
   @with_current_user

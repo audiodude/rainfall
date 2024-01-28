@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
-import SongUpload from './SongUpload.vue';
+import ArtUpload from './ArtUpload.vue';
+import UploadButton from './UploadButton.vue';
 import { type Release } from '../types/release';
 import { getCsrf } from '../helpers/cookie';
 
@@ -9,7 +10,7 @@ export default defineComponent({
     release: { type: Object as PropType<Release | null>, required: true },
     isEditing: Boolean,
   },
-  components: { SongUpload },
+  components: { ArtUpload, UploadButton },
   methods: {
     onSongUploaded() {
       this.$emit('song-uploaded');
@@ -38,9 +39,9 @@ export default defineComponent({
 
 <template>
   <div v-if="release">
-    <div v-if="isEditing">Art</div>
+    <div v-if="isEditing"><ArtUpload releaseId="release.id"></ArtUpload></div>
     <div v-if="isEditing">Description</div>
-    <div class="p-2 bg-emerald-500 text-white">
+    <div v-if="!isEditing" class="p-2 bg-emerald-500 text-white">
       <div class="release-name text-xl">
         {{ release.name }}
       </div>
@@ -50,6 +51,10 @@ export default defineComponent({
         href="#"
         >edit art/description</a
       >
+    </div>
+    <div v-else class="text-emerald-500 text-xl">
+      Songs
+      <hr class="h-px my-2 bg-emerald-500 border-0" />
     </div>
     <div
       v-for="file of release.files"
@@ -82,7 +87,13 @@ export default defineComponent({
     </div>
     <hr class="my-4" />
     <div class="text-right">
-      <SongUpload :releaseId="release.id" @song-uploaded="onSongUploaded()" class="md:ml-40" />
+      <UploadButton
+        :uploadUrl="`/api/v1/upload/release/${release.id}/song`"
+        @song-uploaded="onSongUploaded()"
+        class="md:ml-40"
+      >
+        Upload songs
+      </UploadButton>
     </div>
   </div>
 </template>
