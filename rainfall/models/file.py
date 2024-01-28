@@ -1,5 +1,4 @@
 from dataclasses import dataclass, fields
-from functools import partial
 import re
 
 from sqlalchemy import ForeignKey

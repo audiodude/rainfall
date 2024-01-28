@@ -39,7 +39,7 @@ export default defineComponent({
 
 <template>
   <div v-if="release">
-    <div v-if="isEditing"><ArtUpload releaseId="release.id"></ArtUpload></div>
+    <div v-if="isEditing"><ArtUpload :releaseId="release.id"></ArtUpload></div>
     <div v-if="isEditing">Description</div>
     <div v-if="!isEditing" class="p-2 bg-emerald-500 text-white">
       <div class="release-name text-xl">
@@ -88,8 +88,9 @@ export default defineComponent({
     <hr class="my-4" />
     <div class="text-right">
       <UploadButton
-        :upload-url="`/api/v1/upload/release/${release.id}/song`"
+        upload-url="`/api/v1/upload/release/${release.id}/song`"
         param-name="songs[]"
+        :accept-files="['.aiff', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']"
         @song-uploaded="onSongUploaded()"
         class="md:ml-40"
       >
