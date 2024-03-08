@@ -43,8 +43,25 @@ def site_exists(preview_dir_path, site_id):
   return os.path.exists(dir_) and len(os.listdir(dir_)) > 0
 
 
+def generate_eno_files(data_dir_path, site_id):
+  site = db.session.get(Site, UUID(site_id))
+  for release in site.releases:
+    if release.empty():
+      continue
+
+    release_eno = flask.render_template(
+        'release.eno.jinja2',
+        cover_filename=release.artwork.filename if release.artwork else None,
+        cover_alt_text='no alt text given' if release.artwork else None,
+        description=release.description)
+
+    eno_path = os.path.join(release_path(data_dir_path, release), 'release.eno')
+    with open(eno_path, 'w') as f:
+      f.write(release_eno)
+
+
 def generate_site(data_dir_path, preview_dir_path, site_id):
-  # TODO: Generate .eno files.
+  generate_eno_files(data_dir_path, site_id)
 
   try:
     out = subprocess.run([

@@ -136,8 +136,8 @@ export default defineComponent({
     <hr v-if="!isEditing" class="my-4" />
     <div class="text-right">
       <UploadButton
-        upload-url="`/api/v1/upload/release/${release.id}/song`"
-        param-name="songs[]"
+        :upload-url="`/api/v1/upload/release/${release.id}/song`"
+        param-name="song[]"
         :accept-files="['.aiff', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']"
         @song-uploaded="onSongUploaded()"
         class="md:ml-40"

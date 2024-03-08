@@ -61,9 +61,11 @@ def get_release(release, user):
 @with_current_user
 @with_validated_release
 def get_release_artwork(release, user):
+  if release.artwork is None:
+    flask.abort_404()
+
   path = os.path.join(
       '..', release_path(flask.current_app.config['DATA_DIR'], release))
-  print(path)
   return flask.send_from_directory(path, release.artwork.filename)
 
 
