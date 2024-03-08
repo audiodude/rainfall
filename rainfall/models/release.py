@@ -42,3 +42,6 @@ class Release(db.Model):
 
       props.append((field.name, getattr(self, field.name)))
     return dict(props)
+
+  def empty(self):
+    return len(self.files) == 0
