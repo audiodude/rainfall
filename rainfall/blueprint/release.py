@@ -60,7 +60,7 @@ def get_release(release, user):
 @with_validated_release
 def get_release_artwork(release, user):
   if release.artwork is None:
-    flask.abort_404()
+    flask.abort(404)
 
   path = os.path.join(
       '..', release_path(flask.current_app.config['DATA_DIR'], release))
@@ -72,8 +72,6 @@ def get_release_artwork(release, user):
 @with_validated_release
 def update_release_description(release, user):
   data = flask.request.get_json()
-  if data is None:
-    return flask.jsonify(status=400, error='No JSON provided'), 400
   description = data.get('description')
   if description is None:
     return flask.jsonify(status=400, error='Missing description'), 400

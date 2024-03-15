@@ -137,24 +137,6 @@ class UploadTest:
 
       release = releases_user.sites[0].releases[1]
       release_id = str(release.id)
-      rv = client.post(
-          f'/api/v1/upload/release/{release_id}/art',
-          data={'artwork': (io.BytesIO(b'not-actually-a-song'), 'artwork.jpg')})
-
-      assert rv.status == '204 NO CONTENT', rv.text
-      db.session.refresh(release)
-      assert release.artwork
-      assert release.artwork.filename == 'artwork.jpg'
-
-  def test_upload_release_art_no_artwork(self, app, releases_user):
-    with app.app_context(), app.test_client() as client:
-      db.session.add(releases_user)
-
-      with client.session_transaction() as sess:
-        sess['user_id'] = releases_user.id
-
-      release = releases_user.sites[0].releases[1]
-      release_id = str(release.id)
       rv = client.post(f'/api/v1/upload/release/{release_id}/art',
                        data={
                            'artwork': (io.BytesIO(b'not-actually-a-song'),
@@ -170,8 +152,38 @@ class UploadTest:
           'some_artwork.jpg')
       assert os.path.exists(file_path)
 
-  def test_upload_release_delete_existing(self, app, releases_user,
-                                          artwork_file):
+  def test_upload_release_art_no_file(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = releases_user.id
+
+      release = releases_user.sites[0].releases[1]
+      release_id = str(release.id)
+      rv = client.post(f'/api/v1/upload/release/{release_id}/art')
+
+      assert rv.status == '400 BAD REQUEST', rv.text
+
+  def test_upload_release_art_wrong_type(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = releases_user.id
+
+      release = releases_user.sites[0].releases[1]
+      release_id = str(release.id)
+      rv = client.post(f'/api/v1/upload/release/{release_id}/art',
+                       data={
+                           'artwork': (io.BytesIO(b'not-actually-a-song'),
+                                       'some_artwork.wav')
+                       })
+
+      assert rv.status == '400 BAD REQUEST', rv.text
+
+  def test_upload_release_art_delete_existing(self, app, releases_user,
+                                              artwork_file):
     with app.app_context(), app.test_client() as client:
       db.session.add(releases_user)
       release = releases_user.sites[0].releases[0]
