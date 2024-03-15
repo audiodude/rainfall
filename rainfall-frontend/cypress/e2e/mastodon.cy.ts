@@ -28,9 +28,9 @@ describe('Mastodon login test', () => {
   describe('when there is no user', () => {
     beforeEach(() => {
       cy.intercept('GET', 'api/v1/user', {
-        statusCode: 404,
+        statusCode: 401,
         body: {
-          status: 404,
+          status: 401,
           error: 'No signed in user',
         },
       }).as('load-user');
