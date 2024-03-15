@@ -71,7 +71,8 @@ def with_validated_release(f):
     release = db.session.get(Release, UUID(release_id))
     if release is None:
       return flask.jsonify(status=404,
-                           error='Could not find release with id=%s' % id_), 404
+                           error='Could not find release with id=%s' %
+                           release_id), 404
 
     site = release.site
     upload_user = site.user

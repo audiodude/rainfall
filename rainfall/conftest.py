@@ -1,14 +1,18 @@
 import os
 import uuid
 
+import flask
 import pytest
+from uuid_extensions import uuid7
 
 from rainfall.db import db
 from rainfall.main import create_app
+from rainfall.models.artwork import Artwork
 from rainfall.models.file import File
 from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
+from rainfall.site import release_path
 
 BASIC_USER_ID = uuid.UUID('06543f11-12b6-71ea-8000-e026c63c22e2')
 
@@ -91,3 +95,22 @@ def site_id(app, sites_user):
   with app.app_context():
     db.session.add(sites_user)
     return sites_user.sites[0].id
+
+
+@pytest.fixture
+def artwork_file(app, releases_user):
+  with app.app_context():
+    db.session.add(releases_user)
+    release = releases_user.sites[0].releases[0]
+    release.artwork = Artwork(id=uuid7(), filename='artwork.jpg')
+    file_path = os.path.join(
+        release_path(flask.current_app.config['DATA_DIR'], release),
+        'artwork.jpg')
+    db.session.commit()
+
+  with open(file_path, 'w') as f:
+    f.write('not-actually-artwork')
+
+  yield file_path
+
+  os.remove(file_path)
