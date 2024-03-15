@@ -37,7 +37,10 @@ export default defineComponent({
 
 <template>
   <div class="border-red-500 border-1">
-    <div class="bg-gray-500 w-[50%] p-[50%] bg-contain" :style="imageBackgroundStyle"></div>
+    <div
+      class="bg-gray-500 w-[50%] p-[50%] bg-contain bg-no-repeat"
+      :style="imageBackgroundStyle"
+    ></div>
     <UploadButton
       :upload-url="`/api/v1/upload/release/${releaseId}/art`"
       param-name="artwork"
