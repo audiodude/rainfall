@@ -15,6 +15,7 @@ export default defineComponent({
     return {
       currentDescription: '',
       descriptionError: null,
+      stashedDescription: '',
     };
   },
   created() {
@@ -25,6 +26,9 @@ export default defineComponent({
   },
   methods: {
     onSongUploaded() {
+      if (this.release) {
+        this.stashedDescription = this.release.description;
+      }
       this.$emit('song-uploaded');
     },
     editRelease(id: string) {
@@ -62,6 +66,11 @@ export default defineComponent({
       }
       const i = release.files.findIndex((file) => file.id == id);
       release.files.splice(i, 1);
+    },
+  },
+  watch: {
+    release(newRelease) {
+      newRelease.description = this.stashedDescription;
     },
   },
 });
