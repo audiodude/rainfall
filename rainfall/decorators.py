@@ -78,8 +78,7 @@ def with_validated_release(f):
     upload_user = site.user
 
     if upload_user.id != user.id:
-      return flask.jsonify(status=403,
-                           error='Cannot upload data to that release'), 403
+      return flask.jsonify(status=403, error='Cannot access that release'), 403
 
     value = f(*args, release=release, **kwargs)
     return value
