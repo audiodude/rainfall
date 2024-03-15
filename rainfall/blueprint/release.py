@@ -20,8 +20,6 @@ def create_release(user):
                          error='User has not yet been welcomed'), 400
 
   data = flask.request.get_json()
-  if data is None:
-    return flask.jsonify(status=400, error='No JSON provided'), 400
   release_data = data.get('release')
   if release_data is None:
     return flask.jsonify(status=400, error='Missing release data'), 400

@@ -15,13 +15,13 @@ class Release(db.Model):
   __tablename__ = 'releases'
 
   id: Mapped[bytes] = mapped_column(Uuid, primary_key=True, default=uuid7)
-  site_id: Mapped[bytes] = mapped_column(ForeignKey("sites.id"))
-  site: Mapped["Site"] = relationship(back_populates="releases")
+  site_id: Mapped[bytes] = mapped_column(ForeignKey('sites.id'))
+  site: Mapped['Site'] = relationship(back_populates='releases')
   name: Mapped[str] = mapped_column(String(255))
   description: Mapped[str] = mapped_column(Text, nullable=True)
 
-  files: Mapped[List["File"]] = relationship(back_populates="release")
-  artwork: Mapped["Artwork"] = relationship(back_populates="release")
+  files: Mapped[List['File']] = relationship(back_populates='release')
+  artwork: Mapped['Artwork'] = relationship(back_populates='release')
 
   def __repr__(self) -> str:
     return f'Release(id={self.id!r}, site_id={self.site_id!r})'

@@ -74,7 +74,7 @@ class FileTest:
 
       rv = client.delete(f'/api/v1/file/{str(file_id)}')
 
-      assert rv.status == '401 UNAUTHORIZED'
+      assert rv.status == '403 FORBIDDEN'
 
   @patch('rainfall.blueprint.file.os.remove')
   def test_delete_file_oserror(self, mock_remove, app, releases_user):

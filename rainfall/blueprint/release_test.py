@@ -4,6 +4,8 @@ import pytest
 
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
+from rainfall.models.artwork import Artwork
+from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
 
@@ -51,6 +53,19 @@ class ReleaseTest:
               'site_id': 'abc123'
           }})
       assert rv.status == '401 UNAUTHORIZED'
+
+  def test_create_user_not_welcomed(self, app, basic_user):
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+      rv = client.post(
+          '/api/v1/release',
+          json={'release': {
+              'name': 'Release 1',
+              'site_id': 'abc123'
+          }})
+
+    assert rv.status == '400 BAD REQUEST'
 
   def test_create_no_json(self, app, sites_user):
     with app.test_client() as client:
@@ -124,3 +139,47 @@ class ReleaseTest:
                            }
                        })
       assert rv.status == '401 UNAUTHORIZED'
+
+  def test_get_release(self, app, sites_user):
+    with app.app_context():
+      db.session.add(sites_user)
+      release = Release(id=uuid7(), name='New Release')
+      sites_user.sites[0].releases.append(release)
+      db.session.flush()
+      site_id = sites_user.sites[0].id
+      release_id = release.id
+      db.session.commit()
+
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      print(f'/api/v1/release/{release_id}')
+
+      rv = client.get(f'/api/v1/release/{release_id}')
+      assert rv.status == '200 OK'
+      assert rv.json == {
+          'name': 'New Release',
+          'artwork': None,
+          'description': None,
+          'files': [],
+          'id': str(release_id),
+          'site_id': str(site_id),
+      }
+
+  def test_get_release_artwork(self, app, releases_user, artwork_file):
+    with app.app_context():
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[0]
+      artwork = Artwork(filename='artwork.jpg')
+      artwork.release_id = release_id = release.id
+      db.session.add(release)
+      db.session.commit()
+
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.get(f'/api/v1/release/{release_id}/artwork')
+      assert rv.status == '200 OK'
+      assert rv.text == 'not-actually-artwork'

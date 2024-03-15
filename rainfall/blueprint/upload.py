@@ -78,7 +78,7 @@ def upload_release_song(release, user):
 @with_current_user
 @with_validated_release
 def upload_release_art(release, user):
-  artwork = flask.request.files.get("artwork")
+  artwork = flask.request.files.get('artwork')
   if not artwork:
     return flask.jsonify(status=400, error='No artwork uploaded'), 400
 

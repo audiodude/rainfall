@@ -102,7 +102,7 @@ def delete_file(clz, file_id, user):
   if site.user.id != user.id:
     return flask.jsonify(
         status=401,
-        error='Cannot delete files for that release, unauthorized'), 401
+        error='Cannot delete files for that release, unauthorized'), 403
 
   cur_release_path = release_path(flask.current_app.config['DATA_DIR'],
                                   file.release)
