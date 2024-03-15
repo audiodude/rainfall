@@ -108,6 +108,7 @@ def artwork_file(app, releases_user):
         'artwork.jpg')
     db.session.commit()
 
+  print(os.getcwd(), file_path)
   with open(file_path, 'w') as f:
     f.write('not-actually-artwork')
 
