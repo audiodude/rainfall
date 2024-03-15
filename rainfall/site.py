@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 import subprocess
@@ -8,6 +9,8 @@ from werkzeug.utils import secure_filename
 
 from rainfall.db import db
 from rainfall.models.site import Site
+
+log = logging.getLogger(__name__)
 
 
 def catalog_dir(data_dir_path, site_id):
