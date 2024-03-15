@@ -2,10 +2,13 @@ from unittest.mock import patch
 import io
 import os
 
+import flask
 from werkzeug.utils import secure_filename
 
 from rainfall.db import db
 from rainfall.conftest import BASIC_USER_ID
+from rainfall.models.artwork import Artwork
+from rainfall.site import release_path
 
 
 def assert_file_contents(file_path, contents):
@@ -124,3 +127,75 @@ class UploadTest:
           data={'song[]': (io.BytesIO(b'not-actually-a-song'), 'song1.txt')})
 
       assert rv.status == '400 BAD REQUEST', rv.text
+
+  def test_upload_release_art(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = releases_user.id
+
+      release = releases_user.sites[0].releases[1]
+      release_id = str(release.id)
+      rv = client.post(
+          f'/api/v1/upload/release/{release_id}/art',
+          data={'artwork': (io.BytesIO(b'not-actually-a-song'), 'artwork.jpg')})
+
+      assert rv.status == '204 NO CONTENT', rv.text
+      db.session.refresh(release)
+      assert release.artwork
+      assert release.artwork.filename == 'artwork.jpg'
+
+  def test_upload_release_art_no_artwork(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = releases_user.id
+
+      release = releases_user.sites[0].releases[1]
+      release_id = str(release.id)
+      rv = client.post(f'/api/v1/upload/release/{release_id}/art',
+                       data={
+                           'artwork': (io.BytesIO(b'not-actually-a-song'),
+                                       'some_artwork.jpg')
+                       })
+
+      assert rv.status == '204 NO CONTENT', rv.text
+      db.session.refresh(release)
+      assert release.artwork
+      assert release.artwork.filename == 'some_artwork.jpg'
+      file_path = os.path.join(
+          release_path(flask.current_app.config['DATA_DIR'], release),
+          'some_artwork.jpg')
+      assert os.path.exists(file_path)
+
+  def test_upload_release_delete_existing(self, app, releases_user,
+                                          artwork_file):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[0]
+      artwork = Artwork(filename='artwork.jpg')
+      artwork.release_id = release_id = release.id
+      db.session.add(release)
+      db.session.commit()
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = releases_user.id
+
+      release_id = str(release.id)
+      rv = client.post(f'/api/v1/upload/release/{release_id}/art',
+                       data={
+                           'artwork': (io.BytesIO(b'not-actually-a-song'),
+                                       'artwork1.jpg')
+                       })
+
+      assert rv.status == '204 NO CONTENT', rv.text
+      db.session.refresh(release)
+      assert release.artwork
+      assert release.artwork.filename == 'artwork1.jpg'
+      file_path = os.path.join(
+          release_path(flask.current_app.config['DATA_DIR'], release),
+          'artwork.jpg')
+      print(file_path)
+      assert not os.path.exists(file_path)
