@@ -184,7 +184,7 @@ class ReleaseTest:
       assert rv.status == '200 OK'
       assert rv.text == 'not-actually-artwork'
 
-  def test_get_release_artwork(self, app, releases_user):
+  def test_get_release_artwork_not_found(self, app, releases_user):
     with app.app_context(), app.test_client() as client:
       db.session.add(releases_user)
       release = releases_user.sites[0].releases[0]
