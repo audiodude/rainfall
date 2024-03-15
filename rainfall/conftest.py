@@ -115,4 +115,7 @@ def artwork_file(app, releases_user):
 
   yield file_path
 
-  os.remove(file_path)
+  try:
+    os.remove(file_path)
+  except:
+    pass
