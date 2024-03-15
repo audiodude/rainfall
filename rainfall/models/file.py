@@ -1,5 +1,4 @@
 from dataclasses import dataclass, fields
-from functools import partial
 import re
 
 from sqlalchemy import ForeignKey
@@ -18,8 +17,8 @@ class File(db.Model):
   __tablename__ = 'files'
 
   id: Mapped[bytes] = mapped_column(Uuid, primary_key=True, default=uuid7)
-  release_id: Mapped[bytes] = mapped_column(ForeignKey("releases.id"))
-  release: Mapped["Release"] = relationship(back_populates="files")
+  release_id: Mapped[bytes] = mapped_column(ForeignKey('releases.id'))
+  release: Mapped['Release'] = relationship(back_populates='files')
   filename: Mapped[str] = mapped_column(String(1024))
   original_filename: Mapped[str] = mapped_column(String(1024), nullable=True)
 

@@ -5,6 +5,7 @@ import SitesView from '../views/SitesView.vue';
 import MastodonLoginView from '../views/MastodonLoginView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
 import EditSiteView from '../views/EditSiteView.vue';
+import EditReleaseView from '@/views/EditReleaseView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +29,11 @@ const router = createRouter({
       path: '/site/:site_id',
       name: 'editSite',
       component: EditSiteView,
+    },
+    {
+      path: '/release/:release_id',
+      name: 'editRelease',
+      component: EditReleaseView,
     },
     { path: '/mastodon', name: 'mastodonLogin', component: MastodonLoginView },
     { path: '/:pathMatch(.*)*', name: 'notfound', component: NotFoundView },
