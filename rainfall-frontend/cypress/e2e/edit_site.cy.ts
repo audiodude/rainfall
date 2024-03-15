@@ -2,9 +2,9 @@ describe('Edit Site test', () => {
   describe('when there is no logged in user', () => {
     beforeEach(() => {
       cy.intercept('GET', 'api/v1/user', {
-        statusCode: 404,
+        statusCode: 401,
         body: {
-          status: 404,
+          status: 401,
           error: 'No signed in user',
         },
       }).as('load-user');
@@ -142,10 +142,13 @@ describe('Edit Site test', () => {
             });
           }
         }).as('load-site');
-        cy.intercept('POST', 'api/v1/upload', (req) => {
+        cy.intercept('POST', 'api/v1/upload/**', (req) => {
           calledUpload = true;
           req.reply(204, '', {});
         }).as('upload-songs');
+        cy.intercept('GET', 'api/v1/preview/**', (req) => {
+          req.reply(204, '', {});
+        });
         cy.fixture('song.json').as('song');
         cy.visit('/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
         cy.wait('@load-site');

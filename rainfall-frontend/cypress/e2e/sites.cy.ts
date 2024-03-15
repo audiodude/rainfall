@@ -2,9 +2,9 @@ describe('New Test', () => {
   describe('when there is no logged in user', () => {
     beforeEach(() => {
       cy.intercept('GET', 'api/v1/user', {
-        statusCode: 404,
+        statusCode: 401,
         body: {
-          status: 404,
+          status: 401,
           error: 'No signed in user',
         },
       });
