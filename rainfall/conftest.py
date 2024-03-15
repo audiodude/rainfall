@@ -103,12 +103,12 @@ def artwork_file(app, releases_user):
     db.session.add(releases_user)
     release = releases_user.sites[0].releases[0]
     release.artwork = Artwork(id=uuid7(), filename='artwork.jpg')
+    os.makedirs(flask.current_app.config['DATA_DIR'], exist_ok=True)
     file_path = os.path.join(
         release_path(flask.current_app.config['DATA_DIR'], release),
         'artwork.jpg')
     db.session.commit()
 
-  print(os.getcwd(), file_path)
   with open(file_path, 'w') as f:
     f.write('not-actually-artwork')
 
