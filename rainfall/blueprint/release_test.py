@@ -183,3 +183,43 @@ class ReleaseTest:
       rv = client.get(f'/api/v1/release/{release_id}/artwork')
       assert rv.status == '200 OK'
       assert rv.text == 'not-actually-artwork'
+
+  def test_get_release_artwork(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[0]
+      release_id = release.id
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.get(f'/api/v1/release/{release_id}/artwork')
+      assert rv.status == '404 NOT FOUND'
+
+  def test_update_release_description(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[0]
+      release_id = release.id
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post(f'/api/v1/release/{release_id}/description',
+                       json={'description': 'New description'})
+      assert rv.status == '204 NO CONTENT'
+      db.session.refresh(release)
+      assert release.description == 'New description'
+
+  def test_update_release_description_no_description(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[0]
+      release_id = release.id
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post(f'/api/v1/release/{release_id}/description',
+                       json={'foo': 'bar'})
+      assert rv.status == '400 BAD REQUEST'
