@@ -16,8 +16,8 @@ class Artwork(db.Model):
   id: Mapped[bytes] = mapped_column(Uuid, primary_key=True, default=uuid7)
   filename: Mapped[str] = mapped_column(String(1024))
 
-  release_id: Mapped[bytes] = mapped_column(ForeignKey("releases.id"))
-  release: Mapped["Release"] = relationship(back_populates="artwork")
+  release_id: Mapped[bytes] = mapped_column(ForeignKey('releases.id'))
+  release: Mapped['Release'] = relationship(back_populates='artwork')
 
   def __repr__(self) -> str:
     return f'Artwork(id={self.id!r}, release_id={self.release.id!r}, filename={self.filename!r})'

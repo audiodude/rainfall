@@ -28,7 +28,7 @@ class User(db.Model):
   picture_url: Mapped[str] = mapped_column(String(1024), nullable=True)
   is_welcomed: Mapped[bool] = mapped_column(Boolean, default=False)
 
-  sites: Mapped[List["Site"]] = relationship(back_populates="user")
+  sites: Mapped[List['Site']] = relationship(back_populates='user')
 
   def __repr__(self) -> str:
     return f'User(id={self.id!r}, google_id={self.google_id!r})'
