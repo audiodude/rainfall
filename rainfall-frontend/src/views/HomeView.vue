@@ -75,7 +75,7 @@ export default {
             </h2>
             <p class="text-lg font-normal text-gray-500 dark:text-gray-400 mb-4">
               Sign into <em>Rainfall</em> with your Mastodon or Google account and start uploading
-              music. You can upload in .aiff, .aif, .flac, .mp3, .ogg, .opus, or .wav.
+              music. You can upload in .aiff, .aif, .alac, .flac, .mp3, .ogg, .opus, or .wav.
             </p>
           </div>
           <div

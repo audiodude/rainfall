@@ -22,11 +22,12 @@ WORKDIR /usr/src/app/frontend
 RUN yarn install --production=false --frozen-lockfile
 RUN NODE_ENV=production yarn build
 
-# Throw-away build stage to reduce size of final image
+# Throw away build stage to reduce size of final image
 FROM fe-build as build
 
 FROM ubuntu:23.10
 
+# Install Faircamp dependencies
 RUN apt-get update -qq && \
   apt-get install -y curl cmake ffmpeg gcc git libvips-dev
 
@@ -36,7 +37,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh && ch
 RUN ./rustup.sh -y
 RUN git clone https://codeberg.org/simonrepp/faircamp.git
 WORKDIR faircamp
-RUN git checkout tags/0.11.0
+RUN git checkout tags/0.15.1
 RUN $HOME/.cargo/bin/cargo install --features libvips --locked --path .
 
 # Python app
@@ -53,4 +54,4 @@ RUN pipenv install --deploy --ignore-pipfile
 COPY . .
 COPY --from=build /usr/src/app/frontend ./rainfall-frontend
 
-CMD ["pipenv", "run", "gunicorn", "-b", "0.0.0.0", "rainfall.main:create_app()"]
+CMD ["pipenv", "run", "gunicorn", "--error-logfile", "-", "--access-logfile", "-", "-b", "0.0.0.0", "rainfall.main:create_app()"]
