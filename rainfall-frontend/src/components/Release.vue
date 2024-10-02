@@ -79,14 +79,18 @@ export default defineComponent({
 <template>
   <div v-if="release">
     <div v-if="isEditing" class="flex flex-row flex-wrap justify-between">
-      <div class="w-full md:w-[48%]"><ArtUpload :releaseId="release.id"></ArtUpload></div>
-      <div class="w-full md:w-[48%]">
+      <div class="art-upload-cont w-full md:w-[48%]">
+        <ArtUpload :releaseId="release.id"></ArtUpload>
+      </div>
+      <div class="desc-edit-cont w-full md:w-[48%]">
         <textarea
+          id="release-description"
           v-model="release.description"
           placeholder="Enter a description about your release"
           class="w-full h-[24.75rem] text-black"
         ></textarea>
         <button
+          id="update-description-button"
           :disabled="release.description === '' || release.description === currentDescription"
           @click="updateDescription()"
           class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer mt-4 w-10/12 p-4 md:py-2 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-grey-200 disabled:bg-blue-400 disabled:text-white hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
