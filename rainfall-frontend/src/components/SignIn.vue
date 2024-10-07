@@ -14,6 +14,8 @@ export default {
     ...mapState(useUserStore, ['isLoggedIn']),
   },
   async mounted() {
+    console.log(this.clientId);
+    console.log(this.redirectUri);
     await this.userStore.loadUser();
     if (!this.isLoggedIn) {
       this.mountGoogleScript();

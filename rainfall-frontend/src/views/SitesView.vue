@@ -58,10 +58,13 @@ export default {
     <div v-else>
       <div class="md:max-w-screen-md">
         <p class="mt-4">
-          Rainfall uses <a href="https://simonrepp.com/faircamp/">Faircamp</a> to generate your
-          music website. The advantage of using Rainfall versus using Faircamp directly is that you
-          can easily upload your songs and manage your metadata. No need to install Faircamp or
-          manage directory hierarchies yourself.
+          Rainfall uses
+          <a class="text-blue-500 hover:underline" href="https://simonrepp.com/faircamp/"
+            >Faircamp</a
+          >
+          to generate your music website. The advantage of using Rainfall versus using Faircamp
+          directly is that you can easily upload your songs and manage your metadata. No need to
+          install Faircamp or manage directory hierarchies yourself.
         </p>
         <p v-if="sites.length == 0" class="mt-4">
           When you're ready, click "Create site" to start working on your website.
