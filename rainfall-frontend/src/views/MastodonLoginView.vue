@@ -14,7 +14,6 @@ export default {
   async mounted() {
     await this.userStore.loadUser();
     const user = this.userStore.user;
-    console.log(user);
     if (user) {
       if (user.is_welcomed) {
         this.$router.replace('/sites');
