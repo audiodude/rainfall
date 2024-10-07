@@ -44,7 +44,7 @@ export default {
           </h1>
           <p class="text-lg font-normal text-gray-500 dark:text-gray-400 mb-6">
             <em>Rainfall</em> lets you create a website for your music, using
-            <a href="https://simonrepp.com/faircamp/" class="text-blue-500 hover:underline"
+            <a class="text-blue-500 hover:underline" href="https://simonrepp.com/faircamp/"
               >Faircamp</a
             >. We don't host your site or charge you anything. Upload your songs and preview your
             site, and when you're done you'll get a ZIP file that you can host anywhere on the web.
