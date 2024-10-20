@@ -14,6 +14,7 @@ export default {
     site: null | Site;
     newSiteName: string;
     sitesError: string;
+    renameError: string;
     invalidateHandler: () => void;
     siteExists: boolean;
   } {
@@ -21,6 +22,7 @@ export default {
       site: null,
       newSiteName: '',
       sitesError: '',
+      renameError: '',
       invalidateHandler: () => {},
       siteExists: false,
     };
@@ -109,7 +111,9 @@ export default {
       if (!resp.ok) {
         if (resp.headers.get('Content-Type') == 'application/json') {
           const data = await resp.json();
-          this.sitesError = data.error;
+          this.renameError = data.error;
+        } else {
+          this.renameError = 'An unknown error occurred';
         }
         return;
       }
@@ -164,6 +168,9 @@ export default {
             Update name
           </button>
         </div>
+      </div>
+      <div v-if="renameError" class="text-right text-red-600 dark:text-red-400">
+        {{ renameError }}
       </div>
 
       <hr class="mt-12 md:hidden" />
