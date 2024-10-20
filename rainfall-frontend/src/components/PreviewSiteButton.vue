@@ -54,30 +54,28 @@ export default {
 </script>
 
 <template>
-  <div>
-    <div class="md:max-w-screen-md flex flex-col md:flex-row items-center">
-      <button
-        id="preview-site-button"
-        @click="createPreview"
-        :disabled="!readyForPreview"
-        class="cursor-pointer mt-4 w-10/12 md:w-32 p-4 md:py-2 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-grey-200 disabled:bg-blue-400 disabled:text-white hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
-      >
-        Preview Site
-      </button>
-      <div
-        v-if="previewLoading || previewUrl || previewError"
-        class="mt-4 md:ml-4"
-        aria-live="polite"
-      >
-        <div v-if="previewLoading" class="preview-load">Loading preview...</div>
-        <div v-if="!previewLoading && !previewError" class="preview-load">
-          <a
-            :href="previewUrl"
-            target="_blank"
-            class="preview-link font-medium text-blue-600 dark:text-blue-400 hover:underline"
-            >Open preview in new window</a
-          >
-        </div>
+  <div class="mt-4 md:mt-0 text-center">
+    <button
+      id="preview-site-button"
+      @click="createPreview"
+      :disabled="!readyForPreview"
+      class="cursor-pointer w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-grey-200 disabled:bg-blue-400 disabled:text-white hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
+    >
+      Preview Site
+    </button>
+    <div
+      v-if="previewLoading || previewUrl || previewError"
+      class="mt-4 md:ml-4"
+      aria-live="polite"
+    >
+      <div v-if="previewLoading" class="preview-load">Loading preview...</div>
+      <div v-if="!previewLoading && !previewError" class="preview-load">
+        <a
+          :href="previewUrl"
+          target="_blank"
+          class="preview-link font-medium text-blue-600 dark:text-blue-400 hover:underline"
+          >Open preview in new window</a
+        >
       </div>
     </div>
     <p v-if="previewError" class="text-sm mt-2 text-red-600 dark:text-red-400">
