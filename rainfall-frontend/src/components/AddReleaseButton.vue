@@ -38,7 +38,7 @@ export default {
 </script>
 
 <template>
-  <div class="flex flex-col items-center mt-4 md:mt-0">
+  <div class="flex flex-col items-center mt-4 md:mt-0 text-center">
     <button
       id="new-release-button"
       @click="createRelease"
@@ -46,7 +46,7 @@ export default {
     >
       Add Release
     </button>
-    <p v-if="createError" class="text-sm mt-2 text-red-600 dark:text-red-400">
+    <p v-if="createError" class="text-sm mt-2 w-10/12 md:w-48 text-red-600 dark:text-red-400">
       Something went wrong while creating your release.
     </p>
   </div>
