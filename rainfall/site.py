@@ -132,3 +132,13 @@ def delete_file(clz, file_id, user):
   db.session.commit()
 
   return '', 204
+
+
+def rename_release_dir(data_dir_path, release, old_name):
+  os.rename(release_path(data_dir_path, release, override_name=old_name),
+            release_path(data_dir_path, release))
+
+
+def rename_site_dir(data_dir_path, site, old_name):
+  os.rename(site_path(data_dir_path, site, override_name=old_name),
+            site_path(data_dir_path, site))

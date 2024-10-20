@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import flask
 import pytest
 
@@ -90,12 +92,12 @@ class SiteTest:
       sites = data.get('sites')
       assert len(sites) == 0
 
-  def test_rename_site(self, app, sites_user):
-    with app.app_context():
+  @patch('rainfall.blueprint.site.rename_site_dir')
+  def test_rename_site(self, mock_rename_dir, app, sites_user):
+    with app.app_context(), app.test_client() as client:
       db.session.add(sites_user)
       site_id = sites_user.sites[0].id
 
-    with app.test_client() as client:
       with client.session_transaction() as sess:
         sess['user_id'] = BASIC_USER_ID
 
@@ -103,26 +105,28 @@ class SiteTest:
                        json={'name': 'New Name'})
       assert rv.status == '204 NO CONTENT'
 
+      mock_rename_dir.assert_called_once_with(app.config['DATA_DIR'],
+                                              sites_user.sites[0],
+                                              'Cool Site 1')
+
     with app.app_context():
       site = db.session.get(Site, site_id)
       assert site.name == 'New Name'
 
   def test_rename_site_no_user(self, app, sites_user):
-    with app.app_context():
+    with app.app_context(), app.test_client() as client:
       db.session.add(sites_user)
       site_id = sites_user.sites[0].id
 
-    with app.test_client() as client:
       rv = client.post(f'/api/v1/site/{site_id}/name',
                        json={'name': 'New Name'})
       assert rv.status == '401 UNAUTHORIZED'
 
   def test_rename_site_no_json(self, app, sites_user):
-    with app.app_context():
+    with app.app_context(), app.test_client() as client:
       db.session.add(sites_user)
       site_id = sites_user.sites[0].id
 
-    with app.test_client() as client:
       with client.session_transaction() as sess:
         sess['user_id'] = BASIC_USER_ID
 
@@ -130,11 +134,10 @@ class SiteTest:
       assert rv.status == '415 UNSUPPORTED MEDIA TYPE'
 
   def test_rename_site_missing_name(self, app, sites_user):
-    with app.app_context():
+    with app.app_context(), app.test_client() as client:
       db.session.add(sites_user)
       site_id = sites_user.sites[0].id
 
-    with app.test_client() as client:
       with client.session_transaction() as sess:
         sess['user_id'] = BASIC_USER_ID
 

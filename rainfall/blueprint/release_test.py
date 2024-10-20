@@ -1,6 +1,7 @@
-from uuid_extensions import uuid7
+from unittest.mock import patch
 
 import pytest
+from uuid_extensions import uuid7
 
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
@@ -221,5 +222,37 @@ class ReleaseTest:
         sess['user_id'] = BASIC_USER_ID
 
       rv = client.post(f'/api/v1/release/{release_id}/description',
+                       json={'foo': 'bar'})
+      assert rv.status == '400 BAD REQUEST'
+
+  @patch('rainfall.blueprint.release.rename_release_dir')
+  def test_update_release_name(self, mock_release_rename, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[0]
+      release_id = release.id
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post(f'/api/v1/release/{release_id}/name',
+                       json={'name': 'New name'})
+      assert rv.status == '204 NO CONTENT'
+      db.session.refresh(release)
+      assert release.name == 'New name'
+
+      mock_release_rename.assert_called_once_with(app.config['DATA_DIR'],
+                                                  release, 'Site 0 Release 1')
+
+  def test_update_release_name_no_name(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[0]
+      release_id = release.id
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post(f'/api/v1/release/{release_id}/name',
                        json={'foo': 'bar'})
       assert rv.status == '400 BAD REQUEST'
