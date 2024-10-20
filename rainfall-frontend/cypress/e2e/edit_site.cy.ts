@@ -31,12 +31,14 @@ describe('Edit Site test', () => {
   });
 
   describe('when there is a welcomed user', () => {
+    beforeEach(() => {
+      cy.intercept('GET', 'api/v1/user', {
+        fixture: 'user_welcomed.json',
+      });
+    });
+
     describe('when there is one release', () => {
       beforeEach(() => {
-        cy.intercept('GET', 'api/v1/user', {
-          fixture: 'user_welcomed.json',
-        });
-
         let count = 0;
         cy.intercept('GET', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9', (req) => {
           if (count === 0) {
@@ -125,10 +127,6 @@ describe('Edit Site test', () => {
     describe('when there are two releases', () => {
       let calledUpload = false;
       beforeEach(() => {
-        cy.intercept('GET', 'api/v1/user', {
-          fixture: 'user_welcomed.json',
-        });
-
         let cnt = 0;
         cy.intercept('GET', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9', (req) => {
           if (cnt === 0) {
@@ -301,6 +299,49 @@ describe('Edit Site test', () => {
 
         it('leaves the file in the list', () => {
           cy.get('.file-name').contains('song-2.mp3').should('be.visible');
+        });
+      });
+    });
+
+    describe('editing name', () => {
+      beforeEach(() => {
+        cy.intercept('GET', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9', {
+          fixture: 'site.json',
+        }).as('load-site');
+        cy.visit('/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
+        cy.wait('@load-site');
+      });
+
+      it('shows the disabled edit name button on load', () => {
+        cy.get('#edit-name-button').should('be.disabled');
+      });
+
+      describe('when the name is changed', () => {
+        beforeEach(() => {
+          cy.get('#site-name').type('{selectAll}{backspace}');
+          cy.get('#site-name').type('New name');
+        });
+
+        it('enables the edit name button when the name is changed', () => {
+          cy.get('#edit-name-button').should('not.be.disabled');
+        });
+
+        it('sends a POST request when the button is clicked', () => {
+          cy.intercept('POST', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9/name', {
+            status: 204,
+          }).as('edit-name');
+          cy.get('#edit-name-button').click();
+          cy.wait('@edit-name').then((req) => {
+            expect(req.request.body).to.deep.equal({
+              name: 'New name',
+            });
+          });
+        });
+
+        it('disables the button again if the name returns to the original value', () => {
+          cy.get('#site-name').type('{selectAll}{backspace}');
+          cy.get('#site-name').type('My Cool Site');
+          cy.get('#edit-name-button').should('be.disabled');
         });
       });
     });
