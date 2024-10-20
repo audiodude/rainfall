@@ -6,17 +6,20 @@ import AddReleaseButton from '../components/AddReleaseButton.vue';
 import DeployButton from '../components/DeployButton.vue';
 import PreviewSiteButton from '../components/PreviewSiteButton.vue';
 import Release from '../components/Release.vue';
+import { getCsrf } from '../helpers/cookie';
 
 export default {
   components: { AddReleaseButton, DeployButton, PreviewSiteButton, Release },
   data(): {
     site: null | Site;
+    newSiteName: string;
     sitesError: string;
     invalidateHandler: () => void;
     siteExists: boolean;
   } {
     return {
       site: null,
+      newSiteName: '',
       sitesError: '',
       invalidateHandler: () => {},
       siteExists: false,
@@ -73,6 +76,7 @@ export default {
       const resp = await fetch(`/api/v1/site/${this.$route.params.site_id}`);
       if (resp.ok) {
         this.site = await resp.json();
+        this.newSiteName = this.site ? this.site.name : '';
         return;
       }
 
@@ -92,6 +96,24 @@ export default {
       }
       const resp = await fetch(`/api/v1/preview/${this.site.id}`);
       this.siteExists = resp.ok;
+    },
+    async updateName() {
+      if (!this.site) {
+        return;
+      }
+      const resp = await fetch(`/api/v1/site/${this.site.id}/name`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+        body: JSON.stringify({ name: this.newSiteName }),
+      });
+      if (!resp.ok) {
+        if (resp.headers.get('Content-Type') == 'application/json') {
+          const data = await resp.json();
+          this.sitesError = data.error;
+        }
+        return;
+      }
+      this.site.name = this.newSiteName;
     },
   },
 };
@@ -126,6 +148,22 @@ export default {
         lossless, uncompressed tracks.
       </p>
       <p class="mt-4">Add a release and some files, and then you can preview your site.</p>
+
+      <div class="flex w-3/5 mt-4 justify-start items-center">
+        <label for="site-name" class="basis-1/3 font-bold mr-4">Name: </label
+        ><input
+          id="site-name"
+          v-model="newSiteName"
+          class="basis-2/3 h-8 px-2 py-4 h-10 mr-4 text-gray-600"
+        /><button
+          id="edit-name-button"
+          @click="updateName"
+          :disabled="!newSiteName || newSiteName === site.name"
+          class="basis-1/3 shrink-0 cursor-pointer py-2 h-10 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-gray-200 disabled:text-gray-600 disabled:text-white disabled:bg-blue-400 hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white font-bold border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
+        >
+          Update name
+        </button>
+      </div>
 
       <AddReleaseButton :cardinality="cardinality" :site-id="site.id" @release-created="loadSite" />
       <PreviewSiteButton

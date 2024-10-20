@@ -4,6 +4,7 @@ import pytest
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
 from rainfall.models.user import User
+from rainfall.models.site import Site
 
 
 class SiteTest:
@@ -93,3 +94,20 @@ class SiteTest:
       assert data
       sites = data.get('sites')
       assert len(sites) == 0
+
+  def test_rename_site(self, app, sites_user):
+    with app.app_context():
+      db.session.add(sites_user)
+      site_id = sites_user.sites[0].id
+
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post(f'/api/v1/site/{site_id}/name',
+                       json={'name': 'New Name'})
+      assert rv.status == '204 NO CONTENT'
+
+    with app.app_context():
+      site = db.session.get(Site, site_id)
+      assert site.name == 'New Name'
