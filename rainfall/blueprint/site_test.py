@@ -28,11 +28,6 @@ class SiteTest:
       rv = client.post('/api/v1/site', json={'site': {'name': 'Some site'}})
       assert rv.status == '401 UNAUTHORIZED'
 
-  def test_create_site_no_user_in_session(self, app, welcomed_user):
-    with app.test_client() as client:
-      rv = client.post('/api/v1/site', json={'site': {'name': 'Some site'}})
-      assert rv.status == '401 UNAUTHORIZED'
-
   def test_create_site_no_json(self, app, welcomed_user):
     with app.test_client() as client:
       with client.session_transaction() as sess:
@@ -111,3 +106,37 @@ class SiteTest:
     with app.app_context():
       site = db.session.get(Site, site_id)
       assert site.name == 'New Name'
+
+  def test_rename_site_no_user(self, app, sites_user):
+    with app.app_context():
+      db.session.add(sites_user)
+      site_id = sites_user.sites[0].id
+
+    with app.test_client() as client:
+      rv = client.post(f'/api/v1/site/{site_id}/name',
+                       json={'name': 'New Name'})
+      assert rv.status == '401 UNAUTHORIZED'
+
+  def test_rename_site_no_json(self, app, sites_user):
+    with app.app_context():
+      db.session.add(sites_user)
+      site_id = sites_user.sites[0].id
+
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post(f'/api/v1/site/{site_id}/name')
+      assert rv.status == '415 UNSUPPORTED MEDIA TYPE'
+
+  def test_rename_site_missing_name(self, app, sites_user):
+    with app.app_context():
+      db.session.add(sites_user)
+      site_id = sites_user.sites[0].id
+
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post('/api/v1/site', json={'name': None})
+      assert rv.status == '400 BAD REQUEST'
