@@ -35,15 +35,27 @@ def cache_dir(preview_dir_path, site_id):
                       secure_filename(site.name), 'cache')
 
 
-def release_path(data_dir_path, release):
-  return os.path.join(data_dir_path, str(release.site.user.id),
-                      secure_filename(release.site.name),
-                      secure_filename(release.name))
+def site_path(data_dir_path, site, override_name=None):
+  name = override_name if override_name else site.name
+  return os.path.join(data_dir_path, str(site.user.id), secure_filename(name))
+
+
+def release_path(data_dir_path, release, override_name=None):
+  name = override_name if override_name else release.name
+  return os.path.join(site_path(data_dir_path, release.site),
+                      secure_filename(name))
 
 
 def site_exists(preview_dir_path, site_id):
   dir_ = build_dir(preview_dir_path, site_id)
   return os.path.exists(dir_) and len(os.listdir(dir_)) > 0
+
+
+def rename_site_dir(data_dir_path, site, old_name):
+  site = db.session.get(Site, UUID(site_id))
+
+  os.rename(site_path(data_dir_path, site, override_name=old_name),
+            site_path(data_dir_path, site))
 
 
 def generate_eno_files(data_dir_path, site_id):

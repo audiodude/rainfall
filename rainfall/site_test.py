@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
-from rainfall.site import build_dir, cache_dir, catalog_dir, generate_site, public_dir, release_path
+from rainfall.site import build_dir, cache_dir, catalog_dir, generate_site, public_dir, release_path, site_path
 
 
 @pytest.fixture
@@ -61,6 +61,15 @@ class SiteTest:
           f'{secure_filename(release.site.name)}/{secure_filename(release.name)}'
       )
 
+  def test_release_path_override(self, app, releases_user):
+    with app.app_context():
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[0]
+      actual = release_path('/foo/data', release, override_name='bar')
+
+      assert actual == (f'/foo/data/{str(BASIC_USER_ID)}/'
+                        f'{secure_filename(release.site.name)}/bar')
+
   @patch('rainfall.site.subprocess.run')
   def test_generate_site(self, mock_subprocess, app, site_id):
     with app.app_context():
@@ -92,3 +101,17 @@ class SiteTest:
 
     assert actual[0] is False
     assert actual[1] == 'Standard Error'
+
+  def test_site_path(self, app, sites_user, site_name):
+    with app.app_context():
+      db.session.add(sites_user)
+      actual = site_path('foo/data', sites_user.sites[0])
+
+    assert actual == f'foo/data/{str(BASIC_USER_ID)}/{site_name}'
+
+  def test_site_path_override_name(self, app, sites_user):
+    with app.app_context():
+      db.session.add(sites_user)
+      actual = site_path('foo/data', sites_user.sites[0], override_name='bar')
+
+    assert actual == f'foo/data/{str(BASIC_USER_ID)}/bar'
