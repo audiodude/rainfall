@@ -78,7 +78,7 @@ export default {
         >
       </div>
     </div>
-    <p v-if="previewError" class="text-sm mt-2 text-red-600 dark:text-red-400">
+    <p v-if="previewError" class="text-sm mt-2 w-10/12 md:w-48 text-red-600 dark:text-red-400">
       {{ previewError }}
     </p>
   </div>
