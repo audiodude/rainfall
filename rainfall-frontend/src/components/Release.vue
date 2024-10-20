@@ -13,8 +13,10 @@ export default defineComponent({
   components: { ArtUpload, UploadButton },
   data() {
     return {
+      newReleaseName: '',
       currentDescription: '',
       descriptionError: null,
+      renameError: '',
       stashedDescription: '',
     };
   },
@@ -23,6 +25,7 @@ export default defineComponent({
       return;
     }
     this.currentDescription = this.release.description;
+    this.newReleaseName = this.release.name;
   },
   methods: {
     onSongUploaded() {
@@ -52,6 +55,26 @@ export default defineComponent({
       }
       this.currentDescription = this.release.description;
     },
+    async updateName() {
+      if (!this.release) {
+        return;
+      }
+      const resp = await fetch(`/api/v1/release/${this.release.id}/name`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+        body: JSON.stringify({ name: this.newReleaseName }),
+      });
+      if (!resp.ok) {
+        if (resp.headers.get('Content-Type') == 'application/json') {
+          const data = await resp.json();
+          this.renameError = data.error;
+        } else {
+          this.renameError = 'An unknown error occurred';
+        }
+        return;
+      }
+      this.release.name = this.newReleaseName;
+    },
     async deleteFile(release: Release, id: string) {
       const resp = await fetch(`/api/v1/file/${id}`, {
         method: 'DELETE',
@@ -78,6 +101,26 @@ export default defineComponent({
 
 <template>
   <div v-if="release">
+    <div v-if="isEditing" class="max-w-screen-md md:flex md:justify-end my-2 md:mt-0">
+      <div class="flex flex-col md:flex-row w-full md:w-4/5 mb-2 justify-end items-center">
+        <input
+          id="site-name"
+          v-model="newReleaseName"
+          class="w-10/12 md:w-80 h-8 mt-2 md:mt-0 px-2 py-2 md:py-4 h-10 mr-0 md:mr-4 text-gray-600"
+        /><button
+          id="edit-name-button"
+          @click="updateName"
+          :disabled="!newReleaseName || newReleaseName === release.name"
+          class="cursor-pointer mt-4 md:mt-0 p-4 md:py-2 w-10/12 md:w-48 md:h-10 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-gray-200 disabled:text-gray-600 disabled:text-white disabled:bg-blue-400 hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white font-bold border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
+        >
+          Update name
+        </button>
+      </div>
+    </div>
+    <div v-if="renameError" class="text-right text-red-600 dark:text-red-400">
+      {{ renameError }}
+    </div>
+
     <div v-if="isEditing" class="flex flex-row flex-wrap justify-between">
       <div class="art-upload-cont w-full md:w-[48%]">
         <ArtUpload :releaseId="release.id"></ArtUpload>
