@@ -1,3 +1,4 @@
+import os
 from uuid import UUID
 
 import flask
@@ -5,6 +6,7 @@ import flask
 from rainfall.db import db
 from rainfall.decorators import with_current_user, with_current_site
 from rainfall.models.site import Site
+from rainfall.site import site_path, rename_site_dir
 
 site = flask.Blueprint('site', __name__)
 
@@ -25,10 +27,14 @@ def create_site(user):
   if site_data.get('name') is None:
     return flask.jsonify(status=400, error='Site name is required'), 400
 
-  user.sites.append(Site(**site_data))
+  site = Site(**site_data)
+  user.sites.append(site)
   db.session.add(user)
-  db.session.commit()
 
+  cur_site_path = site_path(flask.current_app.config['DATA_DIR'], site)
+  os.makedirs(cur_site_path, exist_ok=True)
+
+  db.session.commit()
   return '', 204
 
 
@@ -56,8 +62,11 @@ def rename_site(site, user):
   if new_name is None:
     return flask.jsonify(status=400, error='Missing name'), 400
 
+  old_name = site.name
   site.name = new_name
   db.session.add(site)
   db.session.commit()
+
+  rename_site_dir(flask.current_app.config['DATA_DIR'], site, old_name)
 
   return '', 204
