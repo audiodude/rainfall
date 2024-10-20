@@ -42,11 +42,9 @@ def write_files(release, claz, *files):
     # Yield so that the calling function can properly save file to db.
     yield file
 
+    # Write the file to the filesystem.
     cur_release_path = release_path(flask.current_app.config['DATA_DIR'],
                                     release)
-    os.makedirs(cur_release_path, exist_ok=True)
-
-    # Write the file to the filesystem.
     song.save(os.path.join(cur_release_path, file.filename))
 
 

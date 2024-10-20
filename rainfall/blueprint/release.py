@@ -7,7 +7,7 @@ from rainfall.db import db
 from rainfall.decorators import with_current_user, with_validated_release
 from rainfall.models.release import Release
 from rainfall.models.site import Site
-from rainfall.site import release_path
+from rainfall.site import release_path, rename_release_dir
 
 release = flask.Blueprint('release', __name__)
 
@@ -41,10 +41,14 @@ def create_release(user):
         status=401,
         error='Cannot create release for that site, unauthorized'), 401
 
-  site.releases.append(Release(**release_data))
+  release = Release(**release_data)
+  site.releases.append(release)
   db.session.add(site)
-  db.session.commit()
 
+  cur_release_path = release_path(flask.current_app.config['DATA_DIR'], release)
+  os.makedirs(cur_release_path, exist_ok=True)
+
+  db.session.commit()
   return '', 204
 
 
@@ -79,5 +83,24 @@ def update_release_description(release, user):
   release.description = description
   db.session.add(release)
   db.session.commit()
+
+  return '', 204
+
+
+@release.route('release/<release_id>/name', methods=['POST'])
+@with_current_user
+@with_validated_release
+def update_release_name(release, user):
+  data = flask.request.get_json()
+  name = data.get('name')
+  if name is None:
+    return flask.jsonify(status=400, error='Missing name'), 400
+
+  old_name = release.name
+  release.name = name
+  db.session.add(release)
+  db.session.commit()
+
+  rename_release_dir(flask.current_app.config['DATA_DIR'], release, old_name)
 
   return '', 204
