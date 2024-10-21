@@ -114,6 +114,10 @@ def create_app():
   def favicon():
     return flask.send_from_directory(FRONTEND_DIR, 'favicon.ico')
 
+  @app.route('/rainfall_preview.png')
+  def rainfall_preview():
+    return flask.send_from_directory(FRONTEND_DIR, 'rainfall_preview.png')
+
   @app.route('/src/<path:filename>')
   def srcs(filename=None):
     return flask.send_from_directory(os.path.join(FRONTEND_DIR, 'src'),
