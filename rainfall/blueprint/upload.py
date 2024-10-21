@@ -45,6 +45,7 @@ def write_files(release, claz, *files):
     # Write the file to the filesystem.
     cur_release_path = release_path(flask.current_app.config['DATA_DIR'],
                                     release)
+    os.makedirs(cur_release_path, exist_ok=True)
     song.save(os.path.join(cur_release_path, file.filename))
 
 
