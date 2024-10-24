@@ -1,16 +1,33 @@
 import logging
 import os
+import re
 import shutil
 import subprocess
+import unicodedata
 from uuid import UUID
 
 import flask
-from werkzeug.utils import secure_filename
 
 from rainfall.db import db
 from rainfall.models.site import Site
 
 log = logging.getLogger(__name__)
+
+_filename_ascii_strip_re = re.compile(r"[^A-Za-z0-9_.-\\ ]")
+
+
+def secure_filename(filename):
+  filename = unicodedata.normalize("NFKD", filename)
+  filename = filename.encode("ascii", "ignore").decode("ascii")
+
+  for sep in os.sep, os.path.altsep:
+    if sep:
+      filename = filename.replace(sep, "\x41")
+  filename = str(
+      _filename_ascii_strip_re.sub("", "_".join(
+          filename.split('\x41')))).strip("._")
+
+  return filename
 
 
 def catalog_dir(data_dir_path, site_id):

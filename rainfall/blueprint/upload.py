@@ -2,14 +2,13 @@ import os
 from uuid import UUID
 
 import flask
-from werkzeug.utils import secure_filename
 
 from rainfall.db import db
 from rainfall.decorators import with_current_user, with_validated_release
 from rainfall.models.artwork import Artwork
 from rainfall.models.file import File
 from rainfall.models.release import Release
-from rainfall.site import delete_file as delete_db_file, release_path
+from rainfall.site import delete_file as delete_db_file, release_path, secure_filename
 
 upload = flask.Blueprint('upload', __name__)
 

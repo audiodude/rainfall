@@ -2,11 +2,10 @@ import subprocess
 from unittest.mock import patch
 
 import pytest
-from werkzeug.utils import secure_filename
 
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
-from rainfall.site import build_dir, cache_dir, catalog_dir, generate_site, public_dir, release_path, site_path
+from rainfall.site import build_dir, cache_dir, catalog_dir, generate_site, public_dir, release_path, secure_filename, site_path
 
 
 @pytest.fixture
@@ -80,11 +79,11 @@ class SiteTest:
 
       mock_subprocess.assert_called_once_with([
           'faircamp', '--catalog-dir',
-          'foo/data/06543f11-12b6-71ea-8000-e026c63c22e2/Cool_Site_1',
+          'foo/data/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1',
           '--build-dir',
-          'foo/preview/06543f11-12b6-71ea-8000-e026c63c22e2/Cool_Site_1/public',
+          'foo/preview/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1/public',
           '--cache-dir',
-          'foo/preview/06543f11-12b6-71ea-8000-e026c63c22e2/Cool_Site_1/cache',
+          'foo/preview/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1/cache',
           '--no-clean-urls'
       ],
                                               capture_output=True,
@@ -115,3 +114,11 @@ class SiteTest:
       actual = site_path('foo/data', sites_user.sites[0], override_name='bar')
 
     assert actual == f'foo/data/{str(BASIC_USER_ID)}/bar'
+
+  def test_secure_filename(self):
+    assert secure_filename("My cool movie.mov") == "My cool movie.mov"
+    assert secure_filename("../../../etc/passwd") == "etc_passwd"
+    assert (secure_filename("i contain cool \xfcml\xe4uts.txt") ==
+            "i contain cool umlauts.txt")
+    assert secure_filename("__filename__") == "filename"
+    assert secure_filename("foo$&^*)bar") == "foobar"
