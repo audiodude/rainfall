@@ -148,8 +148,7 @@ export default {
           class="text-blue-400 hover:underline"
           href="https://en.wikipedia.org/wiki/Opus_(audio_format)"
           >Opus</a
-        >. Faircamp will transcode all tracks to Opus anyways, so there is no advantage to uploading
-        lossless, uncompressed tracks.
+        >. Faircamp will transcode all tracks to Opus anyways.
       </p>
       <p class="mt-4">Add a release and some files, and then you can preview your site.</p>
 
