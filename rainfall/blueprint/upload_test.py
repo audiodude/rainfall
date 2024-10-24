@@ -3,12 +3,11 @@ import io
 import os
 
 import flask
-from werkzeug.utils import secure_filename
 
 from rainfall.db import db
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.models.artwork import Artwork
-from rainfall.site import release_path
+from rainfall.site import release_path, secure_filename
 
 
 def assert_file_contents(file_path, contents):

@@ -2,12 +2,11 @@ import os
 from unittest.mock import patch
 
 from uuid_extensions import uuid7
-from werkzeug.utils import secure_filename
 
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
 from rainfall.models.user import User
-from rainfall.site import release_path
+from rainfall.site import release_path, secure_filename
 
 
 class FileTest:
