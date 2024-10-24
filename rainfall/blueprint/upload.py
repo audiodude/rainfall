@@ -13,7 +13,9 @@ from rainfall.site import delete_file as delete_db_file, release_path
 
 upload = flask.Blueprint('upload', __name__)
 
-ALLOWED_SONG_EXTS = ['.aiff', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']
+ALLOWED_SONG_EXTS = [
+    '.aiff', '.aif', '.alac', '.flac', '.mp3', '.ogg', '.opus', '.wav'
+]
 ALLOWED_ART_EXTS = ['.gif', '.jpg', '.jpeg', '.png', '.webp']
 
 
