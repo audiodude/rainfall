@@ -46,10 +46,10 @@ export default {
       Host site on Netlify
     </h2>
     <p class="mt-4 w-full md:w-3/4">
-      <a class="text-blue-500 hover:underline" href="https://www.netlify.com/">Netlfiy</a> will host
+      <a class="text-blue-500 hover:underline" href="https://www.netlify.com/">Netlify</a> will host
       your artist site for free. You can use this page to automatically deploy your site there,
       without having to download the ZIP file and upload it yourself. You must first
-      <a class="text-blue-500 hover:underline" href="https://app.netlify.com/signup">Sign up</a> for
+      <a class="text-blue-500 hover:underline" href="https://app.netlify.com/signup">sign up</a> for
       a free Netlify account, or log in if you already have one.
     </p>
     <p class="mt-4 w-full md:w-3/4">
