@@ -1,10 +1,12 @@
 import os
+import shutil
 import uuid
 
 import flask
 import pytest
 from uuid_extensions import uuid7
 
+from rainfall.test_constants import TEST_FILE_PATH
 from rainfall.db import db
 from rainfall.main import create_app
 from rainfall.models.artwork import Artwork
@@ -12,7 +14,7 @@ from rainfall.models.file import File
 from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
-from rainfall.site import release_path
+from rainfall.site import release_path, site_path
 
 BASIC_USER_ID = uuid.UUID('06543f11-12b6-71ea-8000-e026c63c22e2')
 
@@ -32,6 +34,7 @@ def app():
 
   with app.app_context():
     db.drop_all()
+    shutil.rmtree(TEST_FILE_PATH)
 
 
 @pytest.fixture
@@ -62,8 +65,14 @@ def welcomed_user(app, basic_user):
 def sites_user(app, welcomed_user):
   with app.app_context():
     db.session.add(welcomed_user)
-    welcomed_user.sites.append(Site(name='Cool Site 1'))
-    welcomed_user.sites.append(Site(name='Another Cool Site'))
+
+    site_1 = Site(name='Cool Site 1')
+    welcomed_user.sites.append(site_1)
+    os.makedirs(site_path(app.config['DATA_DIR'], site_1))
+
+    site_2 = Site(name='Another Cool Site')
+    welcomed_user.sites.append(site_2)
+    os.makedirs(site_path(app.config['DATA_DIR'], site_2))
 
     db.session.add(welcomed_user)
     db.session.commit()
@@ -75,14 +84,22 @@ def sites_user(app, welcomed_user):
 def releases_user(app, sites_user):
   with app.app_context():
     db.session.add(sites_user)
-    sites_user.sites[0].releases.append(Release(name='Site 0 Release 1'))
-    sites_user.sites[0].releases.append(
-        Release(name='Site 0 Release 2',
-                files=[
-                    File(filename='s0_r1_file_0.wav'),
-                    File(filename='s0_r1_file_1.aiff')
-                ]))
-    sites_user.sites[1].releases.append(Release(name='Site 1 Release 1'))
+
+    release_1 = Release(name='Site 0 Release 1')
+    sites_user.sites[0].releases.append(release_1)
+    os.makedirs(release_path(app.config['DATA_DIR'], release_1))
+
+    release_2 = Release(name='Site 0 Release 2',
+                        files=[
+                            File(filename='s0_r1_file_0.wav'),
+                            File(filename='s0_r1_file_1.aiff')
+                        ])
+    sites_user.sites[0].releases.append(release_2)
+    os.makedirs(release_path(app.config['DATA_DIR'], release_2))
+
+    release_3 = Release(name='Site 1 Release 1')
+    sites_user.sites[1].releases.append(release_3)
+    os.makedirs(release_path(app.config['DATA_DIR'], release_3))
 
     db.session.add(sites_user)
     db.session.commit()

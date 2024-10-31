@@ -43,11 +43,16 @@ def create_release(user):
 
   release = Release(**release_data)
   site.releases.append(release)
-  db.session.add(site)
-
   cur_release_path = release_path(flask.current_app.config['DATA_DIR'], release)
-  os.makedirs(cur_release_path, exist_ok=True)
+  try:
+    os.makedirs(cur_release_path)
+  except FileExistsError:
+    db.session.rollback()
+    return flask.jsonify(
+        status=400,
+        error=f'A release with the name "{release.name}" already exists')
 
+  db.session.add(site)
   db.session.commit()
   return '', 204
 
