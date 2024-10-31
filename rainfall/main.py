@@ -1,11 +1,8 @@
 import logging
 import os
-import time
-from uuid import UUID
 
 import flask
 from flask_seasurf import SeaSurf
-import sqlalchemy
 
 from rainfall.blueprint.file import file as file_blueprint
 from rainfall.blueprint.user import UserBlueprintFactory
@@ -14,10 +11,8 @@ from rainfall.blueprint.site import site as site_blueprint
 from rainfall.blueprint.upload import upload as upload_blueprint
 from rainfall.db import db
 from rainfall.decorators import with_current_site, with_current_user
-from rainfall.models import Release
-from rainfall.models import Site
-from rainfall.models import User
-from rainfall.site import generate_site, generate_zip, public_dir, release_path, site_exists, zip_file_path
+from rainfall.site import generate_site, generate_zip, public_dir, site_exists, zip_file_path
+from rainfall.test_constants import TEST_FILE_PATH
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.WARNING)
@@ -39,6 +34,10 @@ def create_app():
     db.init_app(app)
   else:
     app.config['TESTING'] = True
+    app.config['DATA_DIR'] = os.path.join(TEST_FILE_PATH,
+                                          app.config['DATA_DIR'])
+    app.config['PREVIEW_DATA'] = os.path.join(TEST_FILE_PATH,
+                                              app.config['DATA_DIR'])
   csrf = SeaSurf(app)
 
   os.makedirs(app.config['DATA_DIR'], exist_ok=True)
