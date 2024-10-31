@@ -21,10 +21,9 @@ class ReleaseTest:
       rv = client.post(
           '/api/v1/release',
           json={'release': {
-              'name': 'Release 1',
+              'name': 'Release Create Test',
               'site_id': site_id
           }})
-      print(rv.text)
       assert rv.status == '204 NO CONTENT'
 
     with app.app_context():
@@ -33,7 +32,7 @@ class ReleaseTest:
       assert len(sites) == 2
       releases = user.sites[0].releases
       assert len(releases) == 1
-      assert releases[0].name == 'Release 1'
+      assert releases[0].name == 'Release Create Test'
 
   def test_create_no_user(self, app):
     with app.test_client() as client:
@@ -141,6 +140,27 @@ class ReleaseTest:
                        })
       assert rv.status == '401 UNAUTHORIZED'
 
+  def test_create_same_name(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+      site_id = str(releases_user.sites[0].id)
+      release = releases_user.sites[0].releases[0]
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post(
+          '/api/v1/release',
+          json={'release': {
+              'name': release.name,
+              'site_id': site_id,
+          }})
+      assert rv.status == '200 OK'
+      assert 'error' in rv.json
+
+      db.session.add(releases_user)
+      assert len(releases_user.sites[0].releases) == 2
+
   def test_get_release(self, app, sites_user):
     with app.app_context():
       db.session.add(sites_user)
@@ -154,8 +174,6 @@ class ReleaseTest:
     with app.test_client() as client:
       with client.session_transaction() as sess:
         sess['user_id'] = BASIC_USER_ID
-
-      print(f'/api/v1/release/{release_id}')
 
       rv = client.get(f'/api/v1/release/{release_id}')
       assert rv.status == '200 OK'
