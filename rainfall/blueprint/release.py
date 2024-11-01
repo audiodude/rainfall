@@ -42,6 +42,13 @@ def create_release(user):
         error='Cannot create release for that site, unauthorized'), 401
 
   release = Release(**release_data)
+
+  existing_names = [r.name for r in site.releases]
+  if release.name in existing_names:
+    return flask.jsonify(
+        status=400,
+        error=f'A release with the name "{release.name}" already exists'), 400
+
   site.releases.append(release)
   cur_release_path = release_path(flask.current_app.config['DATA_DIR'], release)
   try:
@@ -49,8 +56,8 @@ def create_release(user):
   except FileExistsError:
     db.session.rollback()
     return flask.jsonify(
-        status=400,
-        error=f'A release with the name "{release.name}" already exists'), 400
+        status=500,
+        error='Could not create that release (filesystem error)'), 500
 
   db.session.add(site)
   db.session.commit()
