@@ -117,7 +117,7 @@ export default defineComponent({
         </button>
       </div>
     </div>
-    <div v-if="renameError" class="text-right text-red-600 dark:text-red-400">
+    <div v-if="renameError" class="text-right text-red-600 dark:text-red-400 mb-4">
       {{ renameError }}
     </div>
 

@@ -1,6 +1,5 @@
 from typing import List
 from dataclasses import dataclass, fields
-from functools import partial
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
