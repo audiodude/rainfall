@@ -1,3 +1,4 @@
+import os
 from unittest.mock import patch
 
 from uuid_extensions import uuid7
@@ -8,6 +9,7 @@ from rainfall.models.artwork import Artwork
 from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
+from rainfall.site import release_path
 
 
 class ReleaseTest:
@@ -295,3 +297,32 @@ class ReleaseTest:
       assert 'error' in rv.json
       db.session.refresh(release)
       assert release.name == cur_release_name
+
+  def test_delete_release(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[0]
+      release_id = release.id
+      files = release.files
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.delete(f'/api/v1/release/{release_id}')
+      assert rv.status == '204 NO CONTENT'
+      assert release not in db.session
+      for file in files:
+        assert file not in db.session
+        assert not os.path.exists(file.path)
+      assert release not in releases_user.sites[0].releases
+      assert db.session.get(Release, release_id) is None
+      assert release_path(app.config['DATA_DIR'],
+                          release) not in os.listdir(app.config['DATA_DIR'])
+
+  def test_delete_release_not_exist(self, app, basic_user):
+    with app.app_context(), app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.delete(f'/api/v1/release/{uuid7()}')
+      assert rv.status == '404 NOT FOUND'
