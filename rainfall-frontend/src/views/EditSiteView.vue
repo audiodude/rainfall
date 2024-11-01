@@ -168,7 +168,10 @@ export default {
           </button>
         </div>
       </div>
-      <div v-if="renameError" class="text-right text-red-600 dark:text-red-400">
+      <div
+        v-if="renameError"
+        class="text-center md:text-right m-auto md:mr-0 w-80 md:w-auto text-red-600 dark:text-red-400 mt-4"
+      >
         {{ renameError }}
       </div>
 
