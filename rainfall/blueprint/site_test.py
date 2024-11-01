@@ -54,6 +54,15 @@ class SiteTest:
       rv = client.post('/api/v1/site', json={'site': {}})
       assert rv.status == '400 BAD REQUEST'
 
+  def test_create_site_duplicate_name(self, app, sites_user):
+    with app.test_client() as client:
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post('/api/v1/site', json={'site': {'name': 'Cool Site 1'}})
+      assert rv.status == '400 BAD REQUEST'
+      assert 'error' in rv.json
+
   def test_list_sites(self, app, sites_user):
     with app.test_client() as client:
       with client.session_transaction() as sess:
@@ -143,3 +152,16 @@ class SiteTest:
 
       rv = client.post('/api/v1/site', json={'name': None})
       assert rv.status == '400 BAD REQUEST'
+
+  def test_rename_site_duplicate_name(self, app, sites_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(sites_user)
+      site_id = sites_user.sites[0].id
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post(f'/api/v1/site/{site_id}/name',
+                       json={'name': 'Another Cool Site'})
+      assert rv.status == '400 BAD REQUEST'
+      assert 'error' in rv.json
