@@ -68,13 +68,6 @@ def site_exists(preview_dir_path, site_id):
   return os.path.exists(dir_) and len(os.listdir(dir_)) > 0
 
 
-def rename_site_dir(data_dir_path, site, old_name):
-  site = db.session.get(Site, UUID(site_id))
-
-  os.rename(site_path(data_dir_path, site, override_name=old_name),
-            site_path(data_dir_path, site))
-
-
 def generate_eno_files(data_dir_path, site_id):
   site = db.session.get(Site, UUID(site_id))
   for release in site.releases:
@@ -152,8 +145,12 @@ def delete_file(clz, file_id, user):
 
 
 def rename_release_dir(data_dir_path, release, old_name):
+  new_path = release_path(data_dir_path, release)
+  if os.path.exists(new_path):
+    raise FileExistsError(f'The directory {new_path} already exists')
+
   os.rename(release_path(data_dir_path, release, override_name=old_name),
-            release_path(data_dir_path, release))
+            new_path)
 
 
 def rename_site_dir(data_dir_path, site, old_name):

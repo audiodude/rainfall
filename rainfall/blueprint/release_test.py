@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-import pytest
 from uuid_extensions import uuid7
 
 from rainfall.conftest import BASIC_USER_ID
@@ -155,7 +154,7 @@ class ReleaseTest:
               'name': release.name,
               'site_id': site_id,
           }})
-      assert rv.status == '200 OK'
+      assert rv.status == '400 BAD REQUEST'
       assert 'error' in rv.json
 
       db.session.add(releases_user)
@@ -274,3 +273,25 @@ class ReleaseTest:
       rv = client.post(f'/api/v1/release/{release_id}/name',
                        json={'foo': 'bar'})
       assert rv.status == '400 BAD REQUEST'
+
+  @patch('rainfall.blueprint.release.rename_release_dir')
+  def test_update_release_name_duplicate(self, mock_release_rename, app,
+                                         releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[1]
+      release_id = release.id
+
+      cur_release_name = release.name
+      other_release_name = releases_user.sites[0].releases[0].name
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.post(f'/api/v1/release/{release_id}/name',
+                       json={'name': other_release_name})
+
+      assert rv.status == '400 BAD REQUEST'
+      assert 'error' in rv.json
+      db.session.refresh(release)
+      assert release.name == cur_release_name
