@@ -28,12 +28,18 @@ def create_site(user):
     return flask.jsonify(status=400, error='Site name is required'), 400
 
   site = Site(**site_data)
-  user.sites.append(site)
-  db.session.add(user)
 
+  all_names = [site.name for site in user.sites]
+  if site.name in all_names:
+    return flask.jsonify(
+        status=400,
+        error=f'A site with the name "{site.name}" already exists'), 400
+
+  user.sites.append(site)
   cur_site_path = site_path(flask.current_app.config['DATA_DIR'], site)
   os.makedirs(cur_site_path, exist_ok=True)
 
+  db.session.add(user)
   db.session.commit()
   return '', 204
 
@@ -62,11 +68,16 @@ def rename_site(site, user):
   if new_name is None:
     return flask.jsonify(status=400, error='Missing name'), 400
 
+  all_names = [site.name for site in user.sites]
+  if new_name in all_names:
+    return flask.jsonify(
+        status=400,
+        error=f'A site with the name "{new_name}" already exists'), 400
+
   old_name = site.name
   site.name = new_name
-  db.session.add(site)
-  db.session.commit()
-
   rename_site_dir(flask.current_app.config['DATA_DIR'], site, old_name)
 
+  db.session.add(site)
+  db.session.commit()
   return '', 204
