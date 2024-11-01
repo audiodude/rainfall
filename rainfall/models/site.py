@@ -20,7 +20,8 @@ class Site(db.Model):
   name: Mapped[str] = mapped_column(String(255))
   description: Mapped[str] = mapped_column(Text, nullable=True)
 
-  releases: Mapped[List['Release']] = relationship(back_populates='site')
+  releases: Mapped[List['Release']] = relationship(back_populates='site',
+                                                   cascade='all, delete-orphan')
 
   def __repr__(self) -> str:
     return f'Site(id={self.id!r}, user_id={self.user_id!r}, name={self.name!r})'
