@@ -1,4 +1,5 @@
 import os
+import shutil
 from uuid import UUID
 
 import flask
@@ -119,5 +120,22 @@ def update_release_name(release, user):
   rename_release_dir(flask.current_app.config['DATA_DIR'], release, old_name)
 
   db.session.add(release)
+  db.session.commit()
+  return '', 204
+
+
+@release.route('release/<release_id>', methods=['DELETE'])
+@with_current_user
+@with_validated_release
+def delete_release(release, user):
+  db.session.delete(release)
+
+  try:
+    shutil.rmtree(release_path(flask.current_app.config['DATA_DIR'], release))
+  except Exception as e:
+    db.session.rollback()
+    return flask.jsonify(
+        status=500, error='Could not delete release (filesystem error)'), 500
+
   db.session.commit()
   return '', 204

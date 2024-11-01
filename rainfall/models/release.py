@@ -20,8 +20,10 @@ class Release(db.Model):
   name: Mapped[str] = mapped_column(String(255))
   description: Mapped[str] = mapped_column(Text, nullable=True)
 
-  files: Mapped[List['File']] = relationship(back_populates='release')
-  artwork: Mapped['Artwork'] = relationship(back_populates='release')
+  files: Mapped[List['File']] = relationship(back_populates='release',
+                                             cascade='all, delete-orphan')
+  artwork: Mapped['Artwork'] = relationship(back_populates='release',
+                                            cascade='all, delete-orphan')
 
   def __repr__(self) -> str:
     return f'Release(id={self.id!r}, site_id={self.site_id!r})'
