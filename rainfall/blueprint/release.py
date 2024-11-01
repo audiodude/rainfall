@@ -50,7 +50,7 @@ def create_release(user):
     db.session.rollback()
     return flask.jsonify(
         status=400,
-        error=f'A release with the name "{release.name}" already exists')
+        error=f'A release with the name "{release.name}" already exists'), 400
 
   db.session.add(site)
   db.session.commit()
@@ -101,11 +101,16 @@ def update_release_name(release, user):
   if name is None:
     return flask.jsonify(status=400, error='Missing name'), 400
 
+  all_names = [r.name for r in release.site.releases]
+  if name in all_names:
+    return flask.jsonify(
+        status=400,
+        error=f'A release with the name "{name}" already exists'), 400
+
   old_name = release.name
   release.name = name
-  db.session.add(release)
-  db.session.commit()
-
   rename_release_dir(flask.current_app.config['DATA_DIR'], release, old_name)
 
+  db.session.add(release)
+  db.session.commit()
   return '', 204
