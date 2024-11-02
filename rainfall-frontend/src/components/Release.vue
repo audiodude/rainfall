@@ -126,7 +126,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div v-if="release">
+  <div v-if="release" class="release">
     <div v-if="isEditing" class="max-w-screen-md md:flex md:justify-end my-2 md:mt-0">
       <div class="flex flex-col md:flex-row w-full md:w-4/5 mb-2 justify-end items-center">
         <input
@@ -177,7 +177,12 @@ export default defineComponent({
     <div v-if="!isEditing" class="p-2 bg-emerald-500 text-white">
       <div class="release-name text-xl">
         {{ release.name }}
-        <button data-modal-target="delete-modal" data-modal-toggle="delete-modal" type="button">
+        <button
+          data-modal-target="delete-modal"
+          data-modal-toggle="delete-modal"
+          type="button"
+          class="delete-release-overview-button"
+        >
           <svg
             class="inline text-red-600 w-6 h-6 relative -top-0.5 ml-px"
             xmlns="http://www.w3.org/2000/svg"
