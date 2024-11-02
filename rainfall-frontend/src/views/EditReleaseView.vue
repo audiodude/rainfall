@@ -5,7 +5,6 @@ import DeleteReleaseModal from '@/components/DeleteReleaseModal.vue';
 import { mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
 import type { Release } from '@/types/release';
-import { deleteRelease } from '../helpers/release';
 
 export default {
   components: { ReleaseComponent, DeleteReleaseModal },
