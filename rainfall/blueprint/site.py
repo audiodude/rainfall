@@ -1,4 +1,5 @@
 import os
+import shutil
 from uuid import UUID
 
 import flask
@@ -55,6 +56,24 @@ def list_sites(user):
 @with_current_site
 def get_site(site, user):
   return flask.jsonify(site.serialize())
+
+
+@site.route('/site/<site_id>', methods=['DELETE'])
+@with_current_user
+@with_current_site
+def delete_site(site, user):
+  db.session.delete(site)
+
+  try:
+    shutil.rmtree(site_path(flask.current_app.config['DATA_DIR'], site))
+  except Exception as e:
+    print(e)
+    db.session.rollback()
+    return flask.jsonify(status=500,
+                         error='Could not delete site (filesystem error)'), 500
+
+  db.session.commit()
+  return '', 204
 
 
 @site.route('/site/<site_id>/name', methods=['POST'])
