@@ -1,12 +1,15 @@
+import os
 from unittest.mock import patch
 
 import flask
 import pytest
+from uuid_extensions import uuid7
 
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
 from rainfall.models.user import User
 from rainfall.models.site import Site
+from rainfall.site import site_path
 
 
 class SiteTest:
@@ -165,3 +168,56 @@ class SiteTest:
                        json={'name': 'Another Cool Site'})
       assert rv.status == '400 BAD REQUEST'
       assert 'error' in rv.json
+
+  def test_delete_site(self, app, sites_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(sites_user)
+      site_id = sites_user.sites[0].id
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.delete(f'/api/v1/site/{site_id}')
+      print(rv.json)
+      assert rv.status == '204 NO CONTENT'
+
+      site = db.session.get(Site, site_id)
+      assert site is None
+
+  def test_delete_site_no_user(self, app, sites_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(sites_user)
+      site_id = sites_user.sites[0].id
+
+      rv = client.delete(f'/api/v1/site/{site_id}')
+      assert rv.status == '401 UNAUTHORIZED'
+
+  def test_delete_site_no_site(self, app, sites_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(sites_user)
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.delete(f'/api/v1/site/{uuid7()}')
+      assert rv.status == '404 NOT FOUND'
+
+  @patch('rainfall.blueprint.site.shutil.rmtree')
+  def test_delete_site_filesystem_error(self, mock_rmtree, app, sites_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(sites_user)
+      site_id = sites_user.sites[0].id
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      mock_rmtree.side_effect = Exception('Some error')
+
+      rv = client.delete(f'/api/v1/site/{site_id}')
+      assert rv.status == '500 INTERNAL SERVER ERROR'
+
+      site = db.session.get(Site, site_id)
+      assert site is not None
+      site_basename = os.path.basename(site_path(app.config['DATA_DIR'], site))
+      assert site_basename in os.listdir(
+          os.path.join(app.config['DATA_DIR'], str(site.user.id)))
