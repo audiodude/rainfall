@@ -1,15 +1,19 @@
 <script lang="ts">
 import ReleaseComponent from '@/components/Release.vue';
+import DeleteReleaseModal from '@/components/DeleteReleaseModal.vue';
+
 import { mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
 import type { Release } from '@/types/release';
+import { deleteRelease } from '../helpers/release';
 
 export default {
-  components: { ReleaseComponent },
-  data(): { release: Release | null; releaseError: string } {
+  components: { ReleaseComponent, DeleteReleaseModal },
+  data(): { release: Release | null; releaseError: string; deleteError: string } {
     return {
       release: null,
       releaseError: '',
+      deleteError: '',
     };
   },
   async created() {
@@ -89,6 +93,21 @@ export default {
           @song-uploaded="loadRelease()"
           :isEditing="true"
         ></ReleaseComponent>
+      </div>
+      <div class="md:max-w-screen-md pr-4">
+        <button
+          class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer mt-4 w-10/12 p-4 md:py-2 text-xl md:text-base bg-red-500 text-grey-200 font-semibold rounded hover:text-white hover:bg-red-600"
+          data-modal-target="delete-modal"
+          data-modal-toggle="delete-modal"
+        >
+          Delete release
+        </button>
+        <div
+          v-if="deleteError"
+          class="text-center md:text-right m-auto md:mr-0 w-80 md:w-auto text-red-600 dark:text-red-400 mb-4"
+        >
+          {{ deleteError }}
+        </div>
       </div>
     </div>
   </div>

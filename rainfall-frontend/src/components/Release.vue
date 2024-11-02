@@ -1,7 +1,10 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
+import { initFlowbite } from 'flowbite';
+
 import ArtUpload from './ArtUpload.vue';
 import UploadButton from './UploadButton.vue';
+import DeleteReleaseModal from './DeleteReleaseModal.vue';
 import { type Release } from '../types/release';
 import { getCsrf } from '../helpers/cookie';
 
@@ -10,13 +13,14 @@ export default defineComponent({
     release: { type: Object as PropType<Release | null>, required: true },
     isEditing: Boolean,
   },
-  components: { ArtUpload, UploadButton },
+  components: { ArtUpload, UploadButton, DeleteReleaseModal },
   data() {
     return {
       newReleaseName: '',
       currentDescription: '',
       descriptionError: null,
       renameError: '',
+      deleteError: '',
       stashedDescription: '',
     };
   },
@@ -26,6 +30,9 @@ export default defineComponent({
     }
     this.currentDescription = this.release.description;
     this.newReleaseName = this.release.name;
+  },
+  mounted() {
+    initFlowbite();
   },
   methods: {
     onSongUploaded() {
@@ -90,6 +97,25 @@ export default defineComponent({
       const i = release.files.findIndex((file) => file.id == id);
       release.files.splice(i, 1);
     },
+    async deleteRelease(id: string) {
+      const resp = await fetch(`/api/v1/release/${id}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': getCsrf() },
+      });
+      if (!resp.ok) {
+        if (resp.headers.get('Content-Type') == 'application/json') {
+          const data = await resp.json();
+          this.deleteError = data.error;
+        } else {
+          this.deleteError = 'An unknown error occurred';
+        }
+        return;
+      }
+      this.$emit('release-deleted');
+      if (this.release && this.isEditing) {
+        this.$router.push(`/site/${this.release.site_id}`);
+      }
+    },
   },
   watch: {
     release(newRelease) {
@@ -151,6 +177,22 @@ export default defineComponent({
     <div v-if="!isEditing" class="p-2 bg-emerald-500 text-white">
       <div class="release-name text-xl">
         {{ release.name }}
+        <button data-modal-target="delete-modal" data-modal-toggle="delete-modal" type="button">
+          <svg
+            class="inline text-red-600 w-6 h-6 relative -top-0.5 ml-px"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+            />
+          </svg>
+        </button>
       </div>
       <a
         class="text-gray-800 hover:text-gray-500 hover:underline"
@@ -197,13 +239,14 @@ export default defineComponent({
       <UploadButton
         :upload-url="`/api/v1/upload/release/${release.id}/song`"
         param-name="song[]"
-        :accept-files="['.aiff', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']"
+        :accept-files="['.aiff', '.alac', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']"
         @song-uploaded="onSongUploaded()"
         class="md:ml-40"
       >
         Upload songs
       </UploadButton>
     </div>
+    <DeleteReleaseModal @confirm-delete="deleteRelease(release.id)"></DeleteReleaseModal>
   </div>
 </template>
 
