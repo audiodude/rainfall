@@ -301,6 +301,35 @@ describe('Edit Site test', () => {
           cy.get('.file-name').contains('song-2.mp3').should('be.visible');
         });
       });
+
+      describe('and the user clicks the release delete button', () => {
+        beforeEach(() => {
+          cy.intercept('DELETE', 'api/v1/release/06552cb9-0c60-7066-8000-3c3da08a9e9d', {
+            statusCode: 204,
+          }).as('delete-release');
+          cy.get('.delete-release-overview-button').first().click();
+        });
+
+        it('displays a confirmation dialog', () => {
+          cy.get('#delete-modal').should('be.visible');
+        });
+
+        it('deletes the release', () => {
+          cy.get('#delete-modal').find('.confirm-delete').click();
+          cy.wait('@delete-release');
+        });
+
+        it('reloads the site with the release removed', () => {
+          cy.get('#delete-modal').find('.confirm-delete').click();
+          cy.wait('@delete-release');
+          cy.wait('@load-site');
+        });
+
+        it('closes the modal on cancel', () => {
+          cy.get('#delete-modal').find('.cancel-delete').click();
+          cy.get('#delete-modal').should('not.be.visible');
+        });
+      });
     });
 
     describe('editing name', () => {

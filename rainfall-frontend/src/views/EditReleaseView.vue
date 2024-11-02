@@ -96,6 +96,7 @@ export default {
       </div>
       <div class="md:max-w-screen-md pr-4">
         <button
+          id="delete-release-button"
           class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer mt-4 w-10/12 p-4 md:py-2 text-xl md:text-base bg-red-500 text-grey-200 font-semibold rounded hover:text-white hover:bg-red-600"
           data-modal-target="delete-modal"
           data-modal-toggle="delete-modal"
