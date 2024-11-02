@@ -1,6 +1,6 @@
 <script lang="ts">
 import { initFlowbite } from 'flowbite';
-import { routeLocationKey } from 'vue-router';
+
 export default {
   props: ['siteId', 'readyForDeploy'],
   data(): {} {

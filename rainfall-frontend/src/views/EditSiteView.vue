@@ -196,7 +196,11 @@ export default {
         class="md:max-w-screen-md mt-8 p-4 border border-emerald-500"
       >
         <div v-for="release in site.releases" class="mb-6 last:mb-0">
-          <Release :release="release" @song-uploaded="loadSite()"></Release>
+          <Release
+            :release="release"
+            @song-uploaded="loadSite()"
+            @release-deleted="loadSite()"
+          ></Release>
         </div>
       </div>
     </div>
