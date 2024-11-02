@@ -9,7 +9,7 @@ from rainfall.models.artwork import Artwork
 from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
-from rainfall.site import release_path
+from rainfall.site import release_path, site_path
 
 
 class ReleaseTest:
@@ -326,3 +326,29 @@ class ReleaseTest:
 
       rv = client.delete(f'/api/v1/release/{uuid7()}')
       assert rv.status == '404 NOT FOUND'
+
+  @patch('rainfall.blueprint.release.shutil.rmtree')
+  def test_delete_release_filesystem_error(self, mock_rmtree, app,
+                                           releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+      release = releases_user.sites[0].releases[0]
+      release_id = release.id
+      mock_rmtree.side_effect = Exception('Filesystem error')
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      rv = client.delete(f'/api/v1/release/{release_id}')
+
+      mock_rmtree.assert_called_once_with(
+          release_path(app.config['DATA_DIR'], release))
+      assert rv.status == '500 INTERNAL SERVER ERROR'
+      assert 'error' in rv.json
+      assert db.session.get(Release, release_id) is not None
+      assert release in releases_user.sites[0].releases
+
+      release_dir_name = os.path.basename(
+          release_path(app.config['DATA_DIR'], release))
+      site_data_path = site_path(app.config['DATA_DIR'], release.site)
+      assert release_dir_name in os.listdir(site_data_path)
