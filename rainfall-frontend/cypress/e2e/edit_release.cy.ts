@@ -156,6 +156,10 @@ describe('Edit Release test', () => {
         it('has a disabled update description button', () => {
           cy.get('#update-description-button').should('be.disabled');
         });
+
+        it('has a delete release button', () => {
+          cy.get('#delete-release-button').should('exist');
+        });
       });
 
       describe('after typing in the description field', () => {
@@ -167,6 +171,35 @@ describe('Edit Release test', () => {
         it('disables it again after the text is unchanged', () => {
           cy.get('#release-description').type(' a{backspace}{backspace}');
           cy.get('#update-description-button').should('be.disabled');
+        });
+      });
+
+      describe('on delete release button click', () => {
+        beforeEach(() => {
+          cy.intercept('DELETE', 'api/v1/release/065f4a1a-f2e0-7d39-8000-0c3f69747e42', {
+            statusCode: 204,
+          }).as('delete-release');
+          cy.get('#delete-release-button').click();
+        });
+
+        it('displays a confirmation dialog', () => {
+          cy.get('#delete-modal').should('be.visible');
+        });
+
+        it('deletes the release', () => {
+          cy.get('#delete-modal').find('.confirm-delete').click();
+          cy.wait('@delete-release');
+        });
+
+        it('navigates to the site page of the release', () => {
+          cy.get('#delete-modal').find('.confirm-delete').click();
+          cy.wait('@delete-release');
+          cy.url().should('eq', 'http://localhost:4173/site/065f4a1a-cd8a-7d4a-8000-b29784430f23');
+        });
+
+        it('closes the modal on cancel', () => {
+          cy.get('#delete-modal').find('.cancel-delete').click();
+          cy.get('#delete-modal').should('not.be.visible');
         });
       });
     });
