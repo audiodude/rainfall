@@ -78,5 +78,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Javascript dependencies
+        run: cd rainfall-frontend && yarn install --frozen-lockfile
+        
       - name: Frontend builds successfully
-        run: cd rainfall-frontend && yarn run build
+        run: |
+          cd rainfall-frontend
+          yarn run build
