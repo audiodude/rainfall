@@ -1,6 +1,7 @@
 <script lang="ts">
-import { getCsrf } from '../helpers/cookie';
 import DeleteConfirmModal from './DeleteConfirmModal.vue';
+
+import { deleteSite as deleteSiteHelper } from '@/helpers/site';
 
 export default {
   components: { DeleteConfirmModal },
@@ -15,21 +16,9 @@ export default {
     editSite(id: string) {
       this.$router.push(`/site/${id}`);
     },
-    async deleteSite(id: string) {
-      const resp = await fetch(`/api/v1/site/${this.siteIdToDelete}`, {
-        method: 'DELETE',
-        headers: { 'X-CSRFToken': getCsrf() },
-      });
+    async deleteSite() {
+      this.deleteError = await deleteSiteHelper(this.siteIdToDelete);
       this.siteIdToDelete = null;
-      if (!resp.ok) {
-        if (resp.headers.get('Content-Type') == 'application/json') {
-          const data = await resp.json();
-          this.deleteError = data.error;
-        } else {
-          this.deleteError = 'An unknown error occurred';
-        }
-        return;
-      }
       this.$emit('site-deleted');
     },
   },
