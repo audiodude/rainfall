@@ -115,6 +115,9 @@ export default defineComponent({
         this.$router.push(`/site/${this.release.site_id}`);
       }
     },
+    showDeleteModal() {
+      (this.$refs.deleteModal as typeof DeleteConfirmModal).show();
+    },
   },
   watch: {
     release(newRelease) {
@@ -185,11 +188,7 @@ export default defineComponent({
       <div v-if="!isEditing" class="p-2 bg-emerald-500 text-white">
         <div class="release-name text-xl flex justify-between">
           {{ release.name }}
-          <button
-            @click="$refs.deleteModal?.show()"
-            type="button"
-            class="delete-release-overview-button"
-          >
+          <button @click="showDeleteModal()" type="button" class="delete-release-overview-button">
             <svg
               class="inline text-red-600 w-6 h-6 relative -top-0.5 ml-px"
               xmlns="http://www.w3.org/2000/svg"
@@ -284,7 +283,7 @@ export default defineComponent({
     ></DeleteConfirmModal>
     <div v-if="isEditing" class="md:max-w-screen-md pr-4">
       <button
-        @click="$refs.deleteModal?.show()"
+        @click="showDeleteModal()"
         id="delete-release-button"
         class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer mt-4 w-10/12 p-4 md:py-2 text-xl md:text-base bg-red-700 dark:bg-red-500 text-gray-100 font-semibold rounded hover:text-white hover:bg-red-600"
       >
