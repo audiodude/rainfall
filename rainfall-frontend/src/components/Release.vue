@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent, type PropType } from 'vue';
-import { initFlowbite } from 'flowbite';
+import { Modal } from 'flowbite';
 
 import ArtUpload from './ArtUpload.vue';
 import UploadButton from './UploadButton.vue';
@@ -14,7 +14,15 @@ export default defineComponent({
     isEditing: Boolean,
   },
   components: { ArtUpload, UploadButton, DeleteConfirmModal },
-  data() {
+  data(): {
+    newReleaseName: string;
+    currentDescription: string;
+    descriptionError: string | null;
+    renameError: string;
+    deleteError: string;
+    stashedDescription: string;
+    deleteModal: Modal | null;
+  } {
     return {
       newReleaseName: '',
       currentDescription: '',
@@ -22,6 +30,7 @@ export default defineComponent({
       renameError: '',
       deleteError: '',
       stashedDescription: '',
+      deleteModal: null,
     };
   },
   created() {
@@ -32,7 +41,8 @@ export default defineComponent({
     this.newReleaseName = this.release.name;
   },
   mounted() {
-    initFlowbite();
+    console.log(this.$refs.deleteModal.$el);
+    this.deleteModal = new Modal(this.$refs.deleteModal.$el);
   },
   methods: {
     onSongUploaded() {
@@ -177,12 +187,7 @@ export default defineComponent({
     <div v-if="!isEditing" class="p-2 bg-emerald-500 text-white">
       <div class="release-name text-xl">
         {{ release.name }}
-        <button
-          data-modal-target="delete-modal"
-          data-modal-toggle="delete-modal"
-          type="button"
-          class="delete-release-overview-button"
-        >
+        <button @click="deleteModal?.show()" type="button" class="delete-release-overview-button">
           <svg
             class="inline text-red-600 w-6 h-6 relative -top-0.5 ml-px"
             xmlns="http://www.w3.org/2000/svg"
@@ -252,7 +257,9 @@ export default defineComponent({
       </UploadButton>
     </div>
     <DeleteConfirmModal
+      ref="deleteModal"
       @confirm-delete="deleteRelease(release.id)"
+      @hide="deleteModal?.hide()"
       displayMessage="Are you sure you want to delete this Release and all associated songs?"
     ></DeleteConfirmModal>
   </div>
