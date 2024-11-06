@@ -42,10 +42,10 @@ export default {
         v-for="site in sites"
         class="flex flex-row justify-between p-2 mb-2 last:mb-0 bg-blue-500 text-white"
       >
-        <span class="site-name w-40">
+        <span @click="editSite(site.id)" class="site-name w-40 cursor-pointer">
           {{ site.name }}
           <button
-            @click="showDeleteModal(site.id)"
+            @click.stop="showDeleteModal(site.id)"
             type="button"
             class="delete-site-overview-button"
           >
