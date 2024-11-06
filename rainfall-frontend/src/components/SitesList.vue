@@ -6,7 +6,10 @@ import { deleteSite as deleteSiteHelper } from '@/helpers/site';
 export default {
   components: { DeleteConfirmModal },
   props: ['sites'],
-  data() {
+  data(): {
+    deleteError: string;
+    siteIdToDelete: string | null;
+  } {
     return {
       deleteError: '',
       siteIdToDelete: null,
@@ -17,9 +20,16 @@ export default {
       this.$router.push(`/site/${id}`);
     },
     async deleteSite() {
+      if (!this.siteIdToDelete) {
+        return;
+      }
       this.deleteError = await deleteSiteHelper(this.siteIdToDelete);
       this.siteIdToDelete = null;
       this.$emit('site-deleted');
+    },
+    showDeleteModal(id: string) {
+      this.siteIdToDelete = id;
+      (this.$refs.deleteModal as typeof DeleteConfirmModal).show();
     },
   },
 };
@@ -38,10 +48,7 @@ export default {
         >
           {{ site.name }}
           <button
-            @click.stop="
-              siteIdToDelete = site.id;
-              $refs.deleteModal?.show();
-            "
+            @click.stop="showDeleteModal(site.id)"
             type="button"
             class="delete-site-overview-button"
           >
