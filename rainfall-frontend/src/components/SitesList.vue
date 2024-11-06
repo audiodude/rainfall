@@ -38,7 +38,7 @@ export default {
         >
           {{ site.name }}
           <button
-            @click="
+            @click.stop="
               siteIdToDelete = site.id;
               $refs.deleteModal?.show();
             "
