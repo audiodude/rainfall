@@ -94,7 +94,7 @@ export default {
       this.sitesError = error;
     },
     async deleteSite(id: string) {
-      this.deleteError = await deleteSiteHelper(this.site.id);
+      this.deleteError = await deleteSiteHelper(id);
       this.$router.replace('/sites');
     },
     setInvalidateHandler(fn: () => void) {
@@ -126,6 +126,9 @@ export default {
         return;
       }
       this.site.name = this.newSiteName;
+    },
+    showDeleteModal() {
+      (this.$refs.deleteModal as typeof DeleteConfirmModal).show();
     },
   },
 };
@@ -207,7 +210,7 @@ export default {
       ></DeleteConfirmModal>
       <div class="flex flex-col md:flex-row mt-8 justify-right">
         <button
-          @click="$refs.deleteModal?.show()"
+          @click="showDeleteModal()"
           id="delete-release-button"
           class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base bg-red-700 dark:bg-red-500 text-gray-100 font-semibold rounded hover:text-white hover:bg-red-800"
         >
