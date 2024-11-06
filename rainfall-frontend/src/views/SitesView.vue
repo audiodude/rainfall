@@ -1,11 +1,13 @@
 <script lang="ts">
 import { mapStores } from 'pinia';
-import { useUserStore } from '../stores/user';
-import NewSite from '../components/NewSite.vue';
-import SitesList from '../components/SitesList.vue';
+
+import { useUserStore } from '@/stores/user';
+import NewSite from '@/components/NewSite.vue';
+import SitesList from '@/components/SitesList.vue';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal.vue';
 
 export default {
-  components: { NewSite, SitesList },
+  components: { NewSite, SitesList, DeleteConfirmModal },
   data() {
     return {
       sitesError: '',
@@ -66,7 +68,7 @@ export default {
         </p>
       </div>
       <NewSite @site-created="reloadSites()" class="mt-4" />
-      <SitesList :sites="sites" />
+      <SitesList :sites="sites" @site-deleted="reloadSites()" />
     </div>
   </div>
 </template>

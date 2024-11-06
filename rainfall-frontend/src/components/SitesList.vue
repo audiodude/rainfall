@@ -1,9 +1,36 @@
 <script lang="ts">
+import { getCsrf } from '../helpers/cookie';
+import DeleteConfirmModal from './DeleteConfirmModal.vue';
+
 export default {
+  components: { DeleteConfirmModal },
   props: ['sites'],
+  data() {
+    return {
+      deleteError: '',
+      siteIdToDelete: null,
+    };
+  },
   methods: {
     editSite(id: string) {
       this.$router.push(`/site/${id}`);
+    },
+    async deleteSite(id: string) {
+      const resp = await fetch(`/api/v1/site/${this.siteIdToDelete}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRFToken': getCsrf() },
+      });
+      this.siteIdToDelete = null;
+      if (!resp.ok) {
+        if (resp.headers.get('Content-Type') == 'application/json') {
+          const data = await resp.json();
+          this.deleteError = data.error;
+        } else {
+          this.deleteError = 'An unknown error occurred';
+        }
+        return;
+      }
+      this.$emit('site-deleted');
     },
   },
 };
@@ -18,6 +45,29 @@ export default {
       >
         <span class="site-name w-40">
           {{ site.name }}
+          <button
+            @click="
+              siteIdToDelete = site.id;
+              $refs.deleteModal?.show();
+            "
+            type="button"
+            class="delete-site-overview-button"
+          >
+            <svg
+              class="inline text-red-600 w-6 h-6 relative -top-0.5 ml-px"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+              />
+            </svg>
+          </button>
         </span>
         <span
           class="edit-site-button w-8 hover:text-blue-800 cursor-pointer"
@@ -39,6 +89,11 @@ export default {
         </span>
       </div>
     </div>
+    <DeleteConfirmModal
+      ref="deleteModal"
+      @confirm-delete="deleteSite(sites.id)"
+      displayMessage="Are you sure you want to delete this Site, all of its Releases, and all associated songs?"
+    ></DeleteConfirmModal>
   </div>
 </template>
 
