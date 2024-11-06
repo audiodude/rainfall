@@ -1,3 +1,9 @@
+<script>
+export default {
+  props: ['displayMessage'],
+};
+</script>
+
 <template>
   <div
     id="delete-modal"
@@ -45,7 +51,7 @@
             />
           </svg>
           <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-            Are you sure you want to delete this Release and all associated songs?
+            {{ displayMessage }}
           </h3>
           <button
             @click="$emit('confirm-delete')"
