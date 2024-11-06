@@ -71,3 +71,12 @@ jobs:
         with:
           name: screenshots
           path: rainfall-frontend/cypress/screenshots/*
+
+  build-check:
+    runs-on: ubuntu-latest
+    needs: [python-ci, frontend-ci]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Frontend builds successfully
+        run: cd rainfall-frontend && yarn run build
