@@ -74,5 +74,45 @@ describe('New Test', () => {
       cy.wait('@load-site');
       cy.url().should('eq', 'http://localhost:4173/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
     });
+
+    describe('when the delete button for a site is clicked', () => {
+      beforeEach(() => {
+        cy.intercept('GET', 'api/v1/site/list', { fixture: 'sites.json' }).as('load-sites');
+        cy.intercept('DELETE', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9', {
+          statusCode: 204,
+        }).as('delete-site');
+        cy.get('.delete-site-overview-button').first().click();
+      });
+
+      it('shows the delete modal', () => {
+        cy.get('.delete-modal').should('be.visible');
+      });
+
+      it('deletes the site', () => {
+        cy.get('.delete-modal').first().find('.confirm-delete').click();
+        cy.wait('@delete-site');
+      });
+
+      it('reloads the sites with the site removed', () => {
+        cy.get('.delete-modal').first().find('.confirm-delete').click();
+        cy.wait('@delete-site');
+        cy.wait('@load-sites');
+      });
+
+      it('closes the modal on cancel', () => {
+        cy.get('.delete-modal').first().find('.cancel-delete').click();
+        cy.get('.delete-modal').first().should('not.be.visible');
+      });
+
+      it('closes the modal on close button click', () => {
+        cy.get('.delete-modal').first().find('.close-modal-button').click();
+        cy.get('.delete-modal').first().should('not.be.visible');
+      });
+
+      it('closes the modal on background click', () => {
+        cy.get('.delete-modal').first().click('topLeft');
+        cy.get('.delete-modal').first().should('not.be.visible');
+      });
+    });
   });
 });
