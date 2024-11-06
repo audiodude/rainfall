@@ -209,14 +209,15 @@ export default {
         <button
           @click="$refs.deleteModal?.show()"
           id="delete-release-button"
-          class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base bg-red-500 text-grey-200 font-semibold rounded hover:text-white hover:bg-red-600"
+          class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base bg-red-700 dark:bg-red-500 text-gray-100 font-semibold rounded hover:text-white hover:bg-red-800"
         >
           Delete Entire Site
         </button>
       </div>
+
       <div
         v-if="site.releases.length > 0"
-        class="md:max-w-screen-md mt-8 p-4 border border-emerald-500"
+        class="md:max-w-screen-md mt-8 p-4 border border-emerald-500 bg-green-200 dark:bg-transparent"
       >
         <div v-for="release in site.releases" class="mb-6 last:mb-0">
           <Release

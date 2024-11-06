@@ -43,7 +43,7 @@ export default {
             class="delete-site-overview-button"
           >
             <svg
-              class="inline text-red-600 w-6 h-6 relative -top-0.5 ml-px"
+              class="inline text-red-700 dark:text-red-600 w-6 h-6 relative -top-0.5 ml-px"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -80,7 +80,7 @@ export default {
     </div>
     <DeleteConfirmModal
       ref="deleteModal"
-      @confirm-delete="deleteSite(sites.id)"
+      @confirm-delete="deleteSite()"
       displayMessage="Are you sure you want to delete this Site, all of its Releases, and all associated songs?"
     ></DeleteConfirmModal>
   </div>

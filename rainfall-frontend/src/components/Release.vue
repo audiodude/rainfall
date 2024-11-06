@@ -127,7 +127,11 @@ export default defineComponent({
 <template>
   <div v-if="release">
     <div
-      :class="isEditing ? 'md:max-w-screen-md mt-8 p-4 border border-emerald-500' : ''"
+      :class="
+        isEditing
+          ? 'md:max-w-screen-md mt-8 p-4 border border-emerald-500 bg-green-200 dark:bg-transparent'
+          : ''
+      "
       class="release"
     >
       <div v-if="isEditing" class="max-w-screen-md md:flex md:justify-end my-2 md:mt-0">
@@ -135,7 +139,7 @@ export default defineComponent({
           <input
             id="site-name"
             v-model="newReleaseName"
-            class="w-10/12 md:w-80 h-8 mt-2 md:mt-0 px-2 py-2 md:py-4 h-10 mr-0 md:mr-4 text-gray-600"
+            class="w-10/12 md:w-80 h-8 mt-2 md:mt-0 px-2 py-2 md:py-4 h-10 mr-0 md:mr-4 text-gray-600 border border-gray-300"
           /><button
             id="edit-name-button"
             @click="updateName"
@@ -276,7 +280,7 @@ export default defineComponent({
       <button
         @click="$refs.deleteModal?.show()"
         id="delete-release-button"
-        class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer mt-4 w-10/12 p-4 md:py-2 text-xl md:text-base bg-red-500 text-grey-200 font-semibold rounded hover:text-white hover:bg-red-600"
+        class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer mt-4 w-10/12 p-4 md:py-2 text-xl md:text-base bg-red-700 dark:bg-red-500 text-gray-100 font-semibold rounded hover:text-white hover:bg-red-600"
       >
         Delete release
       </button>
