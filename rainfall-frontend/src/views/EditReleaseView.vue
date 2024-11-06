@@ -86,29 +86,11 @@ export default {
           Back to site
         </a>
       </div>
-      <div class="md:max-w-screen-md mt-8 p-4 border border-emerald-500">
-        <ReleaseComponent
-          :release="release"
-          @song-uploaded="loadRelease()"
-          :isEditing="true"
-        ></ReleaseComponent>
-      </div>
-      <div class="md:max-w-screen-md pr-4">
-        <button
-          id="delete-release-button"
-          class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer mt-4 w-10/12 p-4 md:py-2 text-xl md:text-base bg-red-500 text-grey-200 font-semibold rounded hover:text-white hover:bg-red-600"
-          data-modal-target="delete-modal"
-          data-modal-toggle="delete-modal"
-        >
-          Delete release
-        </button>
-        <div
-          v-if="deleteError"
-          class="text-center md:text-right m-auto md:mr-0 w-80 md:w-auto text-red-600 dark:text-red-400 mb-4"
-        >
-          {{ deleteError }}
-        </div>
-      </div>
+      <ReleaseComponent
+        :release="release"
+        @song-uploaded="loadRelease()"
+        :isEditing="true"
+      ></ReleaseComponent>
     </div>
   </div>
 </template>
