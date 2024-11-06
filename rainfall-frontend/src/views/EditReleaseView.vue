@@ -1,6 +1,6 @@
 <script lang="ts">
 import ReleaseComponent from '@/components/Release.vue';
-import DeleteReleaseModal from '@/components/DeleteReleaseModal.vue';
+import DeleteReleaseModal from '@/components/DeleteConfirmModal.vue';
 
 import { mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
