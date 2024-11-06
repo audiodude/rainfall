@@ -4,16 +4,16 @@ import { initFlowbite } from 'flowbite';
 
 import ArtUpload from './ArtUpload.vue';
 import UploadButton from './UploadButton.vue';
-import DeleteReleaseModal from './DeleteReleaseModal.vue';
 import { type Release } from '../types/release';
 import { getCsrf } from '../helpers/cookie';
+import DeleteConfirmModal from './DeleteConfirmModal.vue';
 
 export default defineComponent({
   props: {
     release: { type: Object as PropType<Release | null>, required: true },
     isEditing: Boolean,
   },
-  components: { ArtUpload, UploadButton, DeleteReleaseModal },
+  components: { ArtUpload, UploadButton, DeleteConfirmModal },
   data() {
     return {
       newReleaseName: '',
@@ -251,7 +251,10 @@ export default defineComponent({
         Upload songs
       </UploadButton>
     </div>
-    <DeleteReleaseModal @confirm-delete="deleteRelease(release.id)"></DeleteReleaseModal>
+    <DeleteConfirmModal
+      @confirm-delete="deleteRelease(release.id)"
+      displayMessage="Are you sure you want to delete this Release and all associated songs?"
+    ></DeleteConfirmModal>
   </div>
 </template>
 
