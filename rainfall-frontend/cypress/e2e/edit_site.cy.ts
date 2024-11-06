@@ -328,30 +328,32 @@ describe('Edit Site test', () => {
           cy.get('.delete-modal').should('be.visible');
         });
 
+        // There are multiple modals on the page, one for each release and one for the site.
+        // We hardcode the index here to select the correct modal.
         it('deletes the release', () => {
-          cy.get('.delete-modal').first().find('.confirm-delete').click();
+          cy.get('.delete-modal').eq(1).find('.confirm-delete').click();
           cy.wait('@delete-release');
         });
 
         it('reloads the site with the release removed', () => {
-          cy.get('.delete-modal').first().find('.confirm-delete').click();
+          cy.get('.delete-modal').eq(1).find('.confirm-delete').click();
           cy.wait('@delete-release');
           cy.wait('@load-site');
         });
 
         it('closes the modal on cancel', () => {
-          cy.get('.delete-modal').first().find('.cancel-delete').click();
-          cy.get('.delete-modal').first().should('not.be.visible');
+          cy.get('.delete-modal').eq(1).find('.cancel-delete').click();
+          cy.get('.delete-modal').eq(1).should('not.be.visible');
         });
 
         it('closes the modal on close button click', () => {
-          cy.get('.delete-modal').first().find('.close-modal-button').click();
-          cy.get('.delete-modal').first().should('not.be.visible');
+          cy.get('.delete-modal').eq(1).find('.close-modal-button').click();
+          cy.get('.delete-modal').eq(1).should('not.be.visible');
         });
 
         it('closes the modal on background click', () => {
-          cy.get('.delete-modal').first().click('topLeft');
-          cy.get('.delete-modal').first().should('not.be.visible');
+          cy.get('#app').click('topLeft');
+          cy.get('.delete-modal').eq(1).should('not.be.visible');
         });
       });
     });

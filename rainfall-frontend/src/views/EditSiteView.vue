@@ -5,11 +5,13 @@ import { type Site } from '../types/site';
 import AddReleaseButton from '../components/AddReleaseButton.vue';
 import DeployButton from '../components/DeployButton.vue';
 import PreviewSiteButton from '../components/PreviewSiteButton.vue';
+import DeleteConfirmModal from '../components/DeleteConfirmModal.vue';
 import Release from '../components/Release.vue';
 import { getCsrf } from '../helpers/cookie';
+import { deleteSite as deleteSiteHelper } from '@/helpers/site';
 
 export default {
-  components: { AddReleaseButton, DeployButton, PreviewSiteButton, Release },
+  components: { AddReleaseButton, DeployButton, PreviewSiteButton, Release, DeleteConfirmModal },
   data(): {
     site: null | Site;
     newSiteName: string;
@@ -17,6 +19,7 @@ export default {
     renameError: string;
     invalidateHandler: () => void;
     siteExists: boolean;
+    deleteError: string;
   } {
     return {
       site: null,
@@ -25,6 +28,7 @@ export default {
       renameError: '',
       invalidateHandler: () => {},
       siteExists: false,
+      deleteError: '',
     };
   },
   async created() {
@@ -88,6 +92,10 @@ export default {
         error = data.error;
       }
       this.sitesError = error;
+    },
+    async deleteSite(id: string) {
+      this.deleteError = await deleteSiteHelper(this.site.id);
+      this.$router.replace('/sites');
     },
     setInvalidateHandler(fn: () => void) {
       this.invalidateHandler = fn;
@@ -190,6 +198,21 @@ export default {
           @preview-requested="calculateSiteExists"
         />
         <DeployButton :site-id="site.id" :ready-for-deploy="readyForPreview && siteExists" />
+      </div>
+
+      <DeleteConfirmModal
+        ref="deleteModal"
+        @confirm-delete="deleteSite(site.id)"
+        displayMessage="Are you sure you want to delete this Site, all of its Releases, and all associated songs?"
+      ></DeleteConfirmModal>
+      <div class="flex flex-col md:flex-row mt-8 justify-right">
+        <button
+          @click="$refs.deleteModal?.show()"
+          id="delete-release-button"
+          class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base bg-red-500 text-grey-200 font-semibold rounded hover:text-white hover:bg-red-600"
+        >
+          Delete Entire Site
+        </button>
       </div>
       <div
         v-if="site.releases.length > 0"
