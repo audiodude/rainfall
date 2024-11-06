@@ -69,8 +69,8 @@ describe('New Test', () => {
       });
     });
 
-    it('goes to the edit page when the pencil is clicked', () => {
-      cy.get('.edit-site-button').first().click();
+    it('goes to the edit page when the site name is clicked', () => {
+      cy.get('.site-name').first().click();
       cy.wait('@load-site');
       cy.url().should('eq', 'http://localhost:4173/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
     });
