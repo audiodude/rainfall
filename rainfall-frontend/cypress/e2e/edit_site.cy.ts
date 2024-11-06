@@ -37,6 +37,20 @@ describe('Edit Site test', () => {
       });
     });
 
+    // describe('deleting the site', () => {
+    //   beforeEach(() => {
+    //     cy.intercept('GET', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9', {
+    //       fixture: 'site.json',
+    //     }).as('load-site');
+    //     cy.visit('/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
+    //     cy.wait('@load-site');
+    //   });
+
+    //   it('shows the delete button', () => {
+    //     cy.get('#delete-site-button').should('be.visible');
+    //   });
+    // });
+
     describe('when there is one release', () => {
       beforeEach(() => {
         let count = 0;
@@ -311,23 +325,33 @@ describe('Edit Site test', () => {
         });
 
         it('displays a confirmation dialog', () => {
-          cy.get('#delete-modal').should('be.visible');
+          cy.get('.delete-modal').should('be.visible');
         });
 
         it('deletes the release', () => {
-          cy.get('#delete-modal').find('.confirm-delete').click();
+          cy.get('.delete-modal').first().find('.confirm-delete').click();
           cy.wait('@delete-release');
         });
 
         it('reloads the site with the release removed', () => {
-          cy.get('#delete-modal').find('.confirm-delete').click();
+          cy.get('.delete-modal').first().find('.confirm-delete').click();
           cy.wait('@delete-release');
           cy.wait('@load-site');
         });
 
         it('closes the modal on cancel', () => {
-          cy.get('#delete-modal').find('.cancel-delete').click();
-          cy.get('#delete-modal').should('not.be.visible');
+          cy.get('.delete-modal').first().find('.cancel-delete').click();
+          cy.get('.delete-modal').first().should('not.be.visible');
+        });
+
+        it('closes the modal on close button click', () => {
+          cy.get('.delete-modal').first().find('.close-modal-button').click();
+          cy.get('.delete-modal').first().should('not.be.visible');
+        });
+
+        it('closes the modal on background click', () => {
+          cy.get('.delete-modal').first().click('topLeft');
+          cy.get('.delete-modal').first().should('not.be.visible');
         });
       });
     });

@@ -238,15 +238,17 @@ export default defineComponent({
           </svg>
         </button>
       </div>
+      <div v-if="deleteSongError" class="delete-song-error-msg mt-2 text-red-600 dark:text-red-400">
+        <div>
+          {{ deleteSongError }}
+        </div>
+      </div>
       <div
-        v-if="deleteError || deleteSongError"
-        class="delete-error-msg mt-2 text-red-600 dark:text-red-400"
+        v-if="deleteError && !isEditing"
+        class="delete-error-msg-top mt-2 text-red-600 dark:text-red-400"
       >
         <div>
           {{ deleteError }}
-        </div>
-        <div>
-          {{ deleteSongError }}
         </div>
       </div>
       <div v-if="release.files.length == 0" class="text-right mt-4">
@@ -270,7 +272,7 @@ export default defineComponent({
       @confirm-delete="deleteRelease(release.id)"
       displayMessage="Are you sure you want to delete this Release and all associated songs?"
     ></DeleteConfirmModal>
-    <div class="md:max-w-screen-md pr-4">
+    <div v-if="isEditing" class="md:max-w-screen-md pr-4">
       <button
         @click="$refs.deleteModal?.show()"
         id="delete-release-button"

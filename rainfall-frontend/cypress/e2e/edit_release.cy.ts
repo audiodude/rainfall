@@ -183,23 +183,52 @@ describe('Edit Release test', () => {
         });
 
         it('displays a confirmation dialog', () => {
-          cy.get('#delete-modal').should('be.visible');
+          cy.get('.delete-modal').should('be.visible');
         });
 
         it('deletes the release', () => {
-          cy.get('#delete-modal').find('.confirm-delete').click();
+          cy.get('.delete-modal').find('.confirm-delete').click();
           cy.wait('@delete-release');
         });
 
         it('navigates to the site page of the release', () => {
-          cy.get('#delete-modal').find('.confirm-delete').click();
+          cy.get('.delete-modal').find('.confirm-delete').click();
           cy.wait('@delete-release');
           cy.url().should('eq', 'http://localhost:4173/site/065f4a1a-cd8a-7d4a-8000-b29784430f23');
         });
 
         it('closes the modal on cancel', () => {
-          cy.get('#delete-modal').find('.cancel-delete').click();
-          cy.get('#delete-modal').should('not.be.visible');
+          cy.get('.delete-modal').find('.cancel-delete').click();
+          cy.get('.delete-modal').should('not.be.visible');
+        });
+
+        it('closes the modal on close button click', () => {
+          cy.get('.delete-modal').find('.close-modal-button').click();
+          cy.get('.delete-modal').should('not.be.visible');
+        });
+
+        it('closes the modal on background click', () => {
+          cy.get('.delete-modal').click('topLeft');
+          cy.get('.delete-modal').should('not.be.visible');
+        });
+      });
+
+      describe('on delete error', () => {
+        beforeEach(() => {
+          cy.intercept('DELETE', 'api/v1/release/065f4a1a-f2e0-7d39-8000-0c3f69747e42', {
+            statusCode: 500,
+            body: {
+              status: 500,
+              error: 'Internal server error',
+            },
+          }).as('delete-release');
+          cy.get('#delete-release-button').click();
+          cy.get('.delete-modal').find('.confirm-delete').click();
+        });
+
+        it('displays an error message', () => {
+          cy.get('.delete-error-msg').should('be.visible');
+          cy.get('.delete-error-msg').should('contain', 'Internal server error');
         });
       });
     });
