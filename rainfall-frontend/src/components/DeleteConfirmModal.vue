@@ -1,13 +1,26 @@
 <script lang="ts">
+import { Modal } from 'flowbite';
+
 export default {
   props: ['displayMessage'],
+  data(): { modal: Modal | null } {
+    return {
+      modal: null,
+    };
+  },
+  mounted() {
+    this.modal = new Modal(this.$el);
+  },
   methods: {
+    show() {
+      this.modal?.show();
+    },
     onConfirm() {
+      this.modal?.hide();
       this.$emit('confirm-delete');
-      this.$emit('hide');
     },
     onCancel() {
-      this.$emit('hide');
+      this.modal?.hide();
     },
   },
 };
@@ -24,7 +37,7 @@ export default {
         <button
           @click="onCancel()"
           type="button"
-          class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+          class="close-modal-button absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
         >
           <svg
             class="w-3 h-3"

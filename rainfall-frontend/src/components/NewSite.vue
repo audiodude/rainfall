@@ -51,9 +51,6 @@ export default {
           required
         />
       </div>
-      <p class="text-xs italic">
-        The title of your site is for your reference only and doesn't affect the output
-      </p>
       <button
         id="new-button"
         @click="createSite"
