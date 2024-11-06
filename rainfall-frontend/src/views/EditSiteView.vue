@@ -217,7 +217,7 @@ export default {
 
       <div
         v-if="site.releases.length > 0"
-        class="md:max-w-screen-md mt-8 p-4 border border-emerald-500 bg-green-200 dark:bg-transparent"
+        class="md:max-w-screen-md mt-8 py-4 border border-emerald-500 bg-green-200 dark:bg-transparent"
       >
         <div v-for="release in site.releases" class="mb-6 last:mb-0">
           <Release

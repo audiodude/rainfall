@@ -181,8 +181,9 @@ export default defineComponent({
           }}</span>
         </div>
       </div>
+
       <div v-if="!isEditing" class="p-2 bg-emerald-500 text-white">
-        <div class="release-name text-xl">
+        <div class="release-name text-xl flex justify-between">
           {{ release.name }}
           <button
             @click="$refs.deleteModal?.show()"
@@ -212,63 +213,68 @@ export default defineComponent({
           >edit art/description</a
         >
       </div>
-      <div v-else class="text-emerald-500 text-xl">
-        Songs
-        <hr class="h-px my-2 bg-emerald-500 border-0" />
-      </div>
-      <div
-        v-for="file of release.files"
-        class="file-name text-right my-3 flex items-center justify-end"
-      >
-        <div>{{ file.filename }}</div>
-        <button
-          @click="deleteFile(release, file.id)"
-          aria-label="delete file"
-          class="inline-block ml-2 text-red-500 relative top-0.5"
+      <div :class="{ 'mx-4': !isEditing }">
+        <div v-if="isEditing" class="text-emerald-700 dark:text-emerald-500 text-xl">
+          Songs
+          <hr class="h-px my-2 border-emerald-500" />
+        </div>
+        <div
+          v-for="file of release.files"
+          class="file-name text-right my-3 flex items-center justify-end"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6"
+          <div>{{ file.filename }}</div>
+          <button
+            @click="deleteFile(release, file.id)"
+            aria-label="delete file"
+            class="inline-block ml-2 text-red-500 relative top-0.5"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </button>
-      </div>
-      <div v-if="deleteSongError" class="delete-song-error-msg mt-2 text-red-600 dark:text-red-400">
-        <div>
-          {{ deleteSongError }}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </button>
         </div>
-      </div>
-      <div
-        v-if="deleteError && !isEditing"
-        class="delete-error-msg-top mt-2 text-red-600 dark:text-red-400"
-      >
-        <div>
-          {{ deleteError }}
-        </div>
-      </div>
-      <div v-if="release.files.length == 0" class="text-right mt-4">
-        <span class="no-files-msg italic">No files uploaded</span>
-      </div>
-      <hr v-if="!isEditing" class="my-4" />
-      <div class="text-right">
-        <UploadButton
-          :upload-url="`/api/v1/upload/release/${release.id}/song`"
-          param-name="song[]"
-          :accept-files="['.aiff', '.alac', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']"
-          @song-uploaded="onSongUploaded()"
-          class="md:ml-40"
+        <div
+          v-if="deleteSongError"
+          class="delete-song-error-msg mt-2 text-red-600 dark:text-red-400"
         >
-          Upload songs
-        </UploadButton>
+          <div>
+            {{ deleteSongError }}
+          </div>
+        </div>
+        <div
+          v-if="deleteError && !isEditing"
+          class="delete-error-msg-top mt-2 text-red-600 dark:text-red-400"
+        >
+          <div>
+            {{ deleteError }}
+          </div>
+        </div>
+        <div v-if="release.files.length == 0" class="text-right mt-4">
+          <span class="no-files-msg italic">No files uploaded</span>
+        </div>
+        <hr v-if="!isEditing" class="my-4 border-emerald-500" />
+        <div class="text-right">
+          <UploadButton
+            :upload-url="`/api/v1/upload/release/${release.id}/song`"
+            param-name="song[]"
+            :accept-files="['.aiff', '.alac', '.aif', '.flac', '.mp3', '.ogg', '.opus', '.wav']"
+            @song-uploaded="onSongUploaded()"
+            class="md:ml-40"
+          >
+            Upload songs
+          </UploadButton>
+        </div>
       </div>
     </div>
     <DeleteConfirmModal
