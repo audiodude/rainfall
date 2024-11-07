@@ -87,11 +87,16 @@ describe('Edit Site test', () => {
         cy.get('#preview-site-button').should('be.disabled');
       });
 
-      describe('when the add release button is clicked', () => {
+      it('starts with the add release button disabled', () => {
+        cy.get('#new-release-button').should('be.disabled');
+      });
+
+      describe('when a release is added', () => {
         beforeEach(() => {
           cy.intercept('POST', 'api/v1/release', {
             status: 204,
           }).as('new-release');
+          cy.get('#new-release').click().type('Super Cool Stuff');
           cy.get('#new-release-button').click();
           cy.wait('@load-site');
         });
@@ -101,14 +106,14 @@ describe('Edit Site test', () => {
             .its('request.body')
             .should('deep.equal', {
               release: {
-                name: `Release 1`,
+                name: `Super Cool Stuff`,
                 site_id: '06547ed8-206f-7d3d-8000-20ab423e0bb9',
               },
             });
         });
 
         it('displays the newly created release', () => {
-          cy.get('.release-name').contains('Release 1');
+          cy.get('.release-name').contains('Super Cool Stuff');
         });
 
         describe('when the button is clicked again', () => {
@@ -116,6 +121,7 @@ describe('Edit Site test', () => {
             cy.intercept('POST', 'api/v1/release', {
               status: 204,
             }).as('new-release');
+            cy.get('#new-release').click().clear().type('Release 2');
             cy.get('#new-release-button').click();
             cy.wait('@load-site');
           });
@@ -331,29 +337,29 @@ describe('Edit Site test', () => {
         // There are multiple modals on the page, one for each release and one for the site.
         // We hardcode the index here to select the correct modal.
         it('deletes the release', () => {
-          cy.get('.delete-modal').eq(1).find('.confirm-delete').click();
+          cy.get('.delete-modal').first().find('.confirm-delete').click();
           cy.wait('@delete-release');
         });
 
         it('reloads the site with the release removed', () => {
-          cy.get('.delete-modal').eq(1).find('.confirm-delete').click();
+          cy.get('.delete-modal').first().find('.confirm-delete').click();
           cy.wait('@delete-release');
           cy.wait('@load-site');
         });
 
         it('closes the modal on cancel', () => {
-          cy.get('.delete-modal').eq(1).find('.cancel-delete').click();
-          cy.get('.delete-modal').eq(1).should('not.be.visible');
+          cy.get('.delete-modal').first().find('.cancel-delete').click();
+          cy.get('.delete-modal').first().should('not.be.visible');
         });
 
         it('closes the modal on close button click', () => {
-          cy.get('.delete-modal').eq(1).find('.close-modal-button').click();
-          cy.get('.delete-modal').eq(1).should('not.be.visible');
+          cy.get('.delete-modal').first().find('.close-modal-button').click();
+          cy.get('.delete-modal').first().should('not.be.visible');
         });
 
         it('closes the modal on background click', () => {
           cy.get('#app').click('topLeft');
-          cy.get('.delete-modal').eq(1).should('not.be.visible');
+          cy.get('.delete-modal').first().should('not.be.visible');
         });
       });
     });
