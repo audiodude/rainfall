@@ -241,7 +241,8 @@ describe('Edit Site test', () => {
         });
 
         it('shows a loading message', () => {
-          cy.get('.preview-load').contains('Loading preview...');
+          cy.get('.preview-load').find('.loader').should('be.visible');
+          cy.get('.preview-load').should('not.contain', 'Open preview in new window');
         });
 
         it('shows the preview link', () => {
