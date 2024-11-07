@@ -38,7 +38,7 @@ export default {
   <div>
     <div class="md:max-w-screen-md">
       <div>
-        <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+        <label for="new-site" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
           >Site name</label
         >
         <input
@@ -53,7 +53,7 @@ export default {
       </div>
       <button
         id="new-button"
-        @click="createSite"
+        @click="createSite()"
         class="cursor-pointer mt-4 disabled:cursor-auto bg-blue-500 disabled:bg-blue-400 hover:bg-blue-700 disabled:hover:bg-blue-400 font-semibold text-white font-bold py-2 px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
       >
         Create site
