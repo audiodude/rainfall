@@ -54,7 +54,7 @@ export default {
 </script>
 
 <template>
-  <div class="mt-4 md:mt-0 text-center">
+  <div class="mt-4">
     <button
       id="preview-site-button"
       @click="createPreview"

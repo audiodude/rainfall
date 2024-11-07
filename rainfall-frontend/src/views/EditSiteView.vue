@@ -2,7 +2,6 @@
 import { mapStores } from 'pinia';
 import { useUserStore } from '../stores/user';
 import { type Site } from '../types/site';
-import AddReleaseButton from '../components/AddReleaseButton.vue';
 import DeployButton from '../components/DeployButton.vue';
 import PreviewSiteButton from '../components/PreviewSiteButton.vue';
 import DeleteConfirmModal from '../components/DeleteConfirmModal.vue';
@@ -11,12 +10,15 @@ import { getCsrf } from '../helpers/cookie';
 import { deleteSite as deleteSiteHelper } from '@/helpers/site';
 
 export default {
-  components: { AddReleaseButton, DeployButton, PreviewSiteButton, Release, DeleteConfirmModal },
+  components: { DeployButton, PreviewSiteButton, Release, DeleteConfirmModal },
   data(): {
     site: null | Site;
     newSiteName: string;
+    releaseName: string;
+    newReleaseName: string;
     sitesError: string;
     renameError: string;
+    createReleaseError: string;
     invalidateHandler: () => void;
     siteExists: boolean;
     deleteError: string;
@@ -24,8 +26,11 @@ export default {
     return {
       site: null,
       newSiteName: '',
+      newReleaseName: '',
+      releaseName: '',
       sitesError: '',
       renameError: '',
+      createReleaseError: '',
       invalidateHandler: () => {},
       siteExists: false,
       deleteError: '',
@@ -53,18 +58,6 @@ export default {
     await this.calculateSiteExists();
   },
   computed: {
-    cardinality() {
-      if (!this.site) {
-        return 0;
-      }
-      if (this.site.releases.length == 0) {
-        return 1;
-      }
-      const nums = this.site.releases.map((release) => {
-        return parseInt(release.name.split(' ')[1]);
-      });
-      return nums.sort().slice(-1)[0] + 1;
-    },
     readyForPreview() {
       return (
         this.site &&
@@ -102,6 +95,35 @@ export default {
     },
     setInvalidateHandler(fn: () => void) {
       this.invalidateHandler = fn;
+    },
+    async createRelease() {
+      if (!this.site) {
+        return;
+      }
+      this.createReleaseError = '';
+      const resp = await fetch('/api/v1/release', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrf(),
+        },
+        body: JSON.stringify({
+          release: {
+            name: this.newReleaseName,
+            site_id: this.site.id,
+          },
+        }),
+      });
+      if (!resp.ok) {
+        if (resp.headers.get('Content-Type') == 'application/json') {
+          const data = await resp.json();
+          this.createReleaseError = data.error;
+        } else {
+          this.createReleaseError = 'An unknown error occurred';
+        }
+        return;
+      }
+      this.$emit('release-created');
     },
     async calculateSiteExists() {
       if (!this.site) {
@@ -171,7 +193,7 @@ export default {
           <input
             id="site-name"
             v-model="newSiteName"
-            class="w-10/12 md:w-80 h-8 mt-2 md:mt-0 px-2 py-2 md:py-4 h-10 mr-0 md:mr-4 text-gray-600"
+            class="w-10/12 md:w-80 mr-4 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           /><button
             id="edit-name-button"
             @click="updateName"
@@ -191,12 +213,43 @@ export default {
 
       <hr class="mt-12 md:hidden" />
 
-      <div class="flex flex-col md:flex-row mt-8 justify-between">
-        <AddReleaseButton
-          :cardinality="cardinality"
-          :site-id="site.id"
-          @release-created="loadSite"
+      <div class="mt-4 flex flex-col md:flex-row items-center">
+        <label
+          for="new-release"
+          class="block w-56 text-sm font-medium text-gray-900 dark:text-white"
+          >Release name</label
+        >
+        <input
+          id="new-release"
+          v-model="newReleaseName"
+          type="text"
+          class="mr-4 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="New Release Name"
+          maxlength="255"
+          required
         />
+
+        <div>
+          <div class="flex flex-col items-center mt-4 md:mt-0 text-center">
+            <button
+              id="new-release-button"
+              :disabled="!newReleaseName"
+              @click="createRelease"
+              class="cursor-pointer w-10/12 md:w-48 py-4 md:py-2 px-4 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-gray-200 disabled:text-gray-600 disabled:text-white disabled:bg-blue-400 hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white font-bold py-2 px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
+            >
+              Add Release
+            </button>
+          </div>
+        </div>
+      </div>
+      <p
+        v-if="createReleaseError"
+        class="text-sm mt-2 w-10/12 md:w-1/2 text-red-600 dark:text-red-400"
+      >
+        {{ createReleaseError }}
+      </p>
+
+      <div class="text-left">
         <PreviewSiteButton
           :site-id="site.id"
           :ready-for-preview="readyForPreview"
@@ -204,21 +257,6 @@ export default {
           @preview-requested="calculateSiteExists"
         />
         <DeployButton :site-id="site.id" :ready-for-deploy="readyForPreview && siteExists" />
-      </div>
-
-      <DeleteConfirmModal
-        ref="deleteModal"
-        @confirm-delete="deleteSite(site.id)"
-        displayMessage="Are you sure you want to delete this Site, all of its Releases, and all associated songs?"
-      ></DeleteConfirmModal>
-      <div class="flex flex-col md:flex-row mt-8 justify-right">
-        <button
-          @click="showDeleteModal()"
-          id="delete-release-button"
-          class="block md:w-40 mx-auto md:ml-auto md:mr-0 cursor-pointer w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base bg-red-700 dark:bg-red-500 text-gray-100 font-semibold rounded hover:text-white hover:bg-red-800"
-        >
-          Delete Entire Site
-        </button>
       </div>
 
       <div
@@ -232,6 +270,21 @@ export default {
             @release-deleted="loadSite()"
           ></Release>
         </div>
+      </div>
+
+      <DeleteConfirmModal
+        ref="deleteModal"
+        @confirm-delete="deleteSite(site.id)"
+        displayMessage="Are you sure you want to delete this Site, all of its Releases, and all associated songs?"
+      ></DeleteConfirmModal>
+      <div class="flex flex-col md:flex-row mt-8 justify-right">
+        <button
+          @click="showDeleteModal()"
+          id="delete-release-button"
+          class="block md:w-40 md:ml-auto md:mr-4 cursor-pointer w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base bg-red-700 dark:bg-red-500 text-gray-100 font-semibold rounded hover:text-white hover:bg-red-800"
+        >
+          Delete Entire Site
+        </button>
       </div>
     </div>
     <div v-else class="max-w-screen-md">Loading...</div>
