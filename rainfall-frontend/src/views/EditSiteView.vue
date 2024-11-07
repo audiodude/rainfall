@@ -213,7 +213,7 @@ export default {
 
       <hr class="mt-12 md:hidden" />
 
-      <div class="mt-4 flex flex-col md:flex-row items-center">
+      <div class="mt-4 flex flex-col md:flex-row md:items-center">
         <label
           for="new-release"
           class="block w-56 text-sm font-medium text-gray-900 dark:text-white"
@@ -230,12 +230,12 @@ export default {
         />
 
         <div>
-          <div class="flex flex-col items-center mt-4 md:mt-0 text-center">
+          <div class="mt-4 md:mt-0 text-center">
             <button
               id="new-release-button"
               :disabled="!newReleaseName"
               @click="createRelease"
-              class="cursor-pointer w-10/12 md:w-48 py-4 md:py-2 px-4 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-gray-200 disabled:text-gray-600 disabled:text-white disabled:bg-blue-400 hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white font-bold py-2 px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
+              class="cursor-pointer w-10/12 md:w-48 py-4 md:py-2 px-4 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-gray-200 disabled:text-gray-600 disabled:text-white disabled:bg-blue-400 hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold hover:text-white font-bold py-2 px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
             >
               Add Release
             </button>
@@ -277,11 +277,11 @@ export default {
         @confirm-delete="deleteSite(site.id)"
         displayMessage="Are you sure you want to delete this Site, all of its Releases, and all associated songs?"
       ></DeleteConfirmModal>
-      <div class="flex flex-col md:flex-row mt-8 justify-right">
+      <div class="mt-8 justify-right">
         <button
           @click="showDeleteModal()"
           id="delete-release-button"
-          class="block md:w-40 md:ml-auto md:mr-4 cursor-pointer w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base bg-red-700 dark:bg-red-500 text-gray-100 font-semibold rounded hover:text-white hover:bg-red-800"
+          class="block m-auto md:ml-auto md:mr-4 cursor-pointer w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base bg-red-700 dark:bg-red-500 text-gray-100 font-semibold rounded hover:text-white hover:bg-red-800"
         >
           Delete Entire Site
         </button>

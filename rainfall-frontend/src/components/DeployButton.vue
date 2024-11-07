@@ -18,7 +18,7 @@ export default {
 </script>
 
 <template>
-  <div class="mt-4">
+  <div class="mt-4 text-center md:text-left">
     <!-- focus:ring-4 focus:outline-none focus:ring-blue-300 inline-flex items-center -->
     <button
       id="dropdownDefaultButton"
