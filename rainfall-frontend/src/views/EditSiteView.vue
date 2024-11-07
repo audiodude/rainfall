@@ -123,7 +123,7 @@ export default {
         }
         return;
       }
-      this.$emit('release-created');
+      this.loadSite();
     },
     async calculateSiteExists() {
       if (!this.site) {
