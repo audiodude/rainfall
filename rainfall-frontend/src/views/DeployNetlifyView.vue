@@ -62,7 +62,6 @@ export default {
       action="/api/v1/mastodon/init"
       method="POST"
     >
-      <button>Connect to Netlify</button>
       <div id="error-list" class="mt-2 mb-2 text-sm text-red-600 dark:text-red-400">
         <span v-for="error in errors">{{ error }}</span>
       </div>
