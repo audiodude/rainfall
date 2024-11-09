@@ -59,7 +59,7 @@ export default {
     </p>
     <form
       class="flex flex-col items-center md:items-start"
-      action="/api/v1/mastodon/init"
+      action="/api/v1/oauth/netlify/login"
       method="POST"
     >
       <div id="error-list" class="mt-2 mb-2 text-sm text-red-600 dark:text-red-400">
@@ -71,14 +71,15 @@ export default {
       >
         Connect to Netlify
       </button>
-      <button
-        id="netlify-deploy-button"
-        :disabled="!hasNetlifyToken"
-        class="cursor-pointer mx-auto md:mx-0 mt-4 w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-grey-200 disabled:bg-blue-400 disabled:text-white hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
-      >
-        Deploy
-      </button>
+
       <input type="hidden" name="_csrf_token" :value="getCsrf()" />
     </form>
+    <button
+      id="netlify-deploy-button"
+      :disabled="!hasNetlifyToken"
+      class="cursor-pointer mx-auto md:mx-0 mt-4 w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-grey-200 disabled:bg-blue-400 disabled:text-white hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
+    >
+      Deploy
+    </button>
   </div>
 </template>

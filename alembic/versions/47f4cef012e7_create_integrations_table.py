@@ -22,6 +22,8 @@ def upgrade() -> None:
       'integrations', sa.Column('id', sa.Uuid(), nullable=False),
       sa.Column('user_id', sa.Uuid(), nullable=False),
       sa.Column('netlify_access_token', sa.String(length=255), nullable=True),
+      sa.Column('netlify_refresh_token', sa.String(length=255), nullable=True),
+      sa.Column('netlify_created_at', sa.Integer, nullable=True),
       sa.ForeignKeyConstraint(
           ['user_id'],
           ['users.id'],

@@ -11,6 +11,7 @@ from rainfall.db import db
 from rainfall.main import create_app
 from rainfall.models.artwork import Artwork
 from rainfall.models.file import File
+from rainfall.models.integration import Integration
 from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
@@ -55,6 +56,19 @@ def basic_user(app):
 def welcomed_user(app, basic_user):
   with app.app_context():
     basic_user.is_welcomed = True
+    db.session.add(basic_user)
+    db.session.commit()
+
+  return basic_user
+
+
+@pytest.fixture
+def netlify_user(app, basic_user):
+  with app.app_context():
+    basic_user.integration = Integration(
+        netlify_access_token='netlify_access_token',
+        netlify_refresh_token='netlify_refresh_token',
+        netlify_created_at=1234)
     db.session.add(basic_user)
     db.session.commit()
 

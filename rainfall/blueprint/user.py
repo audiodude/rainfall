@@ -45,10 +45,7 @@ class UserBlueprintFactory:
     @user.route('/user')
     @with_current_user
     def get_user(user):
-      user_without_sites = dict((field.name, getattr(user, field.name))
-                                for field in fields(user)
-                                if field.name != 'sites')
-      return flask.jsonify(user_without_sites)
+      return flask.jsonify(user.serialize())
 
     @user.route('/logout', methods=['POST'])
     def logout():
