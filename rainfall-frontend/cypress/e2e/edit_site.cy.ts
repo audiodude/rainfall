@@ -37,20 +37,6 @@ describe('Edit Site test', () => {
       });
     });
 
-    // describe('deleting the site', () => {
-    //   beforeEach(() => {
-    //     cy.intercept('GET', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9', {
-    //       fixture: 'site.json',
-    //     }).as('load-site');
-    //     cy.visit('/site/06547ed8-206f-7d3d-8000-20ab423e0bb9');
-    //     cy.wait('@load-site');
-    //   });
-
-    //   it('shows the delete button', () => {
-    //     cy.get('#delete-site-button').should('be.visible');
-    //   });
-    // });
-
     describe('when there is one release', () => {
       beforeEach(() => {
         let count = 0;
