@@ -25,14 +25,17 @@ def create_app():
   app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
   app.config['SECRET_KEY'] = os.environ['FLASK_SECRET_KEY']
   app.config['GOOGLE_CLIENT_ID'] = os.environ['GOOGLE_CLIENT_ID']
-  app.config['NETLIFY_CLIENT_ID'] = os.environ['NETLIFY_CLIENT_ID']
-  app.config['NETLIFY_CLIENT_SECRET'] = os.environ['NETLIFY_CLIENT_SECRET']
   app.config['RAINFALL_FRONTEND_URL'] = os.environ['RAINFALL_FRONTEND_URL']
   app.config['MASTODON_APP_NAME'] = os.environ['MASTODON_APP_NAME']
   app.config['MASTODON_REDIRECT_URL'] = os.environ['MASTODON_REDIRECT_URL']
   app.config['MASTODON_WEBSITE'] = os.environ['MASTODON_WEBSITE']
   app.config['DATA_DIR'] = os.environ['DATA_DIR']
   app.config['PREVIEW_DIR'] = os.environ['PREVIEW_DIR']
+
+  # Authlib automatically extracts these
+  app.config['NETLIFY_CLIENT_ID'] = os.environ['NETLIFY_CLIENT_ID']
+  app.config['NETLIFY_CLIENT_SECRET'] = os.environ['NETLIFY_CLIENT_SECRET']
+
   app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB max upload
   if os.environ.get('RAINFALL_ENV') != 'test':
     db.init_app(app)
