@@ -1,5 +1,5 @@
 from typing import List
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from functools import partial
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -34,3 +34,16 @@ class User(db.Model):
 
   def __repr__(self) -> str:
     return f'User(id={self.id!r}, google_id={self.google_id!r})'
+
+  def serialize(self):
+    props = []
+    for field in fields(self):
+      if field.name == 'sites':
+        continue
+
+      if field.name == 'integration' and self.integration is not None:
+        props.append(('integration', self.integration.serialize()))
+        continue
+
+      props.append((field.name, getattr(self, field.name)))
+    return dict(props)
