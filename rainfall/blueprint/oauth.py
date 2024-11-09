@@ -24,7 +24,6 @@ class OauthBlueprintFactory:
 
     @oauth.route('/oauth/netlify/authorize')
     def authorize():
-      print(flask.request.args.to_dict())
       token = netlify.authorize_access_token()
 
       # TODO: Add token to database.

@@ -8,6 +8,7 @@ from uuid_extensions import uuid7
 
 from rainfall.db import db
 from rainfall.models.site import Site
+from rainfall.models.integration import Integration
 
 
 @dataclass
@@ -29,6 +30,7 @@ class User(db.Model):
   is_welcomed: Mapped[bool] = mapped_column(Boolean, default=False)
 
   sites: Mapped[List['Site']] = relationship(back_populates='user')
+  integration: Mapped['Integration'] = relationship(back_populates='user')
 
   def __repr__(self) -> str:
     return f'User(id={self.id!r}, google_id={self.google_id!r})'
