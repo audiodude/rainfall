@@ -29,3 +29,15 @@ class Integration(db.Model):
       props.append((field.name, getattr(self, field.name)))
 
     return dict(props)
+
+  def to_authlib_token(self, type_):
+    if type_ != 'netlify':
+      raise ValueError(f'Unsupported type: {type_}')
+
+    return {
+        'access_token': self.netlify_access_token,
+        'refresh_token': self.netlify_refresh_token,
+        'created_at': self.netlify_created_at,
+        'token_type': 'Bearer',
+        'scope': 'public',
+    }

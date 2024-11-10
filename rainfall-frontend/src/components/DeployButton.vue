@@ -55,7 +55,7 @@ export default {
       >
         <li>
           <a
-            href="/deploy/netlify"
+            :href="`/deploy/${siteId}/netlify`"
             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
             >Host on Netlify</a
           >
