@@ -11,6 +11,7 @@ export default {
     siteExists: boolean;
     deployError: string;
     deploying: boolean;
+    forceHideDeployWarning: boolean;
   } {
     return {
       site: null,
@@ -18,6 +19,7 @@ export default {
       siteExists: false,
       deployError: '',
       deploying: false,
+      forceHideDeployWarning: false,
     };
   },
   async created() {
@@ -41,6 +43,9 @@ export default {
   computed: {
     hasNetlifyToken(): boolean {
       return !!this.userStore.user?.integration?.netlify_access_token;
+    },
+    shouldShowDeployWarning(): boolean {
+      return this.hasNetlifyToken && !this.site?.netlify_url && !this.forceHideDeployWarning;
     },
     ...mapStores(useUserStore),
   },
@@ -71,7 +76,9 @@ export default {
         return;
       }
 
+      this.deployError = '';
       this.deploying = true;
+      this.forceHideDeployWarning = true;
       const resp = await fetch(`/api/v1/oauth/netlify/${this.site.id}/deploy`, {
         method: 'POST',
         headers: { 'X-CSRFToken': getCsrf() },
@@ -85,6 +92,8 @@ export default {
           this.deployError = data.error;
         }
       }
+
+      await this.loadSite();
     },
   },
 };
@@ -134,7 +143,7 @@ export default {
         <input type="hidden" name="site_id" :value="site?.id" />
         <input type="hidden" name="_csrf_token" :value="getCsrf()" />
       </form>
-      <p v-if="hasNetlifyToken" class="mt-4 text-orange-600 dark:text-orange-400">
+      <p v-if="shouldShowDeployWarning" class="mt-4 text-orange-600 dark:text-orange-400">
         Warning: Clicking the "Deploy" button will make your site live on the web.
       </p>
       <div class="mt-4 md:flex md:justify-start">
@@ -164,6 +173,11 @@ export default {
             />
           </svg>
           <span class="sr-only">Deploying your site...</span>
+        </div>
+        <div v-if="site && site.netlify_url" class="ml-4 leading-[2.5rem]">
+          <a :href="site.netlify_url" target="_blank" class="text-blue-500 hover:underline"
+            >Your site is live at {{ site.netlify_url }}</a
+          >
         </div>
       </div>
     </div>
