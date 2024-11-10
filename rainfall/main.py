@@ -110,7 +110,6 @@ def create_app():
   def zip(site, user):
     generate_zip(app.config['PREVIEW_DIR'], str(site.id))
     zip_path = zip_file_path(app.config['PREVIEW_DIR'], str(site.id))
-    print(zip_path)
     return flask.send_from_directory(os.path.join('..', zip_path),
                                      'rainfall_site.zip')
 

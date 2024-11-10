@@ -1,4 +1,5 @@
 import json
+import os
 from urllib.parse import urljoin
 
 import flask
@@ -7,6 +8,7 @@ import requests
 from rainfall.db import db
 from rainfall.decorators import with_current_user, with_current_site
 from rainfall.models import Integration
+from rainfall.site import generate_zip, zip_file_path
 
 
 def update_token(token, refresh_token=None, access_token=None):
@@ -108,6 +110,30 @@ class OauthBlueprintFactory:
         if resp is not None:
           return resp
 
-      return flask.jsonify({'message': site.netlify_site_id})
+      generate_zip(flask.current_app.config['PREVIEW_DIR'], str(site.id))
+      site_path = zip_file_path(flask.current_app.config['PREVIEW_DIR'],
+                                str(site.id))
+      zip_path = os.path.join(site_path, 'rainfall_site.zip')
+
+      resp = netlify.post(f'/api/v1/sites/{site.netlify_site_id}/deploys',
+                          token=token,
+                          headers={'Content-Type': 'application/zip'},
+                          data=open(zip_path, 'rb'))
+
+      try:
+        resp.raise_for_status()
+      except requests.exceptions.HTTPError as e:
+        return flask.jsonify({
+            'status': 500,
+            'error': 'Could not deploy site to Netlify'
+        }), 500
+
+      data = resp.json()
+      url = data['ssl_url']
+      site.netlify_url = url
+      db.session.add(site)
+      db.session.commit()
+
+      return flask.jsonify({'url': url})
 
     return oauth
