@@ -37,7 +37,7 @@ const router = createRouter({
       component: EditReleaseView,
     },
     { path: '/mastodon', name: 'mastodonLogin', component: MastodonLoginView },
-    { path: '/deploy/netlify', name: 'deployNetlify', component: DeployNetlifyView },
+    { path: '/deploy/:site_id/netlify', name: 'deployNetlify', component: DeployNetlifyView },
 
     // 404 page
     { path: '/:pathMatch(.*)*', name: 'notfound', component: NotFoundView },
