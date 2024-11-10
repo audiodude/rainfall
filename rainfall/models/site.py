@@ -20,6 +20,8 @@ class Site(db.Model):
   name: Mapped[str] = mapped_column(String(255))
   description: Mapped[str] = mapped_column(Text, nullable=True)
 
+  netlify_site_id: Mapped[str] = mapped_column(String(255), nullable=True)
+
   releases: Mapped[List['Release']] = relationship(back_populates='site',
                                                    cascade='all, delete-orphan')
 
