@@ -27,6 +27,7 @@ if config.config_file_name is not None:
 from rainfall.db import Base
 from rainfall.models.artwork import Artwork
 from rainfall.models.file import File
+from rainfall.models.integration import Integration
 from rainfall.models.mastodon_credential import MastodonCredential
 from rainfall.models.release import Release
 from rainfall.models.site import Site
