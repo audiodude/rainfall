@@ -11,7 +11,9 @@ import NavBar from './components/NavBar.vue';
   <RouterView class="container max-w-screen-xl mx-auto grow shrink-0 p-4" />
 
   <footer class="border-gray-200 shadow bg-gray-800 shrink">
-    <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
+    <div
+      class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between text-gray-300"
+    >
       <span class="block md:inline"
         >Questions? Bugs?
         <a class="text-blue-500 hover:underline" href="https://github.com/audiodude/rainfall/issues"

@@ -136,7 +136,7 @@ export default {
         >
           Connect to Netlify
         </button>
-        <p v-if="hasNetlifyToken" class="italic text-sm">
+        <p v-if="hasNetlifyToken" class="mt-1 italic text-sm text-center md:text-left">
           You have already connected your Netlify account.
         </p>
 
@@ -146,7 +146,7 @@ export default {
       <p v-if="shouldShowDeployWarning" class="mt-4 text-orange-600 dark:text-orange-400">
         Warning: Clicking the "Deploy" button will make your site live on the web.
       </p>
-      <div class="mt-4 md:flex md:justify-start">
+      <div class="mt-4 flex flex-col md:flex-row md:justify-start">
         <button
           id="netlify-deploy-button"
           @click="deploySite()"
@@ -155,7 +155,7 @@ export default {
         >
           Deploy
         </button>
-        <div v-if="deploying" role="status" class="ml-4 mr-auto">
+        <div v-if="deploying" role="status" class="my-2 m-auto md:ml-4">
           <svg
             aria-hidden="true"
             class="loader w-12 h-12 md:w-8 md:h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
@@ -174,9 +174,13 @@ export default {
           </svg>
           <span class="sr-only">Deploying your site...</span>
         </div>
-        <div v-if="site && site.netlify_url" class="ml-4 leading-[2.5rem]">
+        <div
+          v-if="site && site.netlify_url && !deploying"
+          class="ml-4 mt-1 md:mt-0 text-sm text-center md:text-left md:leading-[2.5rem]"
+        >
           <a :href="site.netlify_url" target="_blank" class="text-blue-500 hover:underline"
-            >Your site is live at {{ site.netlify_url }}</a
+            >Your site is live at:<br class="md:hidden" />
+            {{ site.netlify_url }}</a
           >
         </div>
       </div>
