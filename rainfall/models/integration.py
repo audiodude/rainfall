@@ -22,13 +22,9 @@ class Integration(db.Model):
   netlify_created_at: Mapped[str] = mapped_column(Integer, nullable=True)
 
   def serialize(self):
-    props = []
-    for field in fields(self):
-      if field.name in ('user', 'user_id', 'id'):
-        continue
-      props.append((field.name, getattr(self, field.name)))
-
-    return dict(props)
+    return {
+        'has_netlify_token': self.netlify_access_token is not None,
+    }
 
   def to_authlib_token(self, type_):
     if type_ != 'netlify':
