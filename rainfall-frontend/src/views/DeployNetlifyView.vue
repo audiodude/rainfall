@@ -41,7 +41,7 @@ export default {
   },
   computed: {
     hasNetlifyToken(): boolean {
-      return !!this.userStore.user?.integration?.netlify_access_token;
+      return !!this.userStore.user?.integration?.has_netlify_token;
     },
     ...mapStores(useUserStore),
   },
