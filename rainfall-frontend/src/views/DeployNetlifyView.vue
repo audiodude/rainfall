@@ -19,7 +19,6 @@ export default {
       siteExists: false,
       deployError: '',
       deploying: false,
-      forceHideDeployWarning: false,
     };
   },
   async created() {
@@ -43,9 +42,6 @@ export default {
   computed: {
     hasNetlifyToken(): boolean {
       return !!this.userStore.user?.integration?.netlify_access_token;
-    },
-    shouldShowDeployWarning(): boolean {
-      return this.hasNetlifyToken && !this.site?.netlify_url && !this.forceHideDeployWarning;
     },
     ...mapStores(useUserStore),
   },
@@ -143,8 +139,9 @@ export default {
         <input type="hidden" name="site_id" :value="site?.id" />
         <input type="hidden" name="_csrf_token" :value="getCsrf()" />
       </form>
-      <p v-if="shouldShowDeployWarning" class="mt-4 text-orange-600 dark:text-orange-400">
-        Warning: Clicking the "Deploy" button will make your site live on the web.
+      <p v-if="hasNetlifyToken" class="mt-4 text-orange-600 dark:text-orange-400">
+        Clicking the "Deploy" button will make your site live on the web. Additional clicks will
+        cause your site to be replaced with your current preview.
       </p>
       <div class="mt-4 flex flex-col md:flex-row md:justify-start">
         <button
