@@ -68,7 +68,14 @@ class OauthBlueprintFactory:
     @oauth.route('/oauth/netlify/login', methods=['POST'])
     @with_current_user
     def login(user):
-      flask.session['deploy_site_id'] = flask.request.form.get('site_id')
+      deploy_site_id = flask.request.form.get('site_id')
+      if deploy_site_id is None:
+        return flask.jsonify({
+            'status': 400,
+            'error': 'No site ID provided'
+        }), 400
+
+      flask.session['deploy_site_id'] = deploy_site_id
       redirect_uri = flask.url_for('oauth.authorize', _external=True)
       return netlify.authorize_redirect(redirect_uri)
 
@@ -103,6 +110,12 @@ class OauthBlueprintFactory:
     @with_current_user
     @with_current_site
     def deploy(site, user):
+      if user.integration is None or user.integration.netlify_access_token is None:
+        return flask.jsonify({
+            'status': 400,
+            'error': 'User has not connected Netlify'
+        }), 400
+
       token = user.integration.to_authlib_token('netlify')
 
       if site.netlify_site_id is None:
