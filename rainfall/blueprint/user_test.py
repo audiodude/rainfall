@@ -29,7 +29,8 @@ class UserTest:
           'name': 'Jane Doe',
           'email': 'janedoe@email.fake',
           'picture_url': 'https://pictures.fake/1234',
-          'is_welcomed': False
+          'is_welcomed': False,
+          'integration': None
       }
 
   def test_get_user_401(self, app):
