@@ -1,5 +1,6 @@
 import os
 import shutil
+from unittest.mock import MagicMock, patch
 import uuid
 
 import flask
@@ -22,7 +23,17 @@ BASIC_USER_ID = uuid.UUID('06543f11-12b6-71ea-8000-e026c63c22e2')
 
 @pytest.fixture
 def app():
-  app = create_app()
+  with patch('rainfall.main.OAuth') as mock_oauth:
+    mock_oauth_lib = MagicMock()
+    mock_oauth.return_value = mock_oauth_lib
+    mock_remote_app = MagicMock()
+    mock_oauth_lib.register.return_value = mock_remote_app
+
+    app = create_app()
+
+    app.mock_oauth = mock_oauth
+    app.mock_remote_app = mock_remote_app
+
   app.config['SQLALCHEMY_DATABASE_URI'] = os.environ[
       'SQLALCHEMY_TEST_DATABASE_URI']
   app.config['TESTING'] = True
