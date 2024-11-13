@@ -8,6 +8,4 @@ class IntegrationTest:
       db.session.add(netlify_user)
 
       actual = netlify_user.integration.serialize()
-      assert 'netlify_access_token' in actual
-      assert 'netlify_refresh_token' in actual
-      assert 'netlify_created_at' in actual
+      assert 'has_netlify_token' in actual
