@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch, ANY, mock_open
 import flask
 import requests
 
-from rainfall.blueprint.oauth import OauthBlueprintFactory
+from rainfall.blueprint.oauth import OauthBlueprintFactory, update_token
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
 from rainfall.models import Integration
@@ -275,7 +275,7 @@ class OauthTest:
 
       assert response.status == '401 UNAUTHORIZED'
 
-  def test_deploy_no_user(self, app, sites_user):
+  def test_deploy_no_site(self, app, sites_user):
     with app.app_context(), app.test_client() as client:
       with client.session_transaction() as sess:
         sess['user_id'] = BASIC_USER_ID
@@ -284,3 +284,80 @@ class OauthTest:
           '/api/v1/oauth/netlify/c6294291-a5a0-46fc-863d-d08cd9c3d671/deploy')
 
       assert response.status == '404 NOT FOUND'
+
+  def test_deploy_no_netlify_token(self, app, sites_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(sites_user)
+      site_id = sites_user.sites[0].id
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      response = client.post(f'/api/v1/oauth/netlify/{site_id}/deploy')
+
+      assert response.status == '400 BAD REQUEST'
+      assert 'error' in response.json
+
+  @patch('rainfall.blueprint.oauth.generate_zip')
+  @patch('rainfall.blueprint.oauth.open',
+         new_callable=partial(mock_open, read_data=b'xyz-test-not-a-zip'),
+         create=True)
+  def test_deploy_netlify_error(self, m_open, mock_generate_zip, app,
+                                sites_user):
+    # We stash the mock OAuth lib in the app object
+    app.mock_oauth.assert_called_once_with(app)
+
+    m_open.return_value = b'xyz-test-not-a-zip'
+    mock_json_1 = {'id': 'abc-netlify-id'}
+    mock_response_1 = MagicMock()
+    mock_response_1.json.return_value = mock_json_1
+    mock_response_2 = MagicMock()
+    mock_response_2.raise_for_status.side_effect = requests.exceptions.HTTPError
+
+    app.mock_remote_app.post.side_effect = (mock_response_1, mock_response_2)
+
+    with app.app_context(), app.test_client() as client:
+      db.session.add(sites_user)
+      site_id = sites_user.sites[0].id
+      sites_user.integration = Integration(
+          netlify_access_token='test-access-token',
+          netlify_refresh_token='test-refresh-token',
+          netlify_created_at=5000)
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = BASIC_USER_ID
+
+      response = client.post(f'/api/v1/oauth/netlify/{site_id}/deploy')
+
+      mock_generate_zip.assert_called_once_with(app.config['PREVIEW_DIR'],
+                                                str(site_id))
+      assert response.status == '500 INTERNAL SERVER ERROR'
+      assert 'error' in response.json
+
+  def test_update_token_refresh_token(self, app, sites_user):
+    with app.app_context():
+      sites_user.integration = Integration(
+          netlify_refresh_token='refresh-token-1')
+      db.session.add(sites_user)
+      db.session.commit()
+
+      update_token(self.TEST_TOKEN, refresh_token='refresh-token-1')
+
+      db.session.add(sites_user)
+      assert sites_user.integration.netlify_access_token == 'test-access-token'
+      assert sites_user.integration.netlify_refresh_token == 'test-refresh-token'
+      assert sites_user.integration.netlify_created_at == 5000
+
+  def test_update_token_access_token(self, app, sites_user):
+    with app.app_context():
+      sites_user.integration = Integration(
+          netlify_access_token='access-token-1')
+      db.session.add(sites_user)
+      db.session.commit()
+
+      update_token(self.TEST_TOKEN, access_token='access-token-1')
+
+      db.session.add(sites_user)
+      assert sites_user.integration.netlify_access_token == 'test-access-token'
+      assert sites_user.integration.netlify_refresh_token == 'test-refresh-token'
+      assert sites_user.integration.netlify_created_at == 5000
