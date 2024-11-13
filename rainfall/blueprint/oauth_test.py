@@ -182,7 +182,8 @@ class OauthTest:
 
       response = client.post(f'/api/v1/oauth/netlify/{site_id}/deploy')
 
-      mock_generate_zip.assert_called_once_with('preview-data', str(site_id))
+      mock_generate_zip.assert_called_once_with(app.config['PREVIEW_DIR'],
+                                                str(site_id))
       assert response.status == '200 OK'
       assert response.json == {'url': 'https://netlify.fake/site'}
       app.mock_remote_app.post.assert_called_with(
@@ -226,7 +227,8 @@ class OauthTest:
 
       response = client.post(f'/api/v1/oauth/netlify/{site_id}/deploy')
 
-      mock_generate_zip.assert_called_once_with('preview-data', str(site_id))
+      mock_generate_zip.assert_called_once_with(app.config['PREVIEW_DIR'],
+                                                str(site_id))
       assert response.status == '200 OK'
       assert response.json == {'url': 'https://netlify.fake/site'}
       app.mock_remote_app.post.assert_called_with(
