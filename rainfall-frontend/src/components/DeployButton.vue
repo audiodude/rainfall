@@ -18,7 +18,7 @@ export default {
 </script>
 
 <template>
-  <div class="mt-4 md:mt-0 text-center">
+  <div class="mt-4 block text-center md:text-left md:flex md:items-center">
     <button
       id="dropdownDefaultButton"
       :disabled="!readyForDeploy"
