@@ -11,7 +11,6 @@ export default {
     siteExists: boolean;
     deployError: string;
     deploying: boolean;
-    forceHideDeployWarning: boolean;
   } {
     return {
       site: null,
@@ -74,7 +73,6 @@ export default {
 
       this.deployError = '';
       this.deploying = true;
-      this.forceHideDeployWarning = true;
       const resp = await fetch(`/api/v1/oauth/netlify/${this.site.id}/deploy`, {
         method: 'POST',
         headers: { 'X-CSRFToken': getCsrf() },
@@ -139,7 +137,11 @@ export default {
         <input type="hidden" name="site_id" :value="site?.id" />
         <input type="hidden" name="_csrf_token" :value="getCsrf()" />
       </form>
-      <p v-if="hasNetlifyToken" class="mt-4 text-orange-600 dark:text-orange-400">
+      <p
+        v-if="hasNetlifyToken"
+        id="netlify-warning"
+        class="mt-4 text-orange-600 dark:text-orange-400"
+      >
         Clicking the "Deploy" button will make your site live on the web. Additional clicks will
         cause your site to be replaced with your current preview.
       </p>
@@ -152,7 +154,7 @@ export default {
         >
           Deploy
         </button>
-        <div v-if="deploying" role="status" class="my-2 m-auto md:ml-4">
+        <div v-if="deploying" id="netlify-deploy-spinner" role="status" class="my-2 m-auto md:ml-4">
           <svg
             aria-hidden="true"
             class="loader w-12 h-12 md:w-8 md:h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
@@ -173,6 +175,7 @@ export default {
         </div>
         <div
           v-if="site && site.netlify_url && !deploying"
+          id="netlify-deploy-result"
           class="ml-4 mt-1 md:mt-0 text-sm text-center md:text-left md:leading-[2.5rem]"
         >
           <a :href="site.netlify_url" target="_blank" class="text-blue-500 hover:underline"
