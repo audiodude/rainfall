@@ -37,7 +37,8 @@ def create_app():
   app.config['NETLIFY_CLIENT_SECRET'] = os.environ['NETLIFY_CLIENT_SECRET']
 
   app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB max upload
-  if os.environ.get('RAINFALL_ENV') != 'test':
+  app.config['RAINFALL_ENV'] = os.environ.get('RAINFALL_ENV', 'development')
+  if app.config['RAINFALL_ENV'] != 'test':
     db.init_app(app)
   else:
     app.config['TESTING'] = True

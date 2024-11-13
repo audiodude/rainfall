@@ -76,7 +76,10 @@ class OauthBlueprintFactory:
         }), 400
 
       flask.session['deploy_site_id'] = deploy_site_id
-      redirect_uri = flask.url_for('oauth.authorize', _external=True)
+      redirect_uri = flask.url_for('oauth.authorize',
+                                   _external=True,
+                                   scheme='https' if app.config['RAINFALL_ENV']
+                                   == 'production' else 'http')
       return netlify.authorize_redirect(redirect_uri)
 
     @oauth.route('/oauth/netlify/authorize')
