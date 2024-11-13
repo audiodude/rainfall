@@ -13,10 +13,10 @@ from rainfall.site import generate_zip, zip_file_path
 
 def update_token(token, refresh_token=None, access_token=None):
   if refresh_token is not None:
-    item = db.session.select(Integration).filter_by(
+    item = db.session.query(Integration).filter_by(
         netlify_refresh_token=refresh_token)
   elif access_token is not None:
-    item = db.session.select(Integration).filter_by(
+    item = db.session.query(Integration).filter_by(
         netlify_access_token=access_token)
   else:
     return
@@ -28,7 +28,7 @@ def update_token(token, refresh_token=None, access_token=None):
   # Update old token
   item.netlify_access_token = token['access_token']
   item.netlify_refresh_token = token.get('refresh_token')
-  item.netlify_expires_at = token['expires_at']
+  item.netlify_created_at = token['created_at']
   db.session.add(item)
   db.session.commit()
 
