@@ -14,8 +14,6 @@ export default {
     ...mapState(useUserStore, ['isLoggedIn']),
   },
   async mounted() {
-    console.log(this.clientId);
-    console.log(this.redirectUri);
     await this.userStore.loadUser();
     if (!this.isLoggedIn) {
       this.mountGoogleScript();
@@ -80,6 +78,7 @@ export default {
       :data-client_id="clientId"
       data-ux_mode="redirect"
       :data-login_uri="redirectUri"
+      data-enable_redirect_uri_validation="true"
       data-auto_prompt="false"
       class="mx-auto text-center"
     ></div>
