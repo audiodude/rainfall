@@ -206,9 +206,8 @@ export default defineComponent({
           </button>
         </div>
         <a
-          class="text-gray-800 hover:text-gray-500 hover:underline"
-          @click="editRelease(release.id)"
-          href="#"
+          class="text-gray-800 hover:text-gray-500 hover:underline cursor-pointer"
+          @click.prevent="editRelease(release.id)"
           >edit art/description</a
         >
       </div>
