@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  rainfall-db-dev:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: rainfall-dev-db
+      MYSQL_DATABASE: rainfall_dev
+    ports:
+      - "6555:3306"
