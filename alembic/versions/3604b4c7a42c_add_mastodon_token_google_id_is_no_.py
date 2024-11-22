@@ -34,6 +34,9 @@ def upgrade() -> None:
          SELECT id, google_id, NULL, NULL, name, email, picture_url, is_welcomed FROM users
   ''')
 
+  op.drop_constraint(constraint_name='fk_sites_sites_users_id',
+                     table_name='sites',
+                     type_='foreignkey')
   op.drop_table('users')
 
   op.rename_table('tmp_users', 'users')
