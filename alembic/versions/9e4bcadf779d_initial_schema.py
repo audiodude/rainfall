@@ -28,13 +28,13 @@ def upgrade() -> None:
       sa.Column('is_welcomed', sa.Boolean(), nullable=False),
       sa.PrimaryKeyConstraint('id'), sa.UniqueConstraint('google_id'))
 
-  op.create_table('sites', sa.Column('id', sa.Uuid(), nullable=False),
-                  sa.Column('user_id', sa.Uuid(), nullable=False),
-                  sa.Column('name', sa.String(length=255), nullable=False),
-                  sa.ForeignKeyConstraint(
-                      ['user_id'],
-                      ['users.id'],
-                  ), sa.PrimaryKeyConstraint('id'))
+  op.create_table(
+      'sites', sa.Column('id', sa.Uuid(), nullable=False),
+      sa.Column('user_id', sa.Uuid(), nullable=False),
+      sa.Column('name', sa.String(length=255), nullable=False),
+      sa.ForeignKeyConstraint(['user_id'], ['users.id'],
+                              name='fk_sites_sites_users_id'),
+      sa.PrimaryKeyConstraint('id'))
   op.create_table('releases', sa.Column('id', sa.Uuid(), nullable=False),
                   sa.Column('site_id', sa.Uuid(), nullable=False),
                   sa.Column('name', sa.String(length=255), nullable=False),
