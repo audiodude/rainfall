@@ -23,9 +23,9 @@ RUN yarn install --production=false --frozen-lockfile
 RUN NODE_ENV=production yarn build
 
 # Throw away build stage to reduce size of final image
-FROM fe-build as build
+FROM fe-build AS build
 
-FROM ubuntu:23.10
+FROM ubuntu:24.04
 
 # Install Faircamp dependencies
 RUN apt-get update -qq && \
