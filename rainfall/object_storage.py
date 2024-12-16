@@ -1,4 +1,5 @@
 from minio import Minio
+from minio.deleteobjects import DeleteObject
 
 
 def connect(app):
@@ -15,3 +16,15 @@ def create_bucket_if_not_exists(endpoint_url, access_key, secret_key, name):
                  secure=False)
   if not client.bucket_exists(name):
     client.make_bucket(name)
+
+
+def rmtree(client, bucket, path):
+  delete_object_list = map(
+      lambda x: DeleteObject(x.object_name),
+      client.list_objects(bucket, path, recursive=True),
+  )
+
+  # DO NOT SUBMIT: Error handling
+  errors = client.remove_objects(bucket, delete_object_list)
+  for error in errors:
+    print(error)
