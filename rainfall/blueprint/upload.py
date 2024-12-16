@@ -8,6 +8,7 @@ from rainfall.decorators import with_current_user, with_validated_release
 from rainfall.models.artwork import Artwork
 from rainfall.models.file import File
 from rainfall.models.release import Release
+from rainfall import object_storage
 from rainfall.site import delete_file as delete_db_file, release_path, secure_filename
 
 upload = flask.Blueprint('upload', __name__)
@@ -46,8 +47,10 @@ def write_files(release, claz, *files):
     # Write the file to the filesystem.
     cur_release_path = release_path(flask.current_app.config['DATA_DIR'],
                                     release)
-    os.makedirs(cur_release_path, exist_ok=True)
-    song.save(os.path.join(cur_release_path, file.filename))
+    object_path = os.path.join(cur_release_path, file.filename)
+    client = object_storage.connect(flask.current_app)
+    client.put_object('rainfall-data', object_path, song.stream,
+                      song.content_length, song.content_type)
 
 
 @upload.route('upload/release/<release_id>/song', methods=['POST'])
