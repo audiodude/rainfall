@@ -9,3 +9,15 @@ services:
       MYSQL_DATABASE: rainfall_dev
     ports:
       - "6555:3306"
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./rainfall-minio:/data
+    environment:
+      MINIO_ROOT_USER: youruser
+      MINIO_ROOT_PASSWORD: yourpassword
+    command: server /data
