@@ -5,6 +5,7 @@ import flask
 from authlib.integrations.flask_client import OAuth
 from flask_seasurf import SeaSurf
 
+from rainfall import object_storage
 from rainfall.blueprint.file import file as file_blueprint
 from rainfall.blueprint.oauth import OauthBlueprintFactory
 from rainfall.blueprint.release import release as release_blueprint
@@ -32,6 +33,9 @@ def create_app():
   app.config['MASTODON_WEBSITE'] = os.environ['MASTODON_WEBSITE']
   app.config['DATA_DIR'] = os.environ['DATA_DIR']
   app.config['PREVIEW_DIR'] = os.environ['PREVIEW_DIR']
+  app.config['MINIO_ENDPOINT'] = os.environ['MINIO_ENDPOINT']
+  app.config['MINIO_ACCESS_KEY'] = os.environ['MINIO_ACCESS_KEY']
+  app.config['MINIO_SECRET_KEY'] = os.environ['MINIO_SECRET_KEY']
 
   # Authlib automatically extracts these
   app.config['NETLIFY_CLIENT_ID'] = os.environ['NETLIFY_CLIENT_ID']
@@ -49,6 +53,15 @@ def create_app():
                                               app.config['DATA_DIR'])
   csrf = SeaSurf(app)
   oauth = OAuth(app)
+
+  object_storage.create_bucket_if_not_exists(app.config['MINIO_ENDPOINT'],
+                                             app.config['MINIO_ACCESS_KEY'],
+                                             app.config['MINIO_SECRET_KEY'],
+                                             'rainfall-preview')
+  object_storage.create_bucket_if_not_exists(app.config['MINIO_ENDPOINT'],
+                                             app.config['MINIO_ACCESS_KEY'],
+                                             app.config['MINIO_SECRET_KEY'],
+                                             'rainfall-data')
 
   os.makedirs(app.config['DATA_DIR'], exist_ok=True)
   os.makedirs(app.config['PREVIEW_DIR'], exist_ok=True)
