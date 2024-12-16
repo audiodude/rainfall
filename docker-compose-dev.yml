@@ -18,6 +18,6 @@ services:
     volumes:
       - ./rainfall-minio:/data
     environment:
-      MINIO_ROOT_USER: youruser
-      MINIO_ROOT_PASSWORD: yourpassword
-    command: server /data
+      MINIO_ROOT_USER: rainfall
+      MINIO_ROOT_PASSWORD: rainfall-minio
+    command: server --console-address :9001 /data
