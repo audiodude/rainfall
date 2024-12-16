@@ -10,6 +10,7 @@ song-data/
 preview-data/
 rainfall-data/
 rainfall-preview/
+rainfall-minio/
 
 # Local Netlify folder, for rainfall-static/static.rainfall.dev
 .netlify
