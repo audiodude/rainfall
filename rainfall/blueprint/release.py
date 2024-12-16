@@ -131,7 +131,9 @@ def delete_release(release, user):
   db.session.delete(release)
 
   try:
-    shutil.rmtree(release_path(flask.current_app.config['DATA_DIR'], release))
+    path = release_path(flask.current_app.config['DATA_DIR'], release)
+    client = object_storage.connect(flask.current_app)
+    object_storage.rmtree(client, 'rainfall-data', path)
   except Exception as e:
     db.session.rollback()
     return flask.jsonify(
