@@ -13,6 +13,7 @@ from rainfall.blueprint.upload import upload as upload_blueprint
 from rainfall.blueprint.user import UserBlueprintFactory
 from rainfall.db import db
 from rainfall.decorators import with_current_site, with_current_user
+from rainfall import object_storage
 from rainfall.site import generate_site, generate_zip, public_dir, site_exists, zip_file_path
 from rainfall.test_constants import TEST_FILE_PATH
 
@@ -31,6 +32,9 @@ def create_app():
   app.config['MASTODON_WEBSITE'] = os.environ['MASTODON_WEBSITE']
   app.config['DATA_DIR'] = os.environ['DATA_DIR']
   app.config['PREVIEW_DIR'] = os.environ['PREVIEW_DIR']
+  app.config['MINIO_ENDPOINT'] = os.environ['MINIO_ENDPOINT']
+  app.config['MINIO_ACCESS_KEY'] = os.environ['MINIO_ACCESS_KEY']
+  app.config['MINIO_SECRET_KEY'] = os.environ['MINIO_SECRET_KEY']
 
   # Authlib automatically extracts these
   app.config['NETLIFY_CLIENT_ID'] = os.environ['NETLIFY_CLIENT_ID']
@@ -48,6 +52,15 @@ def create_app():
                                               app.config['DATA_DIR'])
   csrf = SeaSurf(app)
   oauth = OAuth(app)
+
+  object_storage.create_bucket_if_not_exists(app.config['MINIO_ENDPOINT'],
+                                             app.config['MINIO_ACCESS_KEY'],
+                                             app.config['MINIO_SECRET_KEY'],
+                                             'rainfall-preview')
+  object_storage.create_bucket_if_not_exists(app.config['MINIO_ENDPOINT'],
+                                             app.config['MINIO_ACCESS_KEY'],
+                                             app.config['MINIO_SECRET_KEY'],
+                                             'rainfall-data')
 
   os.makedirs(app.config['DATA_DIR'], exist_ok=True)
   os.makedirs(app.config['PREVIEW_DIR'], exist_ok=True)
