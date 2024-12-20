@@ -16,7 +16,7 @@ from rainfall.db import db
 from rainfall.decorators import with_current_site, with_current_user
 from rainfall.site import (generate_site, generate_zip, public_dir, site_exists,
                            zip_file_path)
-from rainfall.test_constants import TEST_FILE_PATH
+from rainfall.test_constants import TEST_FILE_PATH, TEST_MINIO_BUCKET
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -36,6 +36,7 @@ def create_app():
   app.config['MINIO_ENDPOINT'] = os.environ['MINIO_ENDPOINT']
   app.config['MINIO_ACCESS_KEY'] = os.environ['MINIO_ACCESS_KEY']
   app.config['MINIO_SECRET_KEY'] = os.environ['MINIO_SECRET_KEY']
+  app.config['MINIO_BUCKET'] = os.environ['MINIO_BUCKET']
 
   # Authlib automatically extracts these
   app.config['NETLIFY_CLIENT_ID'] = os.environ['NETLIFY_CLIENT_ID']
@@ -45,26 +46,12 @@ def create_app():
   app.config['RAINFALL_ENV'] = os.environ.get('RAINFALL_ENV', 'development')
   if app.config['RAINFALL_ENV'] != 'test':
     db.init_app(app)
+    init_object_storage(app)
   else:
     app.config['TESTING'] = True
-    app.config['DATA_DIR'] = os.path.join(TEST_FILE_PATH,
-                                          app.config['DATA_DIR'])
-    app.config['PREVIEW_DATA'] = os.path.join(TEST_FILE_PATH,
-                                              app.config['DATA_DIR'])
+
   csrf = SeaSurf(app)
   oauth = OAuth(app)
-
-  object_storage.create_bucket_if_not_exists(app.config['MINIO_ENDPOINT'],
-                                             app.config['MINIO_ACCESS_KEY'],
-                                             app.config['MINIO_SECRET_KEY'],
-                                             'rainfall-preview')
-  object_storage.create_bucket_if_not_exists(app.config['MINIO_ENDPOINT'],
-                                             app.config['MINIO_ACCESS_KEY'],
-                                             app.config['MINIO_SECRET_KEY'],
-                                             'rainfall-data')
-
-  os.makedirs(app.config['DATA_DIR'], exist_ok=True)
-  os.makedirs(app.config['PREVIEW_DIR'], exist_ok=True)
 
   app.register_blueprint(UserBlueprintFactory(csrf).get_blueprint(),
                          url_prefix='/api/v1')
@@ -152,3 +139,8 @@ def create_app():
                                      filename)
 
   return app
+
+
+def init_object_storage(app):
+  object_storage.create_bucket_if_not_exists(app)
+  object_storage.create_bucket_if_not_exists(app)

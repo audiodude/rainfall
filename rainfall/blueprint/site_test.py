@@ -5,10 +5,11 @@ import flask
 import pytest
 from uuid_extensions import uuid7
 
+from rainfall import object_storage
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
-from rainfall.models.user import User
 from rainfall.models.site import Site
+from rainfall.models.user import User
 from rainfall.site import site_path
 
 
@@ -178,8 +179,7 @@ class SiteTest:
         sess['user_id'] = BASIC_USER_ID
 
       rv = client.delete(f'/api/v1/site/{site_id}')
-      print(rv.json)
-      assert rv.status == '204 NO CONTENT'
+      assert rv.status == '204 NO CONTENT', rv.json
 
       site = db.session.get(Site, site_id)
       assert site is None
@@ -202,12 +202,13 @@ class SiteTest:
       rv = client.delete(f'/api/v1/site/{uuid7()}')
       assert rv.status == '404 NOT FOUND'
 
-  @patch('rainfall.blueprint.site.shutil.rmtree')
+  @patch('rainfall.blueprint.site.object_storage.rmtree')
   def test_delete_site_filesystem_error(self, mock_rmtree, app, sites_user):
     with app.app_context(), app.test_client() as client:
       db.session.add(sites_user)
       site_id = sites_user.sites[0].id
 
+      object_client = object_storage.connect(app)
       with client.session_transaction() as sess:
         sess['user_id'] = BASIC_USER_ID
 
@@ -218,6 +219,3 @@ class SiteTest:
 
       site = db.session.get(Site, site_id)
       assert site is not None
-      site_basename = os.path.basename(site_path(app.config['DATA_DIR'], site))
-      assert site_basename in os.listdir(
-          os.path.join(app.config['DATA_DIR'], str(site.user.id)))
