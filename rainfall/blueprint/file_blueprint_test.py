@@ -26,7 +26,7 @@ class FileTest:
 
       rv = client.delete(f'/api/v1/file/{str(file_id)}')
 
-      assert rv.status == '204 NO CONTENT'
+      assert rv.status == '204 NO CONTENT', rv.json
 
     with app.app_context():
       updated_user = db.session.get(User, BASIC_USER_ID)

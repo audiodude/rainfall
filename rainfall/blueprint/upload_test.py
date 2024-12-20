@@ -1,18 +1,28 @@
-from unittest.mock import patch
 import io
 import os
+import time
+from unittest.mock import patch
 
 import flask
 
-from rainfall.db import db
+from rainfall import object_storage
 from rainfall.conftest import BASIC_USER_ID
+from rainfall.db import db
 from rainfall.models.artwork import Artwork
 from rainfall.site import release_path, secure_filename
 
 
-def assert_file_contents(file_path, contents):
-  with open(file_path, 'r') as f:
-    assert f.read() == contents
+def assert_file_contents(app, path, contents):
+  object_client = object_storage.connect(app)
+  resp = None
+  try:
+    resp = object_client.get_object(app.config['MINIO_BUCKET'], path)
+    if resp:
+      resp_data = resp.read()
+  finally:
+    if resp is not None:
+      resp.close()
+  assert resp_data == contents
 
 
 class UploadTest:
@@ -32,12 +42,9 @@ class UploadTest:
 
       assert rv.status == '204 NO CONTENT', rv.text
 
-      song_path = os.path.join(app.config['DATA_DIR'], str(releases_user.id),
-                               secure_filename(site.name),
-                               secure_filename(release.name),
+      song_path = os.path.join(release_path(app.config['DATA_DIR'], release),
                                secure_filename('song1.wav'))
-      assert_file_contents(song_path, 'not-actually-a-song')
-
+      assert_file_contents(app, song_path, b'not-actually-a-song')
       assert len(release.files) == 1
       assert release.files[0].filename == 'song1.wav'
 
@@ -60,13 +67,13 @@ class UploadTest:
 
       assert rv.status == '204 NO CONTENT', rv.text
 
-      release_path = os.path.join(app.config['DATA_DIR'], str(releases_user.id),
-                                  secure_filename(site.name),
-                                  secure_filename(release.name))
-      song_1_path = os.path.join(release_path, secure_filename('song1.wav'))
-      song_2_path = os.path.join(release_path, secure_filename('song2.wav'))
-      assert_file_contents(song_1_path, 'not-actually-a-song')
-      assert_file_contents(song_2_path, 'not-actually-a-song-2')
+      song_release_path = release_path(app.config['DATA_DIR'], release)
+      song_1_path = os.path.join(song_release_path,
+                                 secure_filename('song1.wav'))
+      song_2_path = os.path.join(song_release_path,
+                                 secure_filename('song2.wav'))
+      assert_file_contents(app, song_1_path, b'not-actually-a-song')
+      assert_file_contents(app, song_2_path, b'not-actually-a-song-2')
 
       assert len(release.files) == 2
       assert release.files[0].filename == 'song1.wav'
@@ -138,7 +145,7 @@ class UploadTest:
       release_id = str(release.id)
       rv = client.post(f'/api/v1/upload/release/{release_id}/art',
                        data={
-                           'artwork': (io.BytesIO(b'not-actually-a-song'),
+                           'artwork': (io.BytesIO(b'not-actually-artwork'),
                                        'some_artwork.jpg')
                        })
 
@@ -149,7 +156,7 @@ class UploadTest:
       file_path = os.path.join(
           release_path(flask.current_app.config['DATA_DIR'], release),
           'some_artwork.jpg')
-      assert os.path.exists(file_path)
+      assert_file_contents(app, file_path, b'not-actually-artwork')
 
   def test_upload_release_art_no_file(self, app, releases_user):
     with app.app_context(), app.test_client() as client:
@@ -208,5 +215,4 @@ class UploadTest:
       file_path = os.path.join(
           release_path(flask.current_app.config['DATA_DIR'], release),
           'artwork.jpg')
-      print(file_path)
       assert not os.path.exists(file_path)
