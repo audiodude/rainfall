@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from uuid_extensions import uuid7
 
+from rainfall import object_storage
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
 from rainfall.models.artwork import Artwork
@@ -25,7 +26,7 @@ class ReleaseTest:
               'name': 'Release Create Test',
               'site_id': site_id
           }})
-      assert rv.status == '204 NO CONTENT'
+      assert rv.status == '204 NO CONTENT', rv.json
 
     with app.app_context():
       user = db.session.get(User, BASIC_USER_ID)
@@ -301,23 +302,26 @@ class ReleaseTest:
   def test_delete_release(self, app, releases_user):
     with app.app_context(), app.test_client() as client:
       db.session.add(releases_user)
-      release = releases_user.sites[0].releases[0]
+      release = releases_user.sites[0].releases[1]
       release_id = release.id
       files = release.files
 
+      object_client = object_storage.connect(app)
       with client.session_transaction() as sess:
         sess['user_id'] = BASIC_USER_ID
 
       rv = client.delete(f'/api/v1/release/{release_id}')
-      assert rv.status == '204 NO CONTENT'
+
+      assert rv.status == '204 NO CONTENT', rv.json
       assert release not in db.session
       for file in files:
         assert file not in db.session
-        assert not os.path.exists(file.path)
       assert release not in releases_user.sites[0].releases
+      assert not any(
+          object_client.list_objects(app.config['MINIO_BUCKET'],
+                                     prefix=release_path(
+                                         app.config['DATA_DIR'], release)))
       assert db.session.get(Release, release_id) is None
-      assert release_path(app.config['DATA_DIR'],
-                          release) not in os.listdir(app.config['DATA_DIR'])
 
   def test_delete_release_not_exist(self, app, basic_user):
     with app.app_context(), app.test_client() as client:
@@ -327,14 +331,15 @@ class ReleaseTest:
       rv = client.delete(f'/api/v1/release/{uuid7()}')
       assert rv.status == '404 NOT FOUND'
 
-  @patch('rainfall.blueprint.release.shutil.rmtree')
+  @patch('rainfall.blueprint.release.object_storage.rmtree')
   def test_delete_release_filesystem_error(self, mock_rmtree, app,
                                            releases_user):
     with app.app_context(), app.test_client() as client:
       db.session.add(releases_user)
       release = releases_user.sites[0].releases[0]
       release_id = release.id
-      mock_rmtree.side_effect = Exception('Filesystem error')
+      mock_rmtree.side_effect = object_storage.ObjectStorageException(
+          'Test error')
 
       with client.session_transaction() as sess:
         sess['user_id'] = BASIC_USER_ID
@@ -347,8 +352,3 @@ class ReleaseTest:
       assert 'error' in rv.json
       assert db.session.get(Release, release_id) is not None
       assert release in releases_user.sites[0].releases
-
-      release_dir_name = os.path.basename(
-          release_path(app.config['DATA_DIR'], release))
-      site_data_path = site_path(app.config['DATA_DIR'], release.site)
-      assert release_dir_name in os.listdir(site_data_path)

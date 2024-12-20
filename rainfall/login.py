@@ -6,8 +6,8 @@ import requests
 from sqlalchemy import select
 
 from rainfall.db import db
-from rainfall.models.user import User
 from rainfall.models.mastodon_credential import MastodonCredential
+from rainfall.models.user import User
 
 log = logging.getLogger(__name__)
 

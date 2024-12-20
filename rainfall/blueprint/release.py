@@ -4,6 +4,7 @@ from uuid import UUID
 
 import flask
 
+from rainfall import object_storage
 from rainfall.db import db
 from rainfall.decorators import with_current_user, with_validated_release
 from rainfall.models.release import Release
@@ -51,15 +52,6 @@ def create_release(user):
         error=f'A release with the name "{release.name}" already exists'), 400
 
   site.releases.append(release)
-  cur_release_path = release_path(flask.current_app.config['DATA_DIR'], release)
-  try:
-    os.makedirs(cur_release_path)
-  except FileExistsError:
-    db.session.rollback()
-    return flask.jsonify(
-        status=500,
-        error='Could not create that release (filesystem error)'), 500
-
   db.session.add(site)
   db.session.commit()
   return '', 204
@@ -132,8 +124,7 @@ def delete_release(release, user):
 
   try:
     path = release_path(flask.current_app.config['DATA_DIR'], release)
-    client = object_storage.connect(flask.current_app)
-    object_storage.rmtree(client, 'rainfall-data', path)
+    object_storage.rmtree(path)
   except Exception as e:
     db.session.rollback()
     return flask.jsonify(

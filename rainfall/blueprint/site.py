@@ -4,11 +4,11 @@ from uuid import UUID
 
 import flask
 
-from rainfall.db import db
-from rainfall.decorators import with_current_user, with_current_site
-from rainfall.models.site import Site
 from rainfall import object_storage
-from rainfall.site import site_path, rename_site_dir
+from rainfall.db import db
+from rainfall.decorators import with_current_site, with_current_user
+from rainfall.models.site import Site
+from rainfall.site import rename_site_dir, site_path
 
 site = flask.Blueprint('site', __name__)
 
@@ -67,10 +67,8 @@ def delete_site(site, user):
 
   try:
     path = site_path(flask.current_app.config['DATA_DIR'], site)
-    client = object_storage.connect(flask.current_app)
-    object_storage.rmtree(client, 'rainfall-data', path)
+    object_storage.rmtree(path)
   except Exception as e:
-    print(e)
     db.session.rollback()
     return flask.jsonify(status=500,
                          error='Could not delete site (filesystem error)'), 500
