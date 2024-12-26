@@ -8,11 +8,11 @@ Free Bandcamp exodus tool, letting you publish music sites to Netlify using [Fai
 
 This project does not aim to replicate the full feature set of the Bandcamp site/app. Instead, the goal is to allow artists to create individual websites where users can listen to and potentially download and pay for their tracks. These websites are created using the Faircamp static site generator, and can be hosted anywhere on the web.
 
-Rainfall has reached version 1.0 of development!
+Rainfall has reached [version 1.4](https://sfba.social/@audiodude/113477212084686730) of development!
 
 ![Screenshot of the Rainfall tool, on the song upload page](https://github.com/audiodude/rainfall/assets/57832/04e7088a-3d61-4dcd-b22a-445be161534e)
 
-Currently, you can upload tracks and preview your Faircamp powered site. When you're ready, you can download a .ZIP file of your site, which you can then upload to any of the cloud providers mentioned on the welcome page, or anywhere else that hosts static websites:
+Currently, you can upload tracks and preview your Faircamp powered site. When you're ready, you can upload your site [directly to Netlify](https://www.netlify.com/), using an OAuth integration. Alternately, you can download a .ZIP file of your site, which you can then upload to any of the cloud providers mentioned on the welcome page, or anywhere else that hosts static websites:
 
 - [Netlify](https://www.netlify.com/)
 - [Google Cloud](https://cloud.google.com/storage?hl=en)
@@ -21,11 +21,11 @@ Currently, you can upload tracks and preview your Faircamp powered site. When yo
 - [Cloudflare Pages](https://pages.cloudflare.com/)
 - And many others!
 
-Future plans are to integrate with these providers, specifically [Netlify](https://www.netlify.com/), so that you can immediately upload your new website and host it for free under an account that you control. Even more future integrations might allow you to purchase a domain name through Netlify and go from zero -> running music site with just a few uploads.
+Future integrations might allow you to purchase a domain name through Netlify and go from zero -> running music site with just a few uploads.
 
 ## Development
 
-Rainfall features a [Python](https://www.python.org/) backend, using the amazing [Flask](https://flask.readthedocs.io/) API framework and the [SQLAlchemy](https://www.sqlalchemy.org/) ORM (which is much less scary than it seems at first). The database system is [SQLite](https://www.sqlite.org/index.html). It is tested using [Pytest](https://pytest.org/).
+Rainfall features a [Python](https://www.python.org/) backend, using the amazing [Flask](https://flask.readthedocs.io/) API framework and the [SQLAlchemy](https://www.sqlalchemy.org/) ORM (which is much less scary than it seems at first). The database system is [MariaDB](https://mariadb.com/), though early versions used [SQLite](https://www.sqlite.org/index.html). It is tested using [Pytest](https://pytest.org/).
 
 The frontend is written in [Vue 3](https://vuejs.org/) using the Options API, with frontend styling implemented using [TailwindCSS](https://tailwindcss.com/) and some [Flowbite](https://flowbite.com/) components. It is tested using [Cypress](https://www.cypress.io/).
 
@@ -57,9 +57,9 @@ Rainfall is deployed to [Fly.io](https://fly.io/) using a Docker container. Once
 fly deploy
 ```
 
-The frontend also requires a `.env.production` file with the fields `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_REDIRECT_URI`. This will be ignored by git, but needs to be present when `fly deploy` is run so that it is baked into the frontend production deployment.
+The frontend (`./rainfall-frontend`, NOT the root directory or Flask app) also requires a `.env.production` file with the fields `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_REDIRECT_URI`. This will be ignored by git, but needs to be present when `fly deploy` is run so that it is baked into the frontend production deployment.
 
-The docker container will automatically be built remotely and deployed. The backend data for the production site (SQLite db and song/project files) lives on a Fly volume that is attached to the web worker.
+The Docker container will automatically be built remotely and deployed. The backend data for the production site (song/project files) lives on a Fly volume that is attached to the web worker. Current work involves migrating this to object storage using [Minio](https://min.io/).
 
 ### Running Database migrations
 
