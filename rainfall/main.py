@@ -1,8 +1,8 @@
 import logging
 import os
 
-from authlib.integrations.flask_client import OAuth
 import flask
+from authlib.integrations.flask_client import OAuth
 from flask_seasurf import SeaSurf
 
 from rainfall.blueprint.file import file as file_blueprint
@@ -13,11 +13,12 @@ from rainfall.blueprint.upload import upload as upload_blueprint
 from rainfall.blueprint.user import UserBlueprintFactory
 from rainfall.db import db
 from rainfall.decorators import with_current_site, with_current_user
-from rainfall.site import generate_site, generate_zip, public_dir, site_exists, zip_file_path
+from rainfall.site import (generate_site, generate_zip, public_dir, site_exists,
+                           zip_file_path)
 from rainfall.test_constants import TEST_FILE_PATH
 
 log = logging.getLogger(__name__)
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 
 
 def create_app():
@@ -83,7 +84,7 @@ def create_app():
     if result[0]:
       return '', 204
     else:
-      return flask.jsonify(status=500, error=result[1])
+      return flask.jsonify(status=500, error=result[1]), 500
 
   @app.route('/preview/<site_id>/')
   @with_current_user
