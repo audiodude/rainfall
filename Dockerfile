@@ -37,7 +37,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh && ch
 RUN ./rustup.sh -y
 RUN git clone https://codeberg.org/simonrepp/faircamp.git
 WORKDIR faircamp
-RUN git checkout tags/0.15.1
+RUN git checkout tags/1.0.0
 RUN $HOME/.cargo/bin/cargo install --features libvips --locked --path .
 
 # Python app
