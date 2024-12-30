@@ -68,6 +68,15 @@ def site_exists(preview_dir_path, site_id):
   return os.path.exists(dir_) and len(os.listdir(dir_)) > 0
 
 
+def download_site_objects(data_dir_path, site_id):
+  site = db.session.get(Site, UUID(site_id))
+  for release in site.releases:
+    for file in release.files:
+      path = file_path(data_dir_path, file)
+      # The first path is in the object storage, the second is the local path.
+      object_storage.download_file(path=path, output_path=path)
+
+
 def generate_eno_files(data_dir_path, site_id):
   site = db.session.get(Site, UUID(site_id))
   for release in site.releases:
@@ -86,6 +95,8 @@ def generate_eno_files(data_dir_path, site_id):
 
 
 def generate_site(data_dir_path, preview_dir_path, site_id):
+  download_site_objects(staging_dir_path, data_dir_path, site_id)
+
   generate_eno_files(data_dir_path, site_id)
 
   try:

@@ -69,3 +69,8 @@ def rmtree(client, bucket, path):
     raise ObjectDeleteException(
         f'Could not delete all objects from {path}, {num_errors} errors (see log)'
     )
+
+
+@inject_client_and_bucket
+def download_file(client, bucket, path, output_path):
+  client.fget_object(bucket, path, output_path)
