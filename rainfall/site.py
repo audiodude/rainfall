@@ -89,14 +89,16 @@ def generate_site(data_dir_path, preview_dir_path, site_id):
   generate_eno_files(data_dir_path, site_id)
 
   try:
-    subprocess.run([
+    args = [
         'faircamp', '--catalog-dir',
         catalog_dir(data_dir_path, site_id), '--build-dir',
         build_dir(preview_dir_path, site_id), '--cache-dir',
         cache_dir(preview_dir_path, site_id), '--no-clean-urls'
-    ],
-                   capture_output=True,
-                   check=True)
+    ]
+    log.info('Running faircamp with args: %s', ' '.join(args))
+    output = subprocess.run(args, capture_output=True, check=True)
+    log.debug('Faircamp output:\n===STDOUT===\n%s',
+              output.stdout.decode('utf-8'))
   except subprocess.CalledProcessError as e:
     return (False, e.stderr.decode('utf-8'))
   return (True, None)
