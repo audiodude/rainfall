@@ -108,9 +108,9 @@ def generate_eno_files(data_dir_path, site_id):
 
 def cleanup_site(data_dir_path, preview_dir_path, site_id):
   site = db.session.get(Site, UUID(site_id))
+  # Delete local cache of data dir, and local cache of preview dir.
   shutil.rmtree(site_path(data_dir_path, site))
-  shutil.rmtree(build_dir(preview_dir_path, site_id))
-  shutil.rmtree(cache_dir(preview_dir_path, site_id))
+  shutil.rmtree(site_path(preview_dir_path, site))
 
 
 def generate_site(data_dir_path, preview_dir_path, site_id):
