@@ -1,4 +1,6 @@
+import glob
 import logging
+import os
 from functools import wraps
 
 import flask
@@ -44,11 +46,9 @@ def create_bucket_if_not_exists(app):
 
 
 @inject_client_and_bucket
-def put_object(client, bucket, path, file, content_length, content_type):
-  '''
-  This is a thin wrapper, but is here in case we want to do something
-  different in the future.
-  '''
+def put_object(client, bucket, path, file, content_type):
+  content_length = file.seek(0, 2)
+  file.seek(0)  # Reset the file pointer to the beginning.
   client.put_object(bucket, path, file, content_length, content_type)
 
 
@@ -74,3 +74,15 @@ def rmtree(client, bucket, path):
 @inject_client_and_bucket
 def download_file(client, bucket, path, output_path):
   client.fget_object(bucket, path, output_path)
+
+
+@inject_client_and_bucket
+def upload_dir_recursively(client, bucket, path, output_path):
+  print('upload recursive, path is:', path)
+  assert os.path.isdir(path)
+  for local_file in glob.glob(path + '/**'):
+    remote_path = os.path.join(output_path, os.path.basename(local_file))
+    if not os.path.isfile(local_file):
+      upload_dir_recursively(local_file, remote_path)
+    else:
+      client.fput_object(bucket, remote_path, local_file)
