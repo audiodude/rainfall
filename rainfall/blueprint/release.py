@@ -72,8 +72,10 @@ def get_release_artwork(release, user):
     flask.abort(404)
 
   path = os.path.join(
-      '..', release_path(flask.current_app.config['DATA_DIR'], release))
-  return flask.send_from_directory(path, release.artwork.filename)
+      release_path(flask.current_app.config['DATA_DIR'], release),
+      release.artwork.filename)
+  file = object_storage.get_object(path)
+  return flask.send_file(file, download_name=release.artwork.filename)
 
 
 @release.route('release/<release_id>/description', methods=['POST'])
