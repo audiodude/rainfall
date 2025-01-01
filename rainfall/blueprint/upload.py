@@ -49,9 +49,7 @@ def write_files(release, claz, *files):
     cur_release_path = release_path(flask.current_app.config['DATA_DIR'],
                                     release)
     object_path = os.path.join(cur_release_path, file.filename)
-    file_size = file.seek(0, 2)
-    file.seek(0)  # Reset the file pointer to the beginning.
-    object_storage.put_object(object_path, file, file_size, file.content_type)
+    object_storage.put_object(object_path, file, file.content_type)
 
 
 @upload.route('upload/release/<release_id>/song', methods=['POST'])
