@@ -46,6 +46,12 @@ def create_bucket_if_not_exists(app):
 
 
 @inject_client_and_bucket
+def get_object(client, bucket, path):
+  print(path)
+  return client.get_object(bucket, path)
+
+
+@inject_client_and_bucket
 def put_object(client, bucket, path, file, content_type):
   content_length = file.seek(0, 2)
   file.seek(0)  # Reset the file pointer to the beginning.

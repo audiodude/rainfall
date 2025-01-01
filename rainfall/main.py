@@ -91,9 +91,10 @@ def create_app():
   @with_current_site
   def preview_index(site, user):
     # The decorators ensure that the site belongs to the user.
-    return flask.send_from_directory(
-        os.path.join('..', app.config['PREVIEW_DIR'], public_dir(site)),
-        'index.html')
+    index_path = os.path.join(app.config['PREVIEW_DIR'], public_dir(site),
+                              'index.html')
+    file = object_storage.get_object(index_path)
+    return flask.send_file(file, download_name='index.html')
 
   @app.route('/preview/<site_id>/<path:filename>')
   @with_current_user
@@ -102,9 +103,10 @@ def create_app():
     # The decorators ensure that the site belongs to the user.
     if filename.endswith('/'):
       filename += 'index.html'
-    return flask.send_from_directory(
-        os.path.join('..', app.config['PREVIEW_DIR'], public_dir(site)),
-        filename)
+    file_path = os.path.join(app.config['PREVIEW_DIR'], public_dir(site),
+                             filename)
+    file = object_storage.get_object(file_path)
+    return flask.send_file(file, download_name=os.path.basename(file_path))
 
   @app.route('/api/v1/zip/<site_id>')
   @with_current_user
@@ -119,14 +121,6 @@ def create_app():
   @app.route('/<path:filename>')
   def index(filename=None):
     return flask.send_from_directory(FRONTEND_DIR, 'index.html')
-
-  @app.route('/favicon.ico')
-  def favicon():
-    return flask.send_from_directory(FRONTEND_DIR, 'favicon.ico')
-
-  @app.route('/rainfall_preview.png')
-  def rainfall_preview():
-    return flask.send_from_directory(FRONTEND_DIR, 'rainfall_preview.png')
 
   @app.route('/src/<path:filename>')
   def srcs(filename=None):
