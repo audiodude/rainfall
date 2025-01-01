@@ -82,6 +82,10 @@ def download_site_objects(data_dir_path, site_id):
       # The first path is in the object storage, the second is the local path.
       object_storage.download_file(path=path, output_path=path)
 
+    if release.artwork:
+      path = file_path(data_dir_path, release.artwork)
+      object_storage.download_file(path=path, output_path=path)
+
 
 def upload_site_objects(preview_dir_path, site_id):
   path = build_dir(preview_dir_path, site_id)
@@ -177,10 +181,8 @@ def delete_file(clz, file_id, user):
   file_path = os.path.join(cur_release_path, file.filename)
 
   try:
-    os.remove(file_path)
-  except FileNotFoundError:
-    log.warning('File already deleted, file id=%s' % file.id)
-  except OSError:
+    object_storage.remove_object(file_path)
+  except Exception:
     log.exception('Could not delete file id=%s', file.id)
     return flask.jsonify(status=500, error='Could not delete file'), 500
 
