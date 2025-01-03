@@ -3,8 +3,10 @@ import { mapStores } from 'pinia';
 import { useUserStore } from '@/stores/user';
 import { getCsrf } from '@/helpers/cookie';
 import { type Site } from '@/types/site';
+import Feedback from '@/components/Feedback.vue';
 
 export default {
+  components: { Feedback },
   data(): {
     site: null | Site;
     sitesError: string;
@@ -42,9 +44,15 @@ export default {
     hasNetlifyToken(): boolean {
       return !!this.userStore.user?.integration?.has_netlify_token;
     },
+    doneDeploying(): boolean {
+      return this.site && this.site.netlify_url && !this.deploying;
+    },
     ...mapStores(useUserStore),
   },
   methods: {
+    gotoFeedbackPage() {
+      this.$router.push('/feedback');
+    },
     getCsrf() {
       return getCsrf();
     },
@@ -174,7 +182,7 @@ export default {
           <span class="sr-only">Deploying your site...</span>
         </div>
         <div
-          v-if="site && site.netlify_url && !deploying"
+          v-if="doneDeploying"
           id="netlify-deploy-result"
           class="ml-4 mt-1 md:mt-0 text-sm text-center md:text-left md:leading-[2.5rem]"
         >
@@ -185,5 +193,6 @@ export default {
         </div>
       </div>
     </div>
+    <Feedback v-if="doneDeploying" class="mt-8" />
   </div>
 </template>

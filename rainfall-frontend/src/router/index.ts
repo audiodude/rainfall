@@ -7,6 +7,7 @@ import NotFoundView from '../views/NotFoundView.vue';
 import EditSiteView from '../views/EditSiteView.vue';
 import EditReleaseView from '@/views/EditReleaseView.vue';
 import DeployNetlifyView from '@/views/DeployNetlifyView.vue';
+import FeedbackView from '@/views/FeedbackView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,6 +40,7 @@ const router = createRouter({
     { path: '/mastodon', name: 'mastodonLogin', component: MastodonLoginView },
     { path: '/deploy/:site_id/netlify', name: 'deployNetlify', component: DeployNetlifyView },
 
+    { path: '/feedback', name: 'feedback', component: FeedbackView },
     // 404 page
     { path: '/:pathMatch(.*)*', name: 'notfound', component: NotFoundView },
   ],
