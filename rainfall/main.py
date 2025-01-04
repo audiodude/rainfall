@@ -14,7 +14,7 @@ from rainfall.blueprint.upload import upload as upload_blueprint
 from rainfall.blueprint.user import UserBlueprintFactory
 from rainfall.db import db
 from rainfall.decorators import with_current_site, with_current_user
-from rainfall.site import (generate_site, generate_zip, public_dir, site_exists,
+from rainfall.site import (generate_site, get_zip_file, public_dir, site_exists,
                            zip_file_path)
 from rainfall.test_constants import TEST_FILE_PATH, TEST_MINIO_BUCKET
 
@@ -112,10 +112,8 @@ def create_app():
   @with_current_user
   @with_current_site
   def zip(site, user):
-    generate_zip(app.config['PREVIEW_DIR'], str(site.id))
-    zip_path = zip_file_path(app.config['PREVIEW_DIR'], str(site.id))
-    return flask.send_from_directory(os.path.join('..', zip_path),
-                                     'rainfall_site.zip')
+    file = get_zip_file(app.config['PREVIEW_DIR'], site)
+    return flask.send_file(file, download_name='rainfall_site.zip')
 
   @app.route('/')
   @app.route('/<path:filename>')
