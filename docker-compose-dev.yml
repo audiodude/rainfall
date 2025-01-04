@@ -16,8 +16,20 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - ./rainfall-minio:/data
+      - rainfall-minio-volume:/data
     environment:
       MINIO_ROOT_USER: rainfall
       MINIO_ROOT_PASSWORD: rainfall-minio
     command: server --console-address :9001 /data
+
+  # Used for formatting the volume as ext4. Otherwise, some minio operations may fail.
+  # Uncomment to format (with docker compose up) and comment afterwards so the volume
+  # is not formatted again.
+  # formatter:
+  #   image: busybox
+  #   command: ["/bin/sh", "-c", "mkfs.ext4 /data"]
+  #   volumes:
+  #     - rainfall-minio-volume:/data
+
+volumes:
+  rainfall-minio-volume:
