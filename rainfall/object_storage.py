@@ -48,7 +48,6 @@ def create_bucket_if_not_exists(app):
 
 @inject_client_and_bucket
 def get_object(client, bucket, path):
-  print(path)
   return client.get_object(bucket, path)
 
 
@@ -105,7 +104,6 @@ def rename_dir_recursively(client, bucket, old_path, new_path):
   for obj in objects:
     old_name = obj.object_name
     new_name = old_name.replace(old_path, new_path, 1)
-    print('rename', old_name, new_name)
 
     # Move is a copy + delete.
     client.copy_object(
@@ -117,6 +115,6 @@ def rename_dir_recursively(client, bucket, old_path, new_path):
 
 
 @inject_client_and_bucket
-def path_exists(client, bucket, path):
-  objects = client.list_objects(bucket, prefix=path, recursive=False)
+def path_exists(client, bucket, path, recursive=False):
+  objects = client.list_objects(bucket, prefix=path, recursive=recursive)
   return any(objects)

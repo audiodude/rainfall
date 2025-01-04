@@ -48,7 +48,7 @@ def write_files(release, claz, *files):
     # Write the file to object storage.
     cur_release_path = release_path(flask.current_app.config['DATA_DIR'],
                                     release)
-    object_path = os.path.join(cur_release_path, file.filename)
+    object_path = os.path.join(cur_release_path, obj.filename)
     object_storage.put_object(object_path, file, file.content_type)
 
 

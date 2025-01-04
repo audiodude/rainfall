@@ -71,7 +71,7 @@ def file_path(data_dir_path, file):
 
 def site_exists(preview_dir_path, site_id):
   dir_ = build_dir(preview_dir_path, site_id)
-  return os.path.exists(dir_) and len(os.listdir(dir_)) > 0
+  return object_storage.path_exists(dir_, recursive=True)
 
 
 def download_site_objects(data_dir_path, site_id):
@@ -138,7 +138,7 @@ def generate_site(data_dir_path, preview_dir_path, site_id):
   result = (True, None)
 
   upload_site_objects(preview_dir_path, site_id)
-  upload_zip(preview_dir_path, site_id)
+  generate_and_upload_zip(preview_dir_path, site_id)
 
   cleanup_site(data_dir_path, preview_dir_path, site_id)
   return result
@@ -150,18 +150,26 @@ def zip_file_path(preview_dir_path, site_id):
                       secure_filename(site.name))
 
 
-def generate_zip(preview_dir_path, site_id):
+def generate_and_upload_zip(preview_dir_path, site_id):
   root_dir = zip_file_path(preview_dir_path, site_id)
   out_path = os.path.join(root_dir, 'rainfall_site')
   shutil.make_archive(out_path, 'zip', root_dir=root_dir, base_dir='public')
 
-
-def upload_zip(preview_dir_path, site_id):
-  generate_zip(preview_dir_path, site_id)
   zip_path = os.path.join(zip_file_path(preview_dir_path, site_id),
                           'rainfall_site.zip')
   with open(zip_path, 'rb') as f:
     object_storage.put_object(zip_path, f, 'application/zip')
+
+
+def get_zip_file(preview_dir_path, site):
+  zip_path = os.path.join(zip_file_path(preview_dir_path, str(site.id)),
+                          'rainfall_site.zip')
+
+  if not object_storage.path_exists(zip_path):
+    return flask.jsonify(
+        status=404, error=f'Zip file does not exist for site {site.id}'), 404
+
+  return object_storage.get_object(zip_path)
 
 
 def delete_file(clz, file_id, user):

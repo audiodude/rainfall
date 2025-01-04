@@ -6,9 +6,9 @@ import flask
 import requests
 
 from rainfall.db import db
-from rainfall.decorators import with_current_user, with_current_site
+from rainfall.decorators import with_current_site, with_current_user
 from rainfall.models import Integration
-from rainfall.site import generate_zip, zip_file_path
+from rainfall.site import get_zip_file
 
 
 def update_token(token, refresh_token=None, access_token=None):
@@ -127,15 +127,11 @@ class OauthBlueprintFactory:
         if resp is not None:
           return resp
 
-      generate_zip(flask.current_app.config['PREVIEW_DIR'], str(site.id))
-      site_path = zip_file_path(flask.current_app.config['PREVIEW_DIR'],
-                                str(site.id))
-      zip_path = os.path.join(site_path, 'rainfall_site.zip')
-
+      zip_file = get_zip_file(flask.current_app.config['PREVIEW_DIR'], site)
       resp = netlify.post(f'/api/v1/sites/{site.netlify_site_id}/deploys',
                           token=token,
                           headers={'Content-Type': 'application/zip'},
-                          data=open(zip_path, 'rb'))
+                          data=zip_file.read())
 
       try:
         resp.raise_for_status()
