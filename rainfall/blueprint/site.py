@@ -70,6 +70,7 @@ def delete_site(site, user):
     object_storage.rmtree(path)
   except Exception as e:
     db.session.rollback()
+    log.exception('Could not delete site id=%s', site.id)
     return flask.jsonify(status=500,
                          error='Could not delete site (filesystem error)'), 500
 
