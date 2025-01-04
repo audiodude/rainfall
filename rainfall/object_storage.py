@@ -5,6 +5,7 @@ from functools import wraps
 
 import flask
 from minio import Minio
+from minio.commonconfig import CopySource
 from minio.deleteobjects import DeleteObject
 
 log = logging.getLogger(__name__)
@@ -96,3 +97,26 @@ def upload_dir_recursively(client, bucket, path, output_path):
       upload_dir_recursively(local_file, remote_path)
     else:
       client.fput_object(bucket, remote_path, local_file)
+
+
+@inject_client_and_bucket
+def rename_dir_recursively(client, bucket, old_path, new_path):
+  objects = client.list_objects(bucket, prefix=old_path, recursive=True)
+  for obj in objects:
+    old_name = obj.object_name
+    new_name = old_name.replace(old_path, new_path, 1)
+    print('rename', old_name, new_name)
+
+    # Move is a copy + delete.
+    client.copy_object(
+        bucket,
+        new_name,
+        CopySource(bucket, old_name),
+    )
+    client.remove_object(bucket, old_name)
+
+
+@inject_client_and_bucket
+def path_exists(client, bucket, path):
+  objects = client.list_objects(bucket, prefix=path, recursive=False)
+  return any(objects)

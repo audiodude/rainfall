@@ -194,13 +194,17 @@ def delete_file(clz, file_id, user):
 
 def rename_release_dir(data_dir_path, release, old_name):
   new_path = release_path(data_dir_path, release)
-  if os.path.exists(new_path):
+  if object_storage.path_exists(new_path):
     raise FileExistsError(f'The directory {new_path} already exists')
 
-  os.rename(release_path(data_dir_path, release, override_name=old_name),
-            new_path)
+  old_path = release_path(data_dir_path, release, override_name=old_name)
+  object_storage.rename_dir_recursively(old_path, new_path)
 
 
 def rename_site_dir(data_dir_path, site, old_name):
-  os.rename(site_path(data_dir_path, site, override_name=old_name),
-            site_path(data_dir_path, site))
+  new_path = site_path(data_dir_path, site)
+  if object_storage.path_exists(new_path):
+    raise FileExistsError(f'The directory {new_path} already exists')
+
+  old_path = site_path(data_dir_path, site, override_name=old_name)
+  object_storage.rename_dir_recursively(old_path, new_path)
