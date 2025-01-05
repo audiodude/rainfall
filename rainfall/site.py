@@ -113,8 +113,8 @@ def generate_eno_files(data_dir_path, site_id):
 def cleanup_site(data_dir_path, preview_dir_path, site_id):
   site = db.session.get(Site, UUID(site_id))
   # Delete local cache of data dir, and local cache of preview dir.
-  shutil.rmtree(site_path(data_dir_path, site))
-  shutil.rmtree(site_path(preview_dir_path, site))
+  shutil.rmtree(site_path(data_dir_path, site), ignore_errors=True)
+  shutil.rmtree(site_path(preview_dir_path, site), ignore_errors=True)
 
 
 def generate_site(data_dir_path, preview_dir_path, site_id):
@@ -130,18 +130,18 @@ def generate_site(data_dir_path, preview_dir_path, site_id):
         cache_dir(preview_dir_path, site_id), '--no-clean-urls'
     ]
     log.info('Running faircamp with args: %s', ' '.join(args))
-    output = subprocess.run(args, capture_output=True, check=True)
-    log.debug('Faircamp output:\n===STDOUT===\n%s',
-              output.stdout.decode('utf-8'))
+    output = subprocess.run(args, capture_output=True, check=True, text=True)
+    log.debug('Faircamp output:\n===STDOUT===\n%s', output.stdout)
+
+    upload_site_objects(preview_dir_path, site_id)
+    generate_and_upload_zip(preview_dir_path, site_id)
   except subprocess.CalledProcessError as e:
-    result = (False, e.stderr.decode('utf-8'))
-  result = (True, None)
+    log.exception('Faircamp failed\n===STDOUT===:\n%s', e.output)
+    return (False, e.output)
+  finally:
+    cleanup_site(data_dir_path, preview_dir_path, site_id)
 
-  upload_site_objects(preview_dir_path, site_id)
-  generate_and_upload_zip(preview_dir_path, site_id)
-
-  cleanup_site(data_dir_path, preview_dir_path, site_id)
-  return result
+  return (True, None)
 
 
 def zip_file_path(preview_dir_path, site_id):

@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 from uuid import UUID
@@ -11,6 +12,8 @@ from rainfall.models.site import Site
 from rainfall.site import rename_site_dir, site_path
 
 site = flask.Blueprint('site', __name__)
+
+log = logging.getLogger(__name__)
 
 
 @site.route('/site', methods=['POST'])
