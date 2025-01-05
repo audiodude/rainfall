@@ -89,6 +89,7 @@ def download_file(client, bucket, path, output_path):
 
 @inject_client_and_bucket
 def upload_dir_recursively(client, bucket, path, output_path):
+  print('upload dir, path is:', path)
   assert os.path.isdir(path)
   for local_file in glob.glob(path + '/**'):
     remote_path = os.path.join(output_path, os.path.basename(local_file))

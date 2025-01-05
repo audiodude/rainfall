@@ -21,6 +21,12 @@ jobs:
           python -m pip install --upgrade pip pipenv
           pipenv install -d
 
+      - name: Download .deb file
+        run: wget https://simonrepp.com/faircamp/packages/faircamp_1.0.0-1+deb12_amd64.deb
+
+      - name: Install faircamp
+        run: sudo dpkg -i faircamp_1.0.0-1+deb12_amd64.deb
+
       - name: Run tests
         run: pipenv run pytest --cov=rainfall --cov-report=json:coverage.json
 

@@ -52,17 +52,17 @@ class FileTest:
 
       release = releases_user.sites[0].releases[1]
       for _ in range(4):
-        file = File(filename='s0_r1_file_1.aiff')
+        file = File(filename='s0_r1_file_1.wav')
         release.files.append(file)
 
         file.maybe_rename()
 
-      file = File(filename='s0_r1_file_1_2.aiff')
+      file = File(filename='s0_r1_file_1_2.wav')
       release.files.append(file)
       file.maybe_rename()
 
-      assert file.filename == 's0_r1_file_1_5.aiff'
-      assert file.original_filename == 's0_r1_file_1_4.aiff'
+      assert file.filename == 's0_r1_file_1_5.wav'
+      assert file.original_filename == 's0_r1_file_1_4.wav'
 
   def test_maybe_rename_no_release(self, app, releases_user):
     with app.app_context():
