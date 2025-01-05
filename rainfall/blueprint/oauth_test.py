@@ -1,5 +1,5 @@
 from functools import partial
-from unittest.mock import MagicMock, patch, ANY, mock_open
+from unittest.mock import ANY, MagicMock, mock_open, patch
 
 import flask
 import requests
@@ -151,15 +151,14 @@ class OauthTest:
 
       assert response.status == '401 UNAUTHORIZED'
 
-  @patch('rainfall.blueprint.oauth.generate_zip')
-  @patch('rainfall.blueprint.oauth.open',
-         new_callable=partial(mock_open, read_data=b'xyz-test-not-a-zip'),
-         create=True)
-  def test_deploy(self, m_open, mock_generate_zip, app, sites_user):
+  @patch('rainfall.blueprint.oauth.get_zip_file')
+  def test_deploy(self, mock_get_zip_file, app, sites_user):
     # We stash the mock OAuth lib in the app object
     app.mock_oauth.assert_called_once_with(app)
 
-    m_open.return_value = b'xyz-test-not-a-zip'
+    mock_zip = MagicMock()
+    mock_zip.read.return_value = b'xyz-test-not-a-zip'
+    mock_get_zip_file.return_value = mock_zip
     mock_json_1 = {'id': 'abc-netlify-id'}
     mock_response_1 = MagicMock()
     mock_response_1.json.return_value = mock_json_1
@@ -182,8 +181,8 @@ class OauthTest:
 
       response = client.post(f'/api/v1/oauth/netlify/{site_id}/deploy')
 
-      mock_generate_zip.assert_called_once_with(app.config['PREVIEW_DIR'],
-                                                str(site_id))
+      mock_get_zip_file.assert_called_once_with(app.config['PREVIEW_DIR'],
+                                                sites_user.sites[0])
       assert response.status == '200 OK'
       assert response.json == {'url': 'https://netlify.fake/site'}
       app.mock_remote_app.post.assert_called_with(
@@ -198,16 +197,14 @@ class OauthTest:
           headers={'Content-Type': 'application/zip'},
           data=b'xyz-test-not-a-zip')
 
-  @patch('rainfall.blueprint.oauth.generate_zip')
-  @patch('rainfall.blueprint.oauth.open',
-         new_callable=partial(mock_open, read_data=b'xyz-test-not-a-zip'),
-         create=True)
-  def test_deploy_existing_site(self, m_open, mock_generate_zip, app,
-                                sites_user):
+  @patch('rainfall.blueprint.oauth.get_zip_file')
+  def test_deploy_existing_site(self, mock_get_zip_file, app, sites_user):
     # We stash the mock OAuth lib in the app object
     app.mock_oauth.assert_called_once_with(app)
 
-    m_open.return_value = b'xyz-test-not-a-zip'
+    mock_zip = MagicMock()
+    mock_zip.read.return_value = b'xyz-test-not-a-zip'
+    mock_get_zip_file.return_value = mock_zip
     mock_json_2 = {'ssl_url': 'https://netlify.fake/site'}
     mock_response_2 = MagicMock()
     mock_response_2.json.return_value = mock_json_2
@@ -227,8 +224,8 @@ class OauthTest:
 
       response = client.post(f'/api/v1/oauth/netlify/{site_id}/deploy')
 
-      mock_generate_zip.assert_called_once_with(app.config['PREVIEW_DIR'],
-                                                str(site_id))
+      mock_get_zip_file.assert_called_once_with(app.config['PREVIEW_DIR'],
+                                                sites_user.sites[0])
       assert response.status == '200 OK'
       assert response.json == {'url': 'https://netlify.fake/site'}
       app.mock_remote_app.post.assert_called_with(
@@ -298,16 +295,14 @@ class OauthTest:
       assert response.status == '400 BAD REQUEST'
       assert 'error' in response.json
 
-  @patch('rainfall.blueprint.oauth.generate_zip')
-  @patch('rainfall.blueprint.oauth.open',
-         new_callable=partial(mock_open, read_data=b'xyz-test-not-a-zip'),
-         create=True)
-  def test_deploy_netlify_error(self, m_open, mock_generate_zip, app,
-                                sites_user):
+  @patch('rainfall.blueprint.oauth.get_zip_file')
+  def test_deploy_netlify_error(self, mock_get_zip_file, app, sites_user):
     # We stash the mock OAuth lib in the app object
     app.mock_oauth.assert_called_once_with(app)
 
-    m_open.return_value = b'xyz-test-not-a-zip'
+    mock_zip = MagicMock()
+    mock_zip.read.return_value = b'xyz-test-not-a-zip'
+    mock_get_zip_file.return_value = mock_zip
     mock_json_1 = {'id': 'abc-netlify-id'}
     mock_response_1 = MagicMock()
     mock_response_1.json.return_value = mock_json_1
@@ -329,8 +324,8 @@ class OauthTest:
 
       response = client.post(f'/api/v1/oauth/netlify/{site_id}/deploy')
 
-      mock_generate_zip.assert_called_once_with(app.config['PREVIEW_DIR'],
-                                                str(site_id))
+      mock_get_zip_file.assert_called_once_with(app.config['PREVIEW_DIR'],
+                                                sites_user.sites[0])
       assert response.status == '500 INTERNAL SERVER ERROR'
       assert 'error' in response.json
 

@@ -1,11 +1,16 @@
+import io
+import os
 import subprocess
 from unittest.mock import patch
 
 import pytest
 
+from rainfall import object_storage
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
-from rainfall.site import build_dir, cache_dir, catalog_dir, generate_site, public_dir, release_path, secure_filename, site_path
+from rainfall.models import File
+from rainfall.site import (build_dir, cache_dir, catalog_dir, generate_site,
+                           public_dir, release_path, secure_filename, site_path)
 
 
 @pytest.fixture
@@ -69,37 +74,37 @@ class SiteTest:
       assert actual == (f'/foo/data/{str(BASIC_USER_ID)}/'
                         f'{secure_filename(release.site.name)}/bar')
 
-  @patch('rainfall.site.subprocess.run')
-  def test_generate_site(self, mock_subprocess, app, site_id):
+  def test_generate_site(self, app, releases_user):
     with app.app_context():
-      actual = generate_site('foo/data', 'foo/preview', site_id)
+      db.session.add(releases_user)
+      site_id = str(releases_user.sites[0].id)
+
+      actual = generate_site(app.config['DATA_DIR'], app.config['PREVIEW_DIR'],
+                             site_id)
 
       assert actual[0] is True
       assert actual[1] is None
-
-      mock_subprocess.assert_called_once_with([
-          'faircamp', '--catalog-dir',
-          'foo/data/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1',
-          '--build-dir',
-          'foo/preview/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1/public',
-          '--cache-dir',
-          'foo/preview/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1/cache',
-          '--no-clean-urls'
-      ],
-                                              capture_output=True,
-                                              check=True)
+      assert object_storage.path_exists(
+          f'{app.config["PREVIEW_DIR"]}/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1/public'
+      )
+      assert not os.path.exists(
+          f'{app.config["PREVIEW_DIR"]}/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1'
+      )
 
   @patch('rainfall.site.subprocess.run')
-  def test_generate_site_exception(self, mock_subprocess, app, site_id):
+  def test_generate_site_exception(self, mock_subprocess, app, releases_user):
     exc = subprocess.CalledProcessError(1, 'faircamp')
-    exc.stderr = b'Standard Error'
+    exc.stdout = 'fake faircamp stdout'
     mock_subprocess.side_effect = exc
 
     with app.app_context():
-      actual = generate_site('foo/data', 'foo/preview', site_id)
+      db.session.add(releases_user)
+      site_id = str(releases_user.sites[0].id)
+      actual = generate_site(app.config['DATA_DIR'], app.config['PREVIEW_DIR'],
+                             site_id)
 
     assert actual[0] is False
-    assert actual[1] == 'Standard Error'
+    assert actual[1] == 'fake faircamp stdout'
 
   def test_site_path(self, app, sites_user, site_name):
     with app.app_context():
