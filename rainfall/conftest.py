@@ -19,8 +19,8 @@ from rainfall.models.release import Release
 from rainfall.models.site import Site
 from rainfall.models.user import User
 from rainfall.site import release_path, site_path
-from rainfall.test_constants import (TEST_FILE_PATH, TEST_MINIO_BUCKET,
-                                     TEST_WAV_PATH)
+from rainfall.test_constants import (TEST_FILE_PATH, TEST_JPG_DATA,
+                                     TEST_MINIO_BUCKET, TEST_WAV_PATH)
 
 BASIC_USER_ID = uuid.UUID('06543f11-12b6-71ea-8000-e026c63c22e2')
 
@@ -129,8 +129,9 @@ def releases_user(app, sites_user):
     release_2 = Release(name='Site 0 Release 2',
                         files=[
                             File(filename='s0_r1_file_0.wav'),
-                            File(filename='s0_r1_file_1.wav')
-                        ])
+                            File(filename='s0_r1_file_1.wav'),
+                        ],
+                        artwork=Artwork(filename='artwork.jpg'))
 
     with open(TEST_WAV_PATH, 'rb') as f:
       object_storage.put_object(
@@ -140,6 +141,9 @@ def releases_user(app, sites_user):
       object_storage.put_object(
           f'{app.config["DATA_DIR"]}/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1/Site 0 Release 2/s0_r1_file_1.wav',
           f, 'audio/wav')
+    object_storage.put_object(
+        f'{app.config["DATA_DIR"]}/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1/Site 0 Release 2/artwork.jpg',
+        TEST_JPG_DATA, 'image/jpeg')
     sites_user.sites[0].releases.append(release_2)
 
     release_3 = Release(name='Site 1 Release 1')

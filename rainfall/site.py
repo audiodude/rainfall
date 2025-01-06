@@ -166,8 +166,7 @@ def get_zip_file(preview_dir_path, site):
                           'rainfall_site.zip')
 
   if not object_storage.path_exists(zip_path):
-    return flask.jsonify(
-        status=404, error=f'Zip file does not exist for site {site.id}'), 404
+    raise FileNotFoundError(f'Could not find zip file at {zip_path}')
 
   return object_storage.get_object(zip_path)
 
