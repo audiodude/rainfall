@@ -27,3 +27,6 @@ pytest-cov = "*"
 
 [requires]
 python_version = "3.12"
+
+[scripts]
+worker = "pipenv run python -m celery -A rainfall.main worker -l info"

@@ -3,6 +3,8 @@ import os
 
 import flask
 from authlib.integrations.flask_client import OAuth
+from celery import Celery
+from celery.result import AsyncResult
 from flask_seasurf import SeaSurf
 
 from rainfall import object_storage
@@ -20,6 +22,17 @@ from rainfall.test_constants import TEST_FILE_PATH, TEST_MINIO_BUCKET
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
+
+task_app = Celery('tasks',
+                  broker_url=os.environ['REDIS_URL'],
+                  result_backend=os.environ['REDIS_URL'])
+
+
+@task_app.task
+def generate_site_async(data_dir_path, preview_dir_path, site_id):
+  app = create_app()
+  with app.app_context():
+    generate_site(data_dir_path, preview_dir_path, site_id)
 
 
 def create_app():
@@ -79,12 +92,21 @@ def create_app():
       else:
         return '', 404
 
-    result = generate_site(app.config['DATA_DIR'], app.config['PREVIEW_DIR'],
-                           str(site.id))
-    if result[0]:
-      return '', 204
-    else:
-      return flask.jsonify(status=500, error=result[1]), 500
+    result = generate_site_async.delay(app.config['DATA_DIR'],
+                                       app.config['PREVIEW_DIR'], str(site.id))
+    site.preview_task_id = result.id
+    db.session.add(site)
+    db.session.commit()
+    return '', 204
+
+  @app.route('/api/v1/preview/<site_id>/status')
+  @with_current_user
+  @with_current_site
+  def preview_status(site, user):
+    if site.preview_task_id is None:
+      return flask.jsonify(status=404, error='No preview task found'), 404
+    result = AsyncResult(site.preview_task_id, app=task_app)
+    return flask.jsonify(status=200, task_status=result.status)
 
   @app.route('/preview/<site_id>/')
   @with_current_user
