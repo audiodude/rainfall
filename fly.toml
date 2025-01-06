@@ -15,6 +15,7 @@ primary_region = "sjc"
 [mounts]
   source="rainfall_data"
   destination="/data"
+  processes = ["worker"]
 
 [http_service]
   internal_port = 8000
