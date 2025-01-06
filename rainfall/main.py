@@ -32,7 +32,7 @@ task_app = Celery('tasks',
 def generate_site_async(data_dir_path, preview_dir_path, site_id):
   app = create_app()
   with app.app_context():
-    generate_site(data_dir_path, preview_dir_path, site_id)
+    return generate_site(data_dir_path, preview_dir_path, site_id)
 
 
 def create_app():
