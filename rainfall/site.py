@@ -12,7 +12,6 @@ import flask
 from rainfall import object_storage
 from rainfall.db import db
 from rainfall.models.site import Site
-from rainfall import tasks
 
 log = logging.getLogger(__name__)
 
@@ -119,8 +118,6 @@ def cleanup_site(data_dir_path, preview_dir_path, site_id):
 
 
 def generate_site(data_dir_path, preview_dir_path, site_id):
-  tasks.add.delay(42, 10)
-
   download_site_objects(data_dir_path, site_id)
   generate_eno_files(data_dir_path, site_id)
 
