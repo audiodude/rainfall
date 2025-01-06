@@ -112,7 +112,11 @@ def create_app():
   @with_current_user
   @with_current_site
   def zip(site, user):
-    file = get_zip_file(app.config['PREVIEW_DIR'], site)
+    try:
+      file = get_zip_file(app.config['PREVIEW_DIR'], site)
+    except FileNotFoundError:
+      return flask.jsonify(
+          status=404, error=f'Zip file does not exist for site {site.id}'), 404
     return flask.send_file(file, download_name='rainfall_site.zip')
 
   @app.route('/')
