@@ -77,6 +77,10 @@ describe('Edit Site test', () => {
         cy.get('#new-release-button').should('be.disabled');
       });
 
+      it('starts with the deploy button disabled', () => {
+        cy.get('#deploy-site-button').should('be.disabled');
+      });
+
       describe('when a release is added', () => {
         beforeEach(() => {
           cy.intercept('POST', 'api/v1/release', {
@@ -234,6 +238,10 @@ describe('Edit Site test', () => {
         it('shows the preview link', () => {
           cy.wait('@preview-site');
           cy.get('.preview-load').contains('Open preview in new window');
+        });
+
+        it('enables the deploy button', () => {
+          cy.get('#deploy-site-button').should('not.be.disabled');
         });
 
         it('has the right URL for the preview link', () => {

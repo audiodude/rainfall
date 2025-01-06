@@ -25,7 +25,7 @@ export default {
 <template>
   <div class="mt-4 block text-center md:text-left md:flex md:items-center">
     <button
-      id="dropdownDefaultButton"
+      id="deploy-site-button"
       :disabled="!readyForDeploy"
       data-dropdown-toggle="dropdown"
       class="inline-flex items-center justify-center cursor-pointer w-10/12 md:w-48 p-4 md:py-2 text-xl md:text-base disabled:cursor-auto bg-blue-600 text-grey-200 disabled:bg-blue-400 disabled:text-white hover:bg-blue-800 disabled:hover:bg-blue-400 focus:ring-4 focus:outline-none focus:ring-blue-300 font-semibold text-gray-100 hover:text-white px-4 border border-blue-500 rounded hover:border-transparent disabled:hover:border-blue-500"
