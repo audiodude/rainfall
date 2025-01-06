@@ -19,6 +19,7 @@ alembic = "*"
 authlib = "*"
 pymysql = "*"
 minio = "*"
+celery = {extras = ["redis"], version = "*"}
 
 [dev-packages]
 pytest = "*"
