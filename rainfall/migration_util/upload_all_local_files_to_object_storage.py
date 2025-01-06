@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 
@@ -12,6 +13,9 @@ from rainfall.site import build_dir, cache_dir, secure_filename, site_path
 
 FROM_PREVIEW_DIR = os.environ.get('FROM_PREVIEW_DIR', '/data/preview-data')
 FROM_DATA_DIR = os.environ.get('FROM_DATA_DIR', '/data/song-data')
+
+urllib_logger = logging.getLogger('urllib3.connectionpool')
+urllib_logger.setLevel(logging.WARNING)
 
 
 def upload_local_files():
@@ -28,21 +32,27 @@ def upload_local_files():
     cache_dir_path = cache_dir(preview_dir_path, str(site.id))
 
     try:
-      print(f'Uploading site {site_dir_path} to object storage')
+      print(
+          f'Uploading site {from_site_dir_path} to object storage at {site_dir_path}'
+      )
       object_storage.upload_dir_recursively(path=from_site_dir_path,
                                             output_path=site_dir_path)
     except AssertionError:
       print('    X - Directory not found')
 
     try:
-      print(f'Uploading {build_dir_path} to object storage')
+      print(
+          f'Uploading build {from_build_dir_path} to object storage at {build_dir_path}'
+      )
       object_storage.upload_dir_recursively(path=from_build_dir_path,
                                             output_path=build_dir_path)
     except AssertionError:
       print('    X - Directory not found')
 
     try:
-      print(f'Uploading {cache_dir_path} to object storage')
+      print(
+          f'Uploading {from_cache_dir_path} to object storage at {cache_dir_path}'
+      )
       object_storage.upload_dir_recursively(path=from_cache_dir_path,
                                             output_path=cache_dir_path)
     except AssertionError:
