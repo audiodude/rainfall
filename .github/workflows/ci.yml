@@ -5,6 +5,22 @@ on:
 jobs:
   python-ci:
     runs-on: ubuntu-latest
+    services:
+      minio:
+        image: lazybit/minio
+        env:
+          MINIO_ACCESS_KEY: rainfall-ci-minio-access-key
+          MINIO_SECRET_KEY: rainfall-ci-minio-secret-key
+        ports:
+          - 9000:9000
+          - 9001:9001
+        options: >-
+          --name minio
+          --health-cmd "curl -f http://localhost:9000/minio/health/live"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
