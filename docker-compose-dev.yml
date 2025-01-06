@@ -22,6 +22,12 @@ services:
       MINIO_ROOT_PASSWORD: rainfall-minio
     command: server --console-address :9001 /data
 
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+
   # Used for formatting the volume as ext4. Otherwise, some minio operations may fail.
   # Uncomment to format (with docker compose up) and comment afterwards so the volume
   # is not formatted again.

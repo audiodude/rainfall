@@ -56,4 +56,4 @@ RUN pipenv install --deploy --ignore-pipfile
 COPY . .
 COPY --from=build /usr/src/app/frontend ./rainfall-frontend
 
-CMD ["pipenv", "run", "gunicorn", "--error-logfile", "-", "--access-logfile", "-", "-b", "0.0.0.0", "rainfall.main:create_app()"]
+ENTRYPOINT ["./entrypoint.sh"]
