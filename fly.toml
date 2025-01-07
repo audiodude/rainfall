@@ -10,7 +10,7 @@ primary_region = "sjc"
 
 [processes]
   app = "pipenv run gunicorn --error-logfile - --access-logfile - -b 0.0.0.0 rainfall.main:create_app()"
-  worker = "pipenv run python -m celery -A rainfall.tasks worker -l info"
+  worker = "pipenv run python -m celery -A rainfall.main worker -l info"
 
 [mounts]
   source="rainfall_data"
