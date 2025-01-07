@@ -60,12 +60,12 @@ export default {
             this.previewLoading = false;
             this.previewError = 'An error occurred while generating the preview';
           } else {
-            setTimeout(this.pollForPreview, 5000);
+            setTimeout(this.pollForPreview, import.meta.env.VITE_PREVIEW_POLL_INTERVAL);
           }
+          return;
         }
         this.showError(resp);
       }
-      return '';
     },
     invalidatePreview() {
       this.previewError = '';
