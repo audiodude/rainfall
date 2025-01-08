@@ -8,7 +8,7 @@ Free Bandcamp exodus tool, letting you publish music sites to Netlify using [Fai
 
 This project does not aim to replicate the full feature set of the Bandcamp site/app. Instead, the goal is to allow artists to create individual websites where users can listen to and potentially download and pay for their tracks. These websites are created using the Faircamp static site generator, and can be hosted anywhere on the web.
 
-Rainfall has reached [version 1.4](https://sfba.social/@audiodude/113477212084686730) of development!
+Rainfall has reached [version 1.5](https://sfba.social/@audiodude/113784434545357783) of development!
 
 ![Screenshot of the Rainfall tool, on the song upload page](https://github.com/audiodude/rainfall/assets/57832/04e7088a-3d61-4dcd-b22a-445be161534e)
 
