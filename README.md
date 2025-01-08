@@ -59,7 +59,7 @@ fly deploy
 
 The frontend (`./rainfall-frontend`, NOT the root directory or Flask app) also requires a `.env.production` file with the fields `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_REDIRECT_URI`. This will be ignored by git, but needs to be present when `fly deploy` is run so that it is baked into the frontend production deployment.
 
-The Docker container will automatically be built remotely and deployed. The backend data for the production site (song/project files) lives on a Fly volume that is attached to the web worker. Current work involves migrating this to object storage using [Minio](https://min.io/).
+The Docker container will automatically be built remotely and deployed. The backend data for the production site (song/project files) lives in [Minio](https://min.io/), which is also hosted on Fly.io as a separate app.
 
 ### Running Database migrations
 
