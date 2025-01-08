@@ -83,6 +83,10 @@ describe('Edit Site test', () => {
           cy.get('#new-release-button').should('be.disabled');
         });
 
+        it('starts with the deploy button disabled', () => {
+          cy.get('#deploy-site-button').should('be.disabled');
+        });
+
         describe('when a release is added', () => {
           beforeEach(() => {
             cy.intercept('POST', 'api/v1/release', {
@@ -217,7 +221,7 @@ describe('Edit Site test', () => {
           cy.get('#preview-site-button').should('not.be.disabled');
         });
 
-        describe.only('when the preview button is clicked', () => {
+        describe('when the preview button is clicked', () => {
           let calledPreview = false;
           beforeEach(() => {
             cy.intercept('POST', 'api/v1/preview/06547ed8-206f-7d3d-8000-20ab423e0bb9', (req) => {
@@ -247,6 +251,11 @@ describe('Edit Site test', () => {
             cy.wrap(calledPreview).should('eq', true);
           });
 
+          it('enables the deploy button', () => {
+            cy.wait('@preview-site');
+            cy.get('#deploy-site-button').should('not.be.disabled');
+          });
+
           it('shows a loading message', () => {
             cy.get('.preview-load').find('.loader').should('be.visible');
             cy.get('.preview-load').should('not.contain', 'Open preview in new window');
@@ -263,6 +272,14 @@ describe('Edit Site test', () => {
               .should('have.attr', 'href')
               .should('not.be.empty')
               .and('contain', '/preview');
+          });
+
+          it('has the right URL for the deploy ZIP link', () => {
+            cy.wait('@preview-site');
+            cy.get('#deploy-zip-button')
+              .should('have.attr', 'href')
+              .should('not.be.empty')
+              .and('contain', '/zip');
           });
         });
 
