@@ -20,6 +20,14 @@ import NavBar from './components/NavBar.vue';
           >File a Github issue</a
         ></span
       >
+      <span class="block md:inline">
+        Feedback also welcome
+        <a
+          class="text-blue-500 hover:underline"
+          href="https://docs.google.com/forms/d/e/1FAIpQLSca4myLs9S0kw1DTA5MOB2OGUDP27f6qaTBELT2oDXjAEyUHw/viewform?usp=header"
+          >here</a
+        >
+      </span>
     </div>
   </footer>
 </template>
