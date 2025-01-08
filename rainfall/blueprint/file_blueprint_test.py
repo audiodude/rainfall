@@ -26,7 +26,7 @@ class FileTest:
 
       rv = client.delete(f'/api/v1/file/{str(file_id)}')
 
-      assert rv.status == '204 NO CONTENT'
+      assert rv.status == '204 NO CONTENT', rv.json
 
     with app.app_context():
       updated_user = db.session.get(User, BASIC_USER_ID)
@@ -75,9 +75,10 @@ class FileTest:
 
       assert rv.status == '403 FORBIDDEN'
 
-  @patch('rainfall.blueprint.file.os.remove')
-  def test_delete_file_oserror(self, mock_remove, app, releases_user):
-    mock_remove.side_effect = OSError
+  @patch('rainfall.object_storage.remove_object')
+  def test_delete_file_object_storage_error(self, mock_remove, app,
+                                            releases_user):
+    mock_remove.side_effect = Exception
 
     with app.app_context():
       db.session.add(releases_user)

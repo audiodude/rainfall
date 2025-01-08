@@ -3,12 +3,14 @@ from uuid import UUID
 
 import flask
 
+from rainfall import object_storage
 from rainfall.db import db
 from rainfall.decorators import with_current_user, with_validated_release
 from rainfall.models.artwork import Artwork
 from rainfall.models.file import File
 from rainfall.models.release import Release
-from rainfall.site import delete_file as delete_db_file, release_path, secure_filename
+from rainfall.site import delete_file as delete_db_file
+from rainfall.site import release_path, secure_filename
 
 upload = flask.Blueprint('upload', __name__)
 
@@ -33,21 +35,21 @@ def check_file_types(allowed_exts, *song_files):
 
 
 def write_files(release, claz, *files):
-  for song in files:
-    name = secure_filename(song.filename)
+  for file in files:
+    name = secure_filename(file.filename)
     if len(name) > 1024:
       return flask.jsonify(status=400,
                            error=f'File name {name} is too long'), 400
 
-    file = claz(filename=name)
-    # Yield so that the calling function can properly save file to db.
-    yield file
+    obj = claz(filename=name)
+    # Yield so that the calling function can properly save metadata to db.
+    yield obj
 
-    # Write the file to the filesystem.
+    # Write the file to object storage.
     cur_release_path = release_path(flask.current_app.config['DATA_DIR'],
                                     release)
-    os.makedirs(cur_release_path, exist_ok=True)
-    song.save(os.path.join(cur_release_path, file.filename))
+    object_path = os.path.join(cur_release_path, obj.filename)
+    object_storage.put_object(object_path, file, file.content_type)
 
 
 @upload.route('upload/release/<release_id>/song', methods=['POST'])

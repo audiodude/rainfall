@@ -3,8 +3,11 @@ import os
 
 import flask
 from authlib.integrations.flask_client import OAuth
+from celery import Celery
+from celery.result import AsyncResult
 from flask_seasurf import SeaSurf
 
+from rainfall import object_storage
 from rainfall.blueprint.file import file as file_blueprint
 from rainfall.blueprint.oauth import OauthBlueprintFactory
 from rainfall.blueprint.release import release as release_blueprint
@@ -13,12 +16,23 @@ from rainfall.blueprint.upload import upload as upload_blueprint
 from rainfall.blueprint.user import UserBlueprintFactory
 from rainfall.db import db
 from rainfall.decorators import with_current_site, with_current_user
-from rainfall.site import (generate_site, generate_zip, public_dir, site_exists,
+from rainfall.site import (generate_site, get_zip_file, public_dir, site_exists,
                            zip_file_path)
-from rainfall.test_constants import TEST_FILE_PATH
+from rainfall.test_constants import TEST_FILE_PATH, TEST_MINIO_BUCKET
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
+
+task_app = Celery('tasks',
+                  broker_url=os.environ['REDIS_URL'],
+                  result_backend=os.environ['REDIS_URL'])
+
+
+@task_app.task
+def generate_site_async(data_dir_path, preview_dir_path, site_id):
+  app = create_app()
+  with app.app_context():
+    return generate_site(data_dir_path, preview_dir_path, site_id)
 
 
 def create_app():
@@ -32,6 +46,10 @@ def create_app():
   app.config['MASTODON_WEBSITE'] = os.environ['MASTODON_WEBSITE']
   app.config['DATA_DIR'] = os.environ['DATA_DIR']
   app.config['PREVIEW_DIR'] = os.environ['PREVIEW_DIR']
+  app.config['MINIO_ENDPOINT'] = os.environ['MINIO_ENDPOINT']
+  app.config['MINIO_ACCESS_KEY'] = os.environ['MINIO_ACCESS_KEY']
+  app.config['MINIO_SECRET_KEY'] = os.environ['MINIO_SECRET_KEY']
+  app.config['MINIO_BUCKET'] = os.environ['MINIO_BUCKET']
 
   # Authlib automatically extracts these
   app.config['NETLIFY_CLIENT_ID'] = os.environ['NETLIFY_CLIENT_ID']
@@ -41,17 +59,12 @@ def create_app():
   app.config['RAINFALL_ENV'] = os.environ.get('RAINFALL_ENV', 'development')
   if app.config['RAINFALL_ENV'] != 'test':
     db.init_app(app)
+    init_object_storage(app)
   else:
     app.config['TESTING'] = True
-    app.config['DATA_DIR'] = os.path.join(TEST_FILE_PATH,
-                                          app.config['DATA_DIR'])
-    app.config['PREVIEW_DATA'] = os.path.join(TEST_FILE_PATH,
-                                              app.config['DATA_DIR'])
+
   csrf = SeaSurf(app)
   oauth = OAuth(app)
-
-  os.makedirs(app.config['DATA_DIR'], exist_ok=True)
-  os.makedirs(app.config['PREVIEW_DIR'], exist_ok=True)
 
   app.register_blueprint(UserBlueprintFactory(csrf).get_blueprint(),
                          url_prefix='/api/v1')
@@ -79,21 +92,31 @@ def create_app():
       else:
         return '', 404
 
-    result = generate_site(app.config['DATA_DIR'], app.config['PREVIEW_DIR'],
-                           str(site.id))
-    if result[0]:
-      return '', 204
-    else:
-      return flask.jsonify(status=500, error=result[1]), 500
+    result = generate_site_async.delay(app.config['DATA_DIR'],
+                                       app.config['PREVIEW_DIR'], str(site.id))
+    site.preview_task_id = result.id
+    db.session.add(site)
+    db.session.commit()
+    return '', 204
+
+  @app.route('/api/v1/preview/<site_id>/status')
+  @with_current_user
+  @with_current_site
+  def preview_status(site, user):
+    if site.preview_task_id is None:
+      return flask.jsonify(status=404, error='No preview task found'), 404
+    result = AsyncResult(site.preview_task_id, app=task_app)
+    return flask.jsonify(status=200, task_status=result.status)
 
   @app.route('/preview/<site_id>/')
   @with_current_user
   @with_current_site
   def preview_index(site, user):
     # The decorators ensure that the site belongs to the user.
-    return flask.send_from_directory(
-        os.path.join('..', app.config['PREVIEW_DIR'], public_dir(site)),
-        'index.html')
+    index_path = os.path.join(app.config['PREVIEW_DIR'], public_dir(site),
+                              'index.html')
+    file = object_storage.get_object(index_path)
+    return flask.send_file(file, download_name='index.html')
 
   @app.route('/preview/<site_id>/<path:filename>')
   @with_current_user
@@ -102,31 +125,26 @@ def create_app():
     # The decorators ensure that the site belongs to the user.
     if filename.endswith('/'):
       filename += 'index.html'
-    return flask.send_from_directory(
-        os.path.join('..', app.config['PREVIEW_DIR'], public_dir(site)),
-        filename)
+    file_path = os.path.join(app.config['PREVIEW_DIR'], public_dir(site),
+                             filename)
+    file = object_storage.get_object(file_path)
+    return flask.send_file(file, download_name=os.path.basename(file_path))
 
   @app.route('/api/v1/zip/<site_id>')
   @with_current_user
   @with_current_site
   def zip(site, user):
-    generate_zip(app.config['PREVIEW_DIR'], str(site.id))
-    zip_path = zip_file_path(app.config['PREVIEW_DIR'], str(site.id))
-    return flask.send_from_directory(os.path.join('..', zip_path),
-                                     'rainfall_site.zip')
+    try:
+      file = get_zip_file(app.config['PREVIEW_DIR'], site)
+    except FileNotFoundError:
+      return flask.jsonify(
+          status=404, error=f'Zip file does not exist for site {site.id}'), 404
+    return flask.send_file(file, download_name='rainfall_site.zip')
 
   @app.route('/')
   @app.route('/<path:filename>')
   def index(filename=None):
     return flask.send_from_directory(FRONTEND_DIR, 'index.html')
-
-  @app.route('/favicon.ico')
-  def favicon():
-    return flask.send_from_directory(FRONTEND_DIR, 'favicon.ico')
-
-  @app.route('/rainfall_preview.png')
-  def rainfall_preview():
-    return flask.send_from_directory(FRONTEND_DIR, 'rainfall_preview.png')
 
   @app.route('/src/<path:filename>')
   def srcs(filename=None):
@@ -139,3 +157,8 @@ def create_app():
                                      filename)
 
   return app
+
+
+def init_object_storage(app):
+  object_storage.create_bucket_if_not_exists(app)
+  object_storage.create_bucket_if_not_exists(app)

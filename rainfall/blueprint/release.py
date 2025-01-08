@@ -4,6 +4,7 @@ from uuid import UUID
 
 import flask
 
+from rainfall import object_storage
 from rainfall.db import db
 from rainfall.decorators import with_current_user, with_validated_release
 from rainfall.models.release import Release
@@ -51,15 +52,6 @@ def create_release(user):
         error=f'A release with the name "{release.name}" already exists'), 400
 
   site.releases.append(release)
-  cur_release_path = release_path(flask.current_app.config['DATA_DIR'], release)
-  try:
-    os.makedirs(cur_release_path)
-  except FileExistsError:
-    db.session.rollback()
-    return flask.jsonify(
-        status=500,
-        error='Could not create that release (filesystem error)'), 500
-
   db.session.add(site)
   db.session.commit()
   return '', 204
@@ -80,8 +72,10 @@ def get_release_artwork(release, user):
     flask.abort(404)
 
   path = os.path.join(
-      '..', release_path(flask.current_app.config['DATA_DIR'], release))
-  return flask.send_from_directory(path, release.artwork.filename)
+      release_path(flask.current_app.config['DATA_DIR'], release),
+      release.artwork.filename)
+  file = object_storage.get_object(path)
+  return flask.send_file(file, download_name=release.artwork.filename)
 
 
 @release.route('release/<release_id>/description', methods=['POST'])
@@ -131,7 +125,8 @@ def delete_release(release, user):
   db.session.delete(release)
 
   try:
-    shutil.rmtree(release_path(flask.current_app.config['DATA_DIR'], release))
+    path = release_path(flask.current_app.config['DATA_DIR'], release)
+    object_storage.rmtree(path)
   except Exception as e:
     db.session.rollback()
     return flask.jsonify(

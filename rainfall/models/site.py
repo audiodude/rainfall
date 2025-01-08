@@ -25,6 +25,7 @@ class Site(db.Model):
 
   releases: Mapped[List['Release']] = relationship(back_populates='site',
                                                    cascade='all, delete-orphan')
+  preview_task_id: Mapped[str] = mapped_column(String(255), nullable=True)
 
   def __repr__(self) -> str:
     return f'Site(id={self.id!r}, user_id={self.user_id!r}, name={self.name!r})'

@@ -1,15 +1,19 @@
+import logging
 import os
 import shutil
 from uuid import UUID
 
 import flask
 
+from rainfall import object_storage
 from rainfall.db import db
-from rainfall.decorators import with_current_user, with_current_site
+from rainfall.decorators import with_current_site, with_current_user
 from rainfall.models.site import Site
-from rainfall.site import site_path, rename_site_dir
+from rainfall.site import rename_site_dir, site_path
 
 site = flask.Blueprint('site', __name__)
+
+log = logging.getLogger(__name__)
 
 
 @site.route('/site', methods=['POST'])
@@ -65,10 +69,11 @@ def delete_site(site, user):
   db.session.delete(site)
 
   try:
-    shutil.rmtree(site_path(flask.current_app.config['DATA_DIR'], site))
+    path = site_path(flask.current_app.config['DATA_DIR'], site)
+    object_storage.rmtree(path)
   except Exception as e:
-    print(e)
     db.session.rollback()
+    log.exception('Could not delete site id=%s', site.id)
     return flask.jsonify(status=500,
                          error='Could not delete site (filesystem error)'), 500
 

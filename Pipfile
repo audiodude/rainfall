@@ -18,6 +18,8 @@ flask-seasurf = {ref = "f383b482c69e0b0e8064a8eb89305cea3826a7b6", git = "git+ht
 alembic = "*"
 authlib = "*"
 pymysql = "*"
+minio = "*"
+celery = {extras = ["redis"], version = "*"}
 
 [dev-packages]
 pytest = "*"
@@ -25,3 +27,6 @@ pytest-cov = "*"
 
 [requires]
 python_version = "3.12"
+
+[scripts]
+worker = "pipenv run python -m celery -A rainfall.main worker -l info"

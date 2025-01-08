@@ -5,12 +5,12 @@ export default {
   props: ['cardinality', 'siteId', 'readyForPreview'],
   data(): {
     previewError: string;
-    previewUrl: undefined | string;
+    previewUrl?: string;
     previewLoading: boolean;
   } {
     return {
       previewError: '',
-      previewUrl: '',
+      previewUrl: undefined,
       previewLoading: false,
     };
   },
@@ -26,16 +26,16 @@ export default {
         method: 'POST',
         headers: { 'X-CSRFToken': getCsrf() },
       });
+      this.$emit('preview-requested');
 
-      setTimeout(() => {
-        this.previewLoading = false;
-      }, 250);
+      this.pollForPreview();
+
       if (resp.ok) {
-        this.previewUrl = `/preview/${this.siteId}`;
-        this.$emit('preview-requested');
         return;
       }
-
+      this.showError(resp);
+    },
+    async showError(resp: Response) {
       let error = 'An unknown error occurred';
       if (resp.headers.get('Content-Type') == 'application/json') {
         const data = await resp.json();
@@ -44,6 +44,28 @@ export default {
       setTimeout(() => {
         this.previewError = error;
       }, 250);
+    },
+    async pollForPreview() {
+      if (this.previewLoading) {
+        const resp = await fetch(`/api/v1/preview/${this.siteId}/status`, {
+          method: 'GET',
+          headers: { 'X-CSRFToken': getCsrf() },
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data.task_status == 'SUCCESS') {
+            this.previewLoading = false;
+            this.previewUrl = `/preview/${this.siteId}`;
+          } else if (data.task_status == 'FAILURE') {
+            this.previewLoading = false;
+            this.previewError = 'An error occurred while generating the preview';
+          } else {
+            setTimeout(this.pollForPreview, parseInt(import.meta.env.VITE_PREVIEW_POLL_MS, 10));
+          }
+          return;
+        }
+        this.showError(resp);
+      }
     },
     invalidatePreview() {
       this.previewError = '';

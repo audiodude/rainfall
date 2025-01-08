@@ -37,6 +37,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup.sh && ch
 RUN ./rustup.sh -y
 RUN git clone https://codeberg.org/simonrepp/faircamp.git
 WORKDIR faircamp
+# NOTE: This is the faircamp version used in production. If it gets updated here, make sure
+# to also update CI and local dev environments.
 RUN git checkout tags/1.0.0
 RUN $HOME/.cargo/bin/cargo install --features libvips --locked --path .
 
@@ -54,4 +56,4 @@ RUN pipenv install --deploy --ignore-pipfile
 COPY . .
 COPY --from=build /usr/src/app/frontend ./rainfall-frontend
 
-CMD ["pipenv", "run", "gunicorn", "--error-logfile", "-", "--access-logfile", "-", "-b", "0.0.0.0", "rainfall.main:create_app()"]
+ENTRYPOINT ["./entrypoint.sh"]
