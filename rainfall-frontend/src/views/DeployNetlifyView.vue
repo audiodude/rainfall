@@ -45,7 +45,7 @@ export default {
       return !!this.userStore.user?.integration?.has_netlify_token;
     },
     doneDeploying(): boolean {
-      return this.site && this.site.netlify_url && !this.deploying;
+      return !!this.site && !!this.site.netlify_url && !this.deploying;
     },
     ...mapStores(useUserStore),
   },
@@ -182,7 +182,7 @@ export default {
           <span class="sr-only">Deploying your site...</span>
         </div>
         <div
-          v-if="doneDeploying"
+          v-if="doneDeploying && site"
           id="netlify-deploy-result"
           class="ml-4 mt-1 md:mt-0 text-sm text-center md:text-left md:leading-[2.5rem]"
         >
