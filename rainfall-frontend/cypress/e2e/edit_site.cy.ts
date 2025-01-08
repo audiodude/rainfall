@@ -43,32 +43,7 @@ describe('Edit Site test', () => {
           statusCode: 204,
         }).as('check-site-preview');
       });
-<<<<<<< HEAD
-
-      it('shows the add release button', () => {
-        cy.get('#new-release-button').should('be.visible');
-      });
-
-      it('shows the preview button', () => {
-        cy.get('#preview-site-button').should('be.visible');
-      });
-
-      it('has the preview button disabled when there are no releases', () => {
-        cy.get('#preview-site-button').should('be.disabled');
-      });
-
-      it('starts with the add release button disabled', () => {
-        cy.get('#new-release-button').should('be.disabled');
-      });
-
-      it('starts with the deploy button disabled', () => {
-        cy.get('#deploy-site-button').should('be.disabled');
-      });
-
-      describe('when a release is added', () => {
-=======
       describe('when there is one release', () => {
->>>>>>> main
         beforeEach(() => {
           let count = 0;
           cy.intercept('GET', 'api/v1/site/06547ed8-206f-7d3d-8000-20ab423e0bb9', (req) => {
@@ -106,6 +81,10 @@ describe('Edit Site test', () => {
 
         it('starts with the add release button disabled', () => {
           cy.get('#new-release-button').should('be.disabled');
+        });
+
+        it('starts with the deploy button disabled', () => {
+          cy.get('#deploy-site-button').should('be.disabled');
         });
 
         describe('when a release is added', () => {
@@ -180,48 +159,8 @@ describe('Edit Site test', () => {
           cy.intercept('POST', 'api/v1/upload/**', (req) => {
             calledUpload = true;
             req.reply(204, '', {});
-<<<<<<< HEAD
-          }).as('preview-site');
-          cy.get('#preview-site-button').click();
-        });
-
-        it('calls the preview endpoint', () => {
-          cy.wait('@preview-site');
-          cy.wrap(calledPreview).should('eq', true);
-        });
-
-        it('shows a loading message', () => {
-          cy.get('.preview-load').find('.loader').should('be.visible');
-          cy.get('.preview-load').should('not.contain', 'Open preview in new window');
-        });
-
-        it('shows the preview link', () => {
-          cy.wait('@preview-site');
-          cy.get('.preview-load').contains('Open preview in new window');
-        });
-
-        it('enables the deploy button', () => {
-          cy.get('#deploy-site-button').should('not.be.disabled');
-        });
-
-        it('has the right URL for the preview link', () => {
-          cy.wait('@preview-site');
-          cy.get('.preview-link')
-            .should('have.attr', 'href')
-            .should('not.be.empty')
-            .and('contain', '/preview');
-        });
-      });
-
-      describe('and the delete button is successfully pressed for one of the files', () => {
-        let calledDelete = false;
-        beforeEach(() => {
-          cy.intercept('DELETE', 'api/v1/file/06552cb9-7fe0-7723-8000-82163fc21234', (req) => {
-            calledDelete = true;
-=======
           }).as('upload-songs');
           cy.intercept('GET', 'api/v1/preview/**', (req) => {
->>>>>>> main
             req.reply(204, '', {});
           });
           cy.fixture('song.json').as('song');
@@ -282,7 +221,7 @@ describe('Edit Site test', () => {
           cy.get('#preview-site-button').should('not.be.disabled');
         });
 
-        describe.only('when the preview button is clicked', () => {
+        describe('when the preview button is clicked', () => {
           let calledPreview = false;
           beforeEach(() => {
             cy.intercept('POST', 'api/v1/preview/06547ed8-206f-7d3d-8000-20ab423e0bb9', (req) => {
@@ -310,6 +249,11 @@ describe('Edit Site test', () => {
           it('calls the preview endpoint', () => {
             cy.wait('@preview-site');
             cy.wrap(calledPreview).should('eq', true);
+          });
+
+          it('enables the deploy button', () => {
+            cy.wait('@preview-site');
+            cy.get('#deploy-site-button').should('not.be.disabled');
           });
 
           it('shows a loading message', () => {
