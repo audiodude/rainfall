@@ -273,6 +273,14 @@ describe('Edit Site test', () => {
               .should('not.be.empty')
               .and('contain', '/preview');
           });
+
+          it('has the right URL for the deploy ZIP link', () => {
+            cy.wait('@preview-site');
+            cy.get('#deploy-zip-button')
+              .should('have.attr', 'href')
+              .should('not.be.empty')
+              .and('contain', '/zip');
+          });
         });
 
         describe('and the delete button is successfully pressed for one of the files', () => {
