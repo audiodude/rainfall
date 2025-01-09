@@ -96,7 +96,7 @@ jobs:
           cd rainfall-frontend
           $(yarn bin)/cypress run --e2e
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         continue-on-error: true
         if: always()
         with:
