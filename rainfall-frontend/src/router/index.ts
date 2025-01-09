@@ -8,6 +8,9 @@ import EditSiteView from '../views/EditSiteView.vue';
 import EditReleaseView from '@/views/EditReleaseView.vue';
 import DeployNetlifyView from '@/views/DeployNetlifyView.vue';
 import FeedbackView from '@/views/FeedbackView.vue';
+import TermsOfUseView from '@/views/TermsOfUseView.vue';
+import CookiePolicyView from '@/views/CookiePolicyView.vue';
+import PrivacyPolicyView from '@/views/PrivacyPolicyView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -41,6 +44,10 @@ const router = createRouter({
     { path: '/deploy/:site_id/netlify', name: 'deployNetlify', component: DeployNetlifyView },
 
     { path: '/feedback', name: 'feedback', component: FeedbackView },
+    { path: '/terms', name: 'terms', component: TermsOfUseView },
+    { path: '/cookie-policy', name: 'cookie-policy', component: CookiePolicyView },
+    { path: '/privacy-policy', name: 'privacy-policy', component: PrivacyPolicyView },
+
     // 404 page
     { path: '/:pathMatch(.*)*', name: 'notfound', component: NotFoundView },
   ],
