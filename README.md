@@ -31,6 +31,22 @@ The frontend is written in [Vue 3](https://vuejs.org/) using the Options API, wi
 
 For development, you will need a `.env` file in the project root directory, and a `.env.development` file in the `rainfall-frontend` directory. The project directory may also contain a `.env.prod` file, but this is never loaded, it is purely for reference. Production environment variables are set using [Fly.io secrets](https://fly.io/docs/reference/secrets/).
 
+### Dev services (Docker compose)
+
+The file `docker-compose-dev.yml` contains a MariaDB instance and a Redis instance for use by the development environment. Start them with:
+
+```
+docker compose -f docker-compose-dev.yml up -d
+```
+
+#### Celery workers
+
+Rainfall uses [Celery](http://docs.celeryq.dev/en/stable/) for generating site previews in the background. For development, you can launch a dev worker from any command line with:
+
+```
+pipenv run celery -A rainfall.main worker -l INFO
+```
+
 ### Running Tests
 
 #### Backend
