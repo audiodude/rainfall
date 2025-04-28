@@ -216,31 +216,62 @@ export default defineComponent({
           Songs
           <hr class="h-px my-2 border-emerald-500" />
         </div>
-        <div
-          v-for="file of release.files"
-          class="file-name text-right my-3 flex items-center justify-end"
-        >
-          <div>{{ file.filename }}</div>
-          <button
-            @click="deleteFile(release, file.id)"
-            aria-label="delete file"
-            class="inline-block ml-2 text-red-500 relative top-0.5"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="w-6 h-6"
+        <div v-for="file of release.files" class="file-name text-right my-3">
+          <div class="flex items-center justify-end mb-2">
+            <div class="text-lg">{{ file.filename }}</div>
+            <button
+              @click="deleteFile(release, file.id)"
+              aria-label="delete file"
+              class="inline-block ml-2 text-red-500 relative top-0.5"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </button>
+          </div>
+          <div
+            v-if="
+              file.title ||
+              file.artist ||
+              file.album ||
+              file.year ||
+              file.track_number ||
+              file.genre
+            "
+            class="text-sm text-gray-600 dark:text-gray-400 mb-2 border-l-4 border-emerald-500 pl-2"
+          >
+            <div v-if="file.title" class="mb-1">
+              <span class="font-semibold">Title:</span> {{ file.title }}
+            </div>
+            <div v-if="file.artist" class="mb-1">
+              <span class="font-semibold">Artist:</span> {{ file.artist }}
+            </div>
+            <div v-if="file.album" class="mb-1">
+              <span class="font-semibold">Album:</span> {{ file.album }}
+            </div>
+            <div class="flex gap-4">
+              <div v-if="file.year" class="mb-1">
+                <span class="font-semibold">Year:</span> {{ file.year }}
+              </div>
+              <div v-if="file.track_number" class="mb-1">
+                <span class="font-semibold">Track:</span> {{ file.track_number }}
+              </div>
+              <div v-if="file.genre" class="mb-1">
+                <span class="font-semibold">Genre:</span> {{ file.genre }}
+              </div>
+            </div>
+          </div>
         </div>
         <div
           v-if="deleteSongError"
