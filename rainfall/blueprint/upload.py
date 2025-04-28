@@ -1,7 +1,13 @@
 import os
 from uuid import UUID
+import io
+import tempfile
+import logging
 
 import flask
+from mutagen import File as MutagenFile
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3
 
 from rainfall import object_storage
 from rainfall.db import db
@@ -34,6 +40,56 @@ def check_file_types(allowed_exts, *song_files):
                            (f.filename, ' '.join(allowed_exts))), 400
 
 
+def extract_metadata(file):
+  try:
+    with tempfile.NamedTemporaryFile() as temp_file:
+      file.save(temp_file.name)
+
+      metadata = {}
+      # For MP3 files, use MP3 directly
+      if file.filename.lower().endswith('.mp3'):
+        audio = MP3(temp_file.name)
+        if audio is None:
+          return metadata
+
+        if hasattr(audio, 'tags') and audio.tags is not None:
+          id3_tags = {
+              'TIT2': 'title',
+              'TPE1': 'artist',
+              'TALB': 'album',
+              'TDRC': 'year',
+              'TRCK': 'track_number',
+              'TCON': 'genre'
+          }
+
+          for id3_tag, metadata_key in id3_tags.items():
+            if id3_tag in audio.tags:
+              metadata[metadata_key] = str(audio.tags[id3_tag].text[0])
+      else:
+        # For other formats, use MutagenFile
+        audio = MutagenFile(temp_file.name)
+        if audio is None:
+          return metadata
+
+        if hasattr(audio, 'tags') and audio.tags is not None:
+          generic_tags = {
+              'title': 'title',
+              'artist': 'artist',
+              'album': 'album',
+              'date': 'year',
+              'tracknumber': 'track_number',
+              'genre': 'genre'
+          }
+
+          for tag, metadata_key in generic_tags.items():
+            if tag in audio.tags:
+              metadata[metadata_key] = str(audio.tags[tag][0])
+
+      return metadata
+  except Exception as e:
+    raise
+
+
 def write_files(release, claz, *files):
   for file in files:
     name = secure_filename(file.filename)
@@ -42,10 +98,14 @@ def write_files(release, claz, *files):
                            error=f'File name {name} is too long'), 400
 
     obj = claz(filename=name)
-    # Yield so that the calling function can properly save metadata to db.
+
+    if claz == File:
+      metadata = extract_metadata(file)
+      for key, value in metadata.items():
+        setattr(obj, key, value)
+
     yield obj
 
-    # Write the file to object storage.
     cur_release_path = release_path(flask.current_app.config['DATA_DIR'],
                                     release)
     object_path = os.path.join(cur_release_path, obj.filename)
@@ -66,8 +126,6 @@ def upload_release_song(release, user):
 
   for file in write_files(release, File, *song_files):
     release.files.append(file)
-    # Give the file a new name if it's a dupe. This must be done after
-    # the file is added to the release.
     file.maybe_rename()
 
   db.session.add(release)
