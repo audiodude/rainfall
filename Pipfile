@@ -20,6 +20,7 @@ authlib = "*"
 pymysql = "*"
 minio = "*"
 celery = {extras = ["redis"], version = "*"}
+mutagen = "*"
 
 [dev-packages]
 pytest = "*"
