@@ -285,7 +285,7 @@ export default defineComponent({
             <button
               @click="toggleEditMetadata(file)"
               aria-label="edit metadata"
-              class="inline-block ml-2 text-blue-500 relative top-0.5"
+              class="inline-block ml-2 text-blue-500 relative top-0.5 edit-button"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -346,16 +346,15 @@ export default defineComponent({
               </div>
             </div>
             <div v-else>
-              <div class="w-1/2 ml-auto mr-0">
-                <div v-if="file.title" class="mb-1 flex items-center">
-                  <span class="font-semibold w-16 mr-2">Title:</span> {{ file.title }}
-                </div>
-                <div v-if="file.artist" class="mb-1 flex items-center">
-                  <span class="font-semibold w-16 mr-2">Artist:</span> {{ file.artist }}
-                </div>
-                <div v-if="file.album" class="mb-1 flex items-center">
-                  <span class="font-semibold w-16 mr-2">Album:</span> {{ file.album }}
-                </div>
+              <div v-if="file.title" class="mb-1 flex items-center w-3/4 ml-auto">
+                <span class="font-semibold w-16 mr-2 metadata-title">Title:</span> {{ file.title }}
+              </div>
+              <div v-if="file.artist" class="mb-1 flex items-center w-3/4 ml-auto">
+                <span class="font-semibold w-16 mr-2 metadata-artist">Artist:</span>
+                {{ file.artist }}
+              </div>
+              <div v-if="file.album" class="mb-1 flex items-center w-3/4 ml-auto">
+                <span class="font-semibold w-16 mr-2 metadata-album">Album:</span> {{ file.album }}
               </div>
             </div>
           </div>
