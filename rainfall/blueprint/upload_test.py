@@ -9,6 +9,7 @@ from rainfall import object_storage
 from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
 from rainfall.models.artwork import Artwork
+from rainfall.models.file import File
 from rainfall.site import release_path, secure_filename
 
 
@@ -216,3 +217,97 @@ class UploadTest:
           release_path(flask.current_app.config['DATA_DIR'], release),
           'artwork.jpg')
       assert not os.path.exists(file_path)
+
+  @patch('rainfall.blueprint.upload.MP3')
+  def test_upload_file_with_metadata(self, mock_mp3, app, releases_user):
+    mock_instance = mock_mp3.return_value
+    mock_instance.tags = {
+        'TIT2': type('MockTag', (), {'text': ['Test Song']}),
+        'TPE1': type('MockTag', (), {'text': ['Test Artist']}),
+        'TALB': type('MockTag', (), {'text': ['Test Album']})
+    }
+    mock_instance.info = type('MockInfo', (), {'length': 180.0})()
+    mock_instance.filename = 'song.mp3'
+
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = releases_user.id
+
+      site = releases_user.sites[0]
+      release = site.releases[0]
+
+      rv = client.post(
+          f'/api/v1/upload/release/{release.id}/song',
+          data={'song[]': (io.BytesIO(b'mock-mp3-data'), 'song.mp3')})
+
+      assert rv.status == '204 NO CONTENT', rv.text
+      assert len(release.files) == 1
+
+    uploaded_file = release.files[0]
+    assert uploaded_file.filename == 'song.mp3'
+    assert uploaded_file.title == 'Test Song'
+    assert uploaded_file.artist == 'Test Artist'
+    assert uploaded_file.album == 'Test Album'
+
+  def test_update_file_metadata(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+
+      with client.session_transaction() as sess:
+        sess['user_id'] = releases_user.id
+
+      site = releases_user.sites[0]
+      release = site.releases[0]
+
+      file = File(filename='test.mp3',
+                  title='Original Title',
+                  artist='Original Artist',
+                  album='Original Album',
+                  release_id=release.id)
+      db.session.add(file)
+      db.session.commit()
+      file_id = str(file.id)
+
+      new_metadata = {
+          'title': 'Updated Title',
+          'artist': 'Updated Artist',
+          'album': 'Updated Album'
+      }
+      rv = client.post(f'/api/v1/file/{file_id}/metadata',
+                       json=new_metadata,
+                       content_type='application/json')
+
+      assert rv.status == '204 NO CONTENT', rv.text
+
+      db.session.refresh(file)
+      assert file.title == 'Updated Title'
+      assert file.artist == 'Updated Artist'
+      assert file.album == 'Updated Album'
+
+  def test_update_file_metadata_unauthorized(self, app, releases_user):
+    with app.app_context(), app.test_client() as client:
+      db.session.add(releases_user)
+      site = releases_user.sites[0]
+      release = site.releases[0]
+
+      file = File(filename='test.mp3',
+                  title='Original Title',
+                  artist='Original Artist',
+                  album='Original Album',
+                  release_id=release.id)
+      db.session.add(file)
+      db.session.commit()
+      file_id = str(file.id)
+
+      new_metadata = {
+          'title': 'Updated Title',
+          'artist': 'Updated Artist',
+          'album': 'Updated Album'
+      }
+      rv = client.post(f'/api/v1/file/{file_id}/metadata',
+                       json=new_metadata,
+                       content_type='application/json')
+
+      assert rv.status == '401 UNAUTHORIZED', rv.text
