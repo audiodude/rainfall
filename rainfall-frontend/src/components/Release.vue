@@ -22,6 +22,12 @@ export default defineComponent({
       deleteError: '',
       deleteSongError: '',
       stashedDescription: '',
+      editingFile: null as string | null,
+      editingMetadata: {
+        title: '',
+        artist: '',
+        album: '',
+      },
     };
   },
   created() {
@@ -32,6 +38,43 @@ export default defineComponent({
     this.newReleaseName = this.release.name;
   },
   methods: {
+    toggleEditMetadata(file: { id: string; title?: string; artist?: string; album?: string }) {
+      if (this.editingFile === file.id) {
+        this.editingFile = null;
+        return;
+      }
+      this.editingFile = file.id;
+      this.editingMetadata = {
+        title: file.title || '',
+        artist: file.artist || '',
+        album: file.album || '',
+      };
+    },
+    async saveMetadata(file: { id: string; title?: string; artist?: string; album?: string }) {
+      try {
+        const resp = await fetch(`/api/v1/file/${file.id}/metadata`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrf(),
+          },
+          body: JSON.stringify(this.editingMetadata),
+        });
+
+        if (!resp.ok) {
+          throw new Error('Failed to save metadata');
+        }
+
+        // Update the file object with new metadata
+        Object.assign(file, this.editingMetadata);
+        this.editingFile = null;
+      } catch (error) {
+        console.error('Error saving metadata:', error);
+      }
+    },
+    cancelEdit() {
+      this.editingFile = null;
+    },
     onSongUploaded() {
       if (this.release) {
         this.stashedDescription = this.release.description;
@@ -239,36 +282,80 @@ export default defineComponent({
                 />
               </svg>
             </button>
+            <button
+              @click="toggleEditMetadata(file)"
+              aria-label="edit metadata"
+              class="inline-block ml-2 text-blue-500 relative top-0.5"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                  transform="translate(0, -2)"
+                />
+              </svg>
+            </button>
           </div>
           <div
-            v-if="
-              file.title ||
-              file.artist ||
-              file.album ||
-              file.year ||
-              file.track_number ||
-              file.genre
-            "
+            v-if="file.title || file.artist || file.album"
             class="text-sm text-gray-600 dark:text-gray-400 mb-2 border-l-4 border-emerald-500 pl-2"
           >
-            <div v-if="file.title" class="mb-1">
-              <span class="font-semibold">Title:</span> {{ file.title }}
-            </div>
-            <div v-if="file.artist" class="mb-1">
-              <span class="font-semibold">Artist:</span> {{ file.artist }}
-            </div>
-            <div v-if="file.album" class="mb-1">
-              <span class="font-semibold">Album:</span> {{ file.album }}
-            </div>
-            <div class="flex gap-4">
-              <div v-if="file.year" class="mb-1">
-                <span class="font-semibold">Year:</span> {{ file.year }}
+            <div v-if="editingFile === file.id">
+              <div class="mb-1 flex items-center w-3/4 ml-auto">
+                <label class="font-semibold w-16 mr-2">Title:</label>
+                <input
+                  v-model="editingMetadata.title"
+                  class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                />
               </div>
-              <div v-if="file.track_number" class="mb-1">
-                <span class="font-semibold">Track:</span> {{ file.track_number }}
+              <div class="mb-1 flex items-center w-3/4 ml-auto">
+                <label class="font-semibold w-16 mr-2">Artist:</label>
+                <input
+                  v-model="editingMetadata.artist"
+                  class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                />
               </div>
-              <div v-if="file.genre" class="mb-1">
-                <span class="font-semibold">Genre:</span> {{ file.genre }}
+              <div class="mb-1 flex items-center w-3/4 ml-auto">
+                <label class="font-semibold w-16 mr-2">Album:</label>
+                <input
+                  v-model="editingMetadata.album"
+                  class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                />
+              </div>
+              <div class="flex justify-end mt-2">
+                <button
+                  @click="cancelEdit"
+                  class="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click="saveMetadata(file)"
+                  class="ml-2 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+            <div v-else>
+              <div class="w-1/2 ml-auto mr-0">
+                <div v-if="file.title" class="mb-1 flex items-center">
+                  <span class="font-semibold w-16 mr-2">Title:</span> {{ file.title }}
+                </div>
+                <div v-if="file.artist" class="mb-1 flex items-center">
+                  <span class="font-semibold w-16 mr-2">Artist:</span> {{ file.artist }}
+                </div>
+                <div v-if="file.album" class="mb-1 flex items-center">
+                  <span class="font-semibold w-16 mr-2">Album:</span> {{ file.album }}
+                </div>
               </div>
             </div>
           </div>
