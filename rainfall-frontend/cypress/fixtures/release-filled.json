@@ -8,13 +8,19 @@
       "filename": "you-dont-care.mp3",
       "id": "065f4a3c-5389-76c7-8000-23a763092877",
       "original_filename": null,
-      "release_id": "065f4a1a-f2e0-7d39-8000-0c3f69747e42"
+      "release_id": "065f4a1a-f2e0-7d39-8000-0c3f69747e42",
+      "title": "You Don't Care",
+      "artist": "Travis Briggs",
+      "album": "songs.travisbriggs.com"
     },
     {
       "filename": "stupid-love-songs.mp3",
       "id": "065f4a43-e5c9-7824-8000-157a01af50be",
       "original_filename": null,
-      "release_id": "065f4a1a-f2e0-7d39-8000-0c3f69747e42"
+      "release_id": "065f4a1a-f2e0-7d39-8000-0c3f69747e42",
+      "title": "Stupid Love Songs",
+      "artist": "Travis Briggs",
+      "album": "songs.travisbriggs.com"
     }
   ],
   "id": "065f4a1a-f2e0-7d39-8000-0c3f69747e42",
