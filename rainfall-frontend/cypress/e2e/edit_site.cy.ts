@@ -290,7 +290,7 @@ describe('Edit Site test', () => {
               calledDelete = true;
               req.reply(204, '', {});
             }).as('delete-song');
-            cy.get('.file-name').contains('song-2.mp3').siblings('button').click();
+            cy.get('.file-name').contains('song-2.mp3').siblings('button').first().click();
           });
 
           it('calls the delete endpoint', () => {
@@ -310,7 +310,7 @@ describe('Edit Site test', () => {
               calledDelete = true;
               req.reply(204, '', {});
             }).as('delete-song');
-            cy.get('.file-name').contains('a-great-song.mp3').siblings('button').click();
+            cy.get('.file-name').contains('a-great-song.mp3').siblings('button').first().click();
           });
 
           it('calls the delete endpoint', () => {
@@ -334,7 +334,7 @@ describe('Edit Site test', () => {
               calledDelete = true;
               req.reply(500, '', {});
             }).as('delete-song');
-            cy.get('.file-name').contains('song-2.mp3').siblings('button').click();
+            cy.get('.file-name').contains('song-2.mp3').siblings('button').first().click();
           });
 
           it('calls the delete endpoint', () => {
