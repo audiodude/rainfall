@@ -53,14 +53,7 @@ def extract_metadata(file):
           return metadata
 
         if hasattr(audio, 'tags') and audio.tags is not None:
-          id3_tags = {
-              'TIT2': 'title',
-              'TPE1': 'artist',
-              'TALB': 'album',
-              'TDRC': 'year',
-              'TRCK': 'track_number',
-              'TCON': 'genre'
-          }
+          id3_tags = {'TIT2': 'title', 'TPE1': 'artist', 'TALB': 'album'}
 
           for id3_tag, metadata_key in id3_tags.items():
             if id3_tag in audio.tags:
@@ -75,10 +68,7 @@ def extract_metadata(file):
           generic_tags = {
               'title': 'title',
               'artist': 'artist',
-              'album': 'album',
-              'date': 'year',
-              'tracknumber': 'track_number',
-              'genre': 'genre'
+              'album': 'album'
           }
 
           for tag, metadata_key in generic_tags.items():
@@ -152,6 +142,37 @@ def upload_release_art(release, user):
     release.artwork = artwork
 
   db.session.add(release)
+  db.session.commit()
+
+  return '', 204
+
+
+@upload.route('file/<file_id>/metadata', methods=['POST'])
+@with_current_user
+def update_file_metadata(file_id, user):
+  try:
+    file_id = UUID(file_id)
+  except ValueError:
+    return flask.jsonify(status=400, error='Invalid file ID format'), 400
+
+  file = File.query.get(file_id)
+  if not file:
+    return flask.jsonify(status=404, error='File not found'), 404
+
+  # Check if user has access to this file
+  if file.release.site.user_id != user.id:
+    return flask.jsonify(status=403, error='Not authorized'), 403
+
+  data = flask.request.get_json()
+  if not data:
+    return flask.jsonify(status=400, error='No data provided'), 400
+
+  # Update metadata fields
+  for key, value in data.items():
+    if hasattr(file, key):
+      setattr(file, key, value)
+
+  db.session.add(file)
   db.session.commit()
 
   return '', 204
