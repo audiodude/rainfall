@@ -23,7 +23,7 @@ services:
   redis:
     image: redis:latest
     ports:
-      - "6379:6379"
+      - "6355:6379"
 
 
   # Used for formatting the volume as ext4. Otherwise, some minio operations may fail.
