@@ -23,9 +23,8 @@ from rainfall.test_constants import TEST_FILE_PATH, TEST_MINIO_BUCKET
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-task_app = Celery('tasks',
-                  broker_url=os.environ['REDIS_URL'],
-                  result_backend=os.environ['REDIS_URL'])
+task_app = Celery('tasks')
+task_app.config_from_object('rainfall.celeryconfig')
 
 
 @task_app.task
