@@ -103,7 +103,8 @@ def generate_eno_files(data_dir_path, site_id):
         'release.eno.jinja2',
         cover_filename=release.artwork.filename if release.artwork else None,
         cover_alt_text='no alt text given' if release.artwork else None,
-        description=release.description)
+        description=release.description,
+        title=release.name)
 
     path = release_path(data_dir_path, release)
     os.makedirs(path, exist_ok=True)
