@@ -53,7 +53,7 @@ def extract_metadata(file):
           return metadata
 
         if hasattr(audio, 'tags') and audio.tags is not None:
-          id3_tags = {'TIT2': 'title', 'TPE1': 'artist', 'TALB': 'album'}
+          id3_tags = {'TIT2': 'title', 'TPE1': 'artist'}
 
           for id3_tag, metadata_key in id3_tags.items():
             if id3_tag in audio.tags:
@@ -65,11 +65,7 @@ def extract_metadata(file):
           return metadata
 
         if hasattr(audio, 'tags') and audio.tags is not None:
-          generic_tags = {
-              'title': 'title',
-              'artist': 'artist',
-              'album': 'album'
-          }
+          generic_tags = {'title': 'title', 'artist': 'artist'}
 
           for tag, metadata_key in generic_tags.items():
             if tag in audio.tags:

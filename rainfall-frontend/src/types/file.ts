@@ -4,7 +4,6 @@ export declare interface File {
   filename: string;
   title?: string;
   artist?: string;
-  album?: string;
   year?: string;
   track_number?: string;
   genre?: string;
