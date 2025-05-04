@@ -11,9 +11,10 @@ from rainfall.conftest import BASIC_USER_ID
 from rainfall.db import db
 from rainfall.models import File, User
 from rainfall.site import (build_dir, cache_dir, catalog_dir, delete_file,
-                           generate_site, get_zip_file, public_dir,
-                           release_path, rename_release_dir, rename_site_dir,
-                           secure_filename, site_exists, site_path)
+                           generate_eno_files, generate_site, get_zip_file,
+                           public_dir, release_path, rename_release_dir,
+                           rename_site_dir, secure_filename, site_exists,
+                           site_path)
 
 
 @pytest.fixture
@@ -261,3 +262,18 @@ class SiteTest:
 
       with pytest.raises(FileExistsError):
         rename_site_dir(app.config['DATA_DIR'], site, old_name)
+
+  def test_generate_eno_files(self, app, releases_user):
+    with app.app_context():
+      db.session.add(releases_user)
+      site = releases_user.sites[0]
+
+      generate_eno_files(app.config['DATA_DIR'], str(site.id))
+
+      # Empty release, no eno file.
+      assert not os.path.exists(
+          f'{app.config["DATA_DIR"]}/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1/Site 0 Release 1/release.eno'
+      )
+      assert os.path.exists(
+          f'{app.config["DATA_DIR"]}/06543f11-12b6-71ea-8000-e026c63c22e2/Cool Site 1/Site 0 Release 2/release.eno'
+      )

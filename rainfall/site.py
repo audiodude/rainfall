@@ -105,9 +105,11 @@ def generate_eno_files(data_dir_path, site_id):
         cover_alt_text='no alt text given' if release.artwork else None,
         description=release.description)
 
-    eno_path = os.path.join(release_path(data_dir_path, release), 'release.eno')
-    f = io.BytesIO(release_eno.encode('utf-8'))
-    object_storage.put_object(eno_path, f, 'text/plain')
+    path = release_path(data_dir_path, release)
+    os.makedirs(path, exist_ok=True)
+    eno_path = os.path.join(path, 'release.eno')
+    with open(eno_path, 'w', encoding='utf-8') as f:
+      f.write(release_eno)
 
 
 def cleanup_site(data_dir_path, preview_dir_path, site_id):
