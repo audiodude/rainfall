@@ -21,7 +21,6 @@ def upgrade() -> None:
   # Add new metadata columns to files table
   op.add_column('files', sa.Column('title', sa.String(1024), nullable=True))
   op.add_column('files', sa.Column('artist', sa.String(1024), nullable=True))
-  op.add_column('files', sa.Column('album', sa.String(1024), nullable=True))
   op.add_column('files', sa.Column('year', sa.String(4), nullable=True))
   op.add_column('files', sa.Column('track_number', sa.String(10),
                                    nullable=True))
@@ -32,7 +31,6 @@ def downgrade() -> None:
   # Remove metadata columns from files table
   op.drop_column('files', 'title')
   op.drop_column('files', 'artist')
-  op.drop_column('files', 'album')
   op.drop_column('files', 'year')
   op.drop_column('files', 'track_number')
   op.drop_column('files', 'genre')

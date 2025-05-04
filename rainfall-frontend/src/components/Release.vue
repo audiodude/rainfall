@@ -26,7 +26,6 @@ export default defineComponent({
       editingMetadata: {
         title: '',
         artist: '',
-        album: '',
       },
     };
   },
@@ -38,7 +37,7 @@ export default defineComponent({
     this.newReleaseName = this.release.name;
   },
   methods: {
-    toggleEditMetadata(file: { id: string; title?: string; artist?: string; album?: string }) {
+    toggleEditMetadata(file: { id: string; title?: string; artist?: string }) {
       if (this.editingFile === file.id) {
         this.editingFile = null;
         return;
@@ -47,10 +46,9 @@ export default defineComponent({
       this.editingMetadata = {
         title: file.title || '',
         artist: file.artist || '',
-        album: file.album || '',
       };
     },
-    async saveMetadata(file: { id: string; title?: string; artist?: string; album?: string }) {
+    async saveMetadata(file: { id: string; title?: string; artist?: string }) {
       try {
         const resp = await fetch(`/api/v1/file/${file.id}/metadata`, {
           method: 'POST',
@@ -305,7 +303,7 @@ export default defineComponent({
             </button>
           </div>
           <div
-            v-if="file.title || file.artist || file.album"
+            v-if="file.title || file.artist"
             class="text-sm text-gray-600 dark:text-gray-400 mb-2 border-l-4 border-emerald-500 pl-2"
           >
             <div v-if="editingFile === file.id">
@@ -320,13 +318,6 @@ export default defineComponent({
                 <label class="font-semibold w-16 mr-2">Artist:</label>
                 <input
                   v-model="editingMetadata.artist"
-                  class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                />
-              </div>
-              <div class="mb-1 flex items-center w-3/4 ml-auto">
-                <label class="font-semibold w-16 mr-2">Album:</label>
-                <input
-                  v-model="editingMetadata.album"
                   class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 />
               </div>
@@ -352,9 +343,6 @@ export default defineComponent({
               <div v-if="file.artist" class="mb-1 flex items-center w-3/4 ml-auto">
                 <span class="font-semibold w-16 mr-2 metadata-artist">Artist:</span>
                 {{ file.artist }}
-              </div>
-              <div v-if="file.album" class="mb-1 flex items-center w-3/4 ml-auto">
-                <span class="font-semibold w-16 mr-2 metadata-album">Album:</span> {{ file.album }}
               </div>
             </div>
           </div>

@@ -23,7 +23,6 @@ class File(db.Model):
   original_filename: Mapped[str] = mapped_column(String(1024), nullable=True)
   title: Mapped[str] = mapped_column(String(1024), nullable=True)
   artist: Mapped[str] = mapped_column(String(1024), nullable=True)
-  album: Mapped[str] = mapped_column(String(1024), nullable=True)
   year: Mapped[str] = mapped_column(String(4), nullable=True)
   track_number: Mapped[str] = mapped_column(String(10), nullable=True)
   genre: Mapped[str] = mapped_column(String(1024), nullable=True)
