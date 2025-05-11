@@ -22,6 +22,7 @@ minio = "*"
 celery = {extras = ["redis"], version = "*"}
 
 [dev-packages]
+alembic = "*"
 pytest = "*"
 pytest-cov = "*"
 
