@@ -4,27 +4,25 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "*"
-google-auth = "*"
-sqlalchemy = "*"
-flask-sqlalchemy = "*"
-python-dotenv = "*"
-uuid7 = "*"
-# TODO: figure out if we still need this?
-pyjwt = {extras = ["crypto"], version = "*"}
-requests = "*"
-gunicorn = "*"
+authlib = "~=1.4"
+celery = "~=5.4"
+flask = "~=3.1"
+flask-sqlalchemy = "~=3.1"
 flask-seasurf = {ref = "f383b482c69e0b0e8064a8eb89305cea3826a7b6", git = "git+https://github.com/maxcountryman/flask-seasurf"}
-alembic = "*"
-authlib = "*"
-pymysql = "*"
-minio = "*"
-celery = {extras = ["redis"], version = "*"}
+google-auth = "~=2.37"
+gunicorn = "~=23.0"
+minio = "~=7.2" 
+pyjwt = "~=2.10"
+pymysql = "~=1.1"
+python-dotenv = "~=1.1"
+requests = "~=2.32"
+sqlalchemy = "~=2.0"
+uuid7 = "~=0.1"
 
 [dev-packages]
-alembic = "*"
-pytest = "*"
-pytest-cov = "*"
+alembic = "~=1.14"
+pytest = "~=8.3"
+pytest-cov = "~=6.0"
 
 [requires]
 python_version = "3.12"
